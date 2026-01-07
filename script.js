@@ -652,6 +652,56 @@ function setupMapErrorHandling() {
         let loadTimeout;
         let hasLoaded = false;
         let errorDetected = false;
+        let checkInterval;
+        
+        // Improved: Check if iframe actually loaded content (not just the iframe element)
+        function checkMapLoaded() {
+            if (errorDetected || hasLoaded) return;
+            
+            try {
+                // Try to access iframe content to verify it loaded
+                // This will throw CORS error if map didn't load properly, which is actually good
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                
+                if (iframeDoc) {
+                    // If we can access the document, check for error indicators
+                    const body = iframeDoc.body;
+                    if (body) {
+                        const bodyText = body.textContent || body.innerText || '';
+                        const bodyHTML = body.innerHTML || '';
+                        
+                        // Check for common Google Maps error messages
+                        if (bodyText.includes('Map data') || 
+                            bodyText.includes('For development purposes only') ||
+                            bodyHTML.includes('maps/api/js') ||
+                            bodyHTML.length > 100) {
+                            // Map appears to have loaded (has content)
+                            hasLoaded = true;
+                            clearTimeout(loadTimeout);
+                            if (checkInterval) clearInterval(checkInterval);
+                            return;
+                        }
+                        
+                        // Check for error messages
+                        if (bodyText.includes('Something went wrong') || 
+                            bodyText.includes('didn\'t load') || 
+                            bodyText.includes('Oops!') ||
+                            bodyText.includes('Map unavailable') ||
+                            bodyText.includes('This page can\'t load Google Maps correctly')) {
+                            console.warn('Map error detected in content');
+                            showMapFallback(container, iframe, fallback);
+                            errorDetected = true;
+                            if (checkInterval) clearInterval(checkInterval);
+                            return;
+                        }
+                    }
+                }
+            } catch (e) {
+                // CORS error is expected for cross-origin iframes
+                // If we get here, the iframe loaded but we can't access content (normal)
+                // We'll rely on the load event and timeout instead
+            }
+        }
         
         // Set a timeout to detect if map doesn't load within reasonable time
         loadTimeout = setTimeout(() => {
@@ -659,61 +709,70 @@ function setupMapErrorHandling() {
                 console.warn('Map load timeout, showing fallback');
                 showMapFallback(container, iframe, fallback);
                 errorDetected = true;
+                if (checkInterval) clearInterval(checkInterval);
             }
-        }, 8000); // 8 second timeout
+        }, 10000); // Increased to 10 seconds for slower connections
         
-        // Listen for successful load
+        // Listen for successful load event
         iframe.addEventListener('load', () => {
-            hasLoaded = true;
-            clearTimeout(loadTimeout);
-            
-            // After load, check for error messages (with CORS limitations)
+            // Give it a moment to fully render
             setTimeout(() => {
-                if (!errorDetected) {
-                    try {
-                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                        if (iframeDoc && iframeDoc.body) {
-                            const bodyText = iframeDoc.body.textContent || iframeDoc.body.innerText || '';
-                            if (bodyText.includes('Something went wrong') || 
-                                bodyText.includes('didn\'t load') || 
-                                bodyText.includes('Oops!') ||
-                                bodyText.includes('JavaScript console')) {
-                                console.warn('Map error detected in content');
-                                showMapFallback(container, iframe, fallback);
-                                errorDetected = true;
-                            }
+                checkMapLoaded();
+                
+                // Continue checking periodically for a few seconds
+                if (!errorDetected && !hasLoaded) {
+                    checkInterval = setInterval(() => {
+                        checkMapLoaded();
+                        if (hasLoaded || errorDetected) {
+                            clearInterval(checkInterval);
                         }
-                    } catch (e) {
-                        // CORS error - can't check content directly
-                        // This is expected and normal for cross-origin iframes
-                    }
+                    }, 500);
+                    
+                    // Stop checking after 5 seconds
+                    setTimeout(() => {
+                        if (checkInterval) clearInterval(checkInterval);
+                        if (!hasLoaded && !errorDetected) {
+                            // If still not loaded after checks, assume it's working
+                            // (CORS prevents us from verifying, but load event fired)
+                            hasLoaded = true;
+                            clearTimeout(loadTimeout);
+                        }
+                    }, 5000);
                 }
-            }, 2000); // Check 2 seconds after load
+            }, 1000);
         });
         
-        // Handle iframe errors
+        // Handle iframe errors (though these rarely fire for iframes)
         iframe.addEventListener('error', () => {
             if (!errorDetected) {
                 console.warn('Map iframe error event');
                 showMapFallback(container, iframe, fallback);
                 errorDetected = true;
+                clearTimeout(loadTimeout);
+                if (checkInterval) clearInterval(checkInterval);
             }
         });
         
         // Listen for postMessage from iframe (if Google Maps sends error messages)
-        window.addEventListener('message', (event) => {
+        const messageHandler = (event) => {
             // Only process messages from Google Maps domain
             if (event.origin.includes('google.com') || event.origin.includes('googleapis.com')) {
                 if (event.data && typeof event.data === 'string' && 
-                    (event.data.includes('error') || event.data.includes('failed'))) {
+                    (event.data.includes('error') || event.data.includes('failed') || 
+                     event.data.includes('unavailable'))) {
                     if (!errorDetected && container.contains(iframe)) {
                         console.warn('Map error message received');
                         showMapFallback(container, iframe, fallback);
                         errorDetected = true;
+                        clearTimeout(loadTimeout);
+                        if (checkInterval) clearInterval(checkInterval);
+                        window.removeEventListener('message', messageHandler);
                     }
                 }
             }
-        });
+        };
+        
+        window.addEventListener('message', messageHandler);
     });
 }
 

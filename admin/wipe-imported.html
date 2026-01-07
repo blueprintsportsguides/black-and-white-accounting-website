@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wipe Imported Posts - Blog Admin | Black and White Accounting</title>
-    <link rel="icon" type="image/png" href="../Images/circle logo.png">
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="icon" type="image/png" href="/Images/circle logo.png">
+    <link rel="stylesheet" href="/styles.css">
     <style>
         .admin-header {
             background: white;
@@ -98,7 +98,7 @@
         <div class="admin-header-content">
             <h1 class="admin-title">Wipe Imported Posts</h1>
             <div class="admin-actions">
-                <a href="blog.html" class="btn-secondary">← Back to Posts</a>
+                <a href="/admin/blog" class="btn-secondary">← Back to Posts</a>
             </div>
         </div>
     </div>
@@ -117,8 +117,8 @@
     </div>
 
     <script type="module">
-        import { requireAuth } from '../admin-auth.js';
-        import { getAllPosts, deletePost } from '../blog-data.js';
+        import { requireAuth } from '/admin-auth.js';
+        import { getAllPosts, deletePost } from '/blog-data.js';
 
         // Require authentication
         if (!requireAuth()) {
@@ -173,7 +173,7 @@
             successMessage.innerHTML = `
                 <h3>Success!</h3>
                 <p>Deleted <strong>${deletedCount}</strong> imported posts.</p>
-                <p><a href="blog.html">View remaining posts →</a></p>
+                <p><a href="/admin/blog">View remaining posts →</a></p>
             `;
             successMessage.style.display = 'block';
 

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Direct Import - Blog Admin | Black and White Accounting</title>
-    <link rel="icon" type="image/png" href="../Images/circle logo.png">
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="icon" type="image/png" href="/Images/circle logo.png">
+    <link rel="stylesheet" href="/styles.css">
     <style>
         .admin-header {
             background: white;
@@ -103,7 +103,7 @@
         <div class="admin-header-content">
             <h1 class="admin-title">Direct Import from JSON</h1>
             <div class="admin-actions">
-                <a href="blog.html" class="btn-secondary">← Back to Posts</a>
+                <a href="/admin/blog" class="btn-secondary">← Back to Posts</a>
             </div>
         </div>
     </div>
@@ -129,9 +129,9 @@
     </div>
 
     <script type="module">
-        import { requireAuth } from '../admin-auth.js';
-        import { importFromJSON } from '../scripts/import-json-to-localstorage.js';
-        import { getAllPosts, savePost } from '../blog-data.js';
+        import { requireAuth } from '/admin-auth.js';
+        import { importFromJSON } from '/scripts/import-json-to-localstorage.js';
+        import { getAllPosts, savePost } from '/blog-data.js';
 
         // Require authentication
         if (!requireAuth()) {
@@ -254,7 +254,7 @@
                     <p><strong>${stats.categoriesCreated}</strong> categories created</p>
                     <p><strong>${stats.tagsCreated}</strong> tags created</p>
                     ${stats.errors.length > 0 ? `<p><strong>${stats.errors.length}</strong> errors occurred</p>` : ''}
-                    <p><a href="../blog.html">View blog →</a> | <a href="blog.html">View all posts →</a></p>
+                    <p><a href="/blog">View blog →</a> | <a href="/admin/blog">View all posts →</a></p>
                 `;
                 successMessage.style.display = 'block';
 

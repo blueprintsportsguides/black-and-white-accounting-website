@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Import WordPress Posts - Blog Admin | Black and White Accounting</title>
-    <link rel="icon" type="image/png" href="../Images/circle logo.png">
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="icon" type="image/png" href="/Images/circle logo.png">
+    <link rel="stylesheet" href="/styles.css">
     <style>
         .admin-header {
             background: white;
@@ -178,7 +178,7 @@
         <div class="admin-header-content">
             <h1 class="admin-title">Import WordPress Posts</h1>
             <div class="admin-actions">
-                <a href="blog.html" class="btn-secondary">← Back to Posts</a>
+                <a href="/admin/blog" class="btn-secondary">← Back to Posts</a>
             </div>
         </div>
     </div>
@@ -214,6 +214,9 @@
 
         <div class="import-section">
             <h2>Instructions</h2>
+            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: var(--spacing-md); margin-bottom: var(--spacing-lg); border-radius: var(--radius-sm);">
+                <strong>⚠️ Important:</strong> Blog data is stored in your browser's localStorage. Data imported on your local development machine will <strong>not</strong> appear in production. You must import the JSON file again on the production site for the posts to appear publicly.
+            </div>
             <ol style="line-height: 1.8;">
                 <li>Run the WordPress import script to generate a JSON file:
                     <pre style="background: #f3f4f6; padding: var(--spacing-sm); border-radius: var(--radius-sm); margin: var(--spacing-sm) 0;">npm run import:dry-run  # Test first
@@ -228,8 +231,8 @@ npm run import           # Generate import file</pre>
     </div>
 
     <script type="module">
-        import { requireAuth } from '../admin-auth.js';
-        import { savePost, saveCategory, saveTag, getCategories, getTags, getAllPosts } from '../blog-data.js';
+        import { requireAuth } from '/admin-auth.js';
+        import { savePost, saveCategory, saveTag, getCategories, getTags, getAllPosts } from '/blog-data.js';
 
         // Require authentication
         if (!requireAuth()) {
@@ -254,24 +257,50 @@ npm run import           # Generate import file</pre>
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                fileLabel.textContent = `Selected: ${file.name}`;
-                importBtn.disabled = false;
+                // Show loading state
+                fileLabel.textContent = `Loading: ${file.name}...`;
+                fileLabel.style.color = '#6b7280';
+                importBtn.disabled = true;
+                importLog.classList.add('active');
+                log(`Reading file: ${file.name} (${(file.size / 1024).toFixed(2)} KB)...`);
 
                 // Read file
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     try {
                         importData = JSON.parse(e.target.result);
-                        log(`File loaded: ${importData.posts?.length || 0} posts, ${importData.categories?.length || 0} categories, ${importData.tags?.length || 0} tags`);
+                        const postCount = importData.posts?.length || 0;
+                        const catCount = importData.categories?.length || 0;
+                        const tagCount = importData.tags?.length || 0;
+                        
+                        fileLabel.textContent = `✓ Loaded: ${file.name}`;
+                        fileLabel.style.color = '#059669';
+                        importBtn.disabled = false;
+                        log(`✓ File loaded successfully: ${postCount} posts, ${catCount} categories, ${tagCount} tags`);
+                        log('Ready to import. Click "Import Posts" button to proceed.');
                     } catch (error) {
+                        fileLabel.textContent = `✗ Error: ${file.name}`;
+                        fileLabel.style.color = '#dc2626';
                         showError('Error parsing JSON file: ' + error.message);
+                        log(`✗ Error parsing JSON: ${error.message}`);
                         importBtn.disabled = true;
+                        importData = null;
                     }
+                };
+                reader.onerror = function() {
+                    fileLabel.textContent = `✗ Error reading: ${file.name}`;
+                    fileLabel.style.color = '#dc2626';
+                    showError('Error reading file. Please try again.');
+                    log('✗ Error reading file');
+                    importBtn.disabled = true;
+                    importData = null;
                 };
                 reader.readAsText(file);
             } else {
                 fileLabel.textContent = 'Click to select JSON import file';
+                fileLabel.style.color = '';
                 importBtn.disabled = true;
+                importData = null;
             }
         });
 

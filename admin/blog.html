@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog Admin - Insights | Black and White Accounting</title>
-    <link rel="icon" type="image/png" href="../Images/circle logo.png">
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="icon" type="image/png" href="/Images/circle logo.png">
+    <link rel="stylesheet" href="/styles.css">
     <style>
         .admin-header {
             background: white;
@@ -247,8 +247,8 @@
     </div>
 
     <script type="module">
-        import { requireAuth, clearAuthentication } from '../admin-auth.js';
-        import { getAllPosts, deletePost, searchPosts, getCategories, formatDate } from '../blog-data.js';
+        import { requireAuth, clearAuthentication } from '/admin-auth.js';
+        import { getAllPosts, deletePost, searchPosts, getCategories, formatDate } from '/blog-data.js';
 
         // Require authentication
         if (!requireAuth()) {
