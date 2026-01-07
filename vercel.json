@@ -1,19 +1,105 @@
 {
-  "cleanUrls": false,
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/(.*\\.html)",
-      "destination": "/$1"
+      "source": "/about",
+      "destination": "/about.html"
     },
     {
+      "source": "/contact",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/services",
+      "destination": "/services.html"
+    },
+    {
+      "source": "/services-tax",
+      "destination": "/services-tax.html"
+    },
+    {
+      "source": "/services-accounts",
+      "destination": "/services-accounts.html"
+    },
+    {
+      "source": "/services-advisory",
+      "destination": "/services-advisory.html"
+    },
+    {
+      "source": "/sectors",
+      "destination": "/sectors.html"
+    },
+    {
+      "source": "/sectors-construction",
+      "destination": "/sectors-construction.html"
+    },
+    {
+      "source": "/sectors-ecommerce",
+      "destination": "/sectors-ecommerce.html"
+    },
+    {
+      "source": "/sectors-healthcare",
+      "destination": "/sectors-healthcare.html"
+    },
+    {
+      "source": "/sectors-hospitality",
+      "destination": "/sectors-hospitality.html"
+    },
+    {
+      "source": "/sectors-professional-services",
+      "destination": "/sectors-professional-services.html"
+    },
+    {
+      "source": "/sectors-property",
+      "destination": "/sectors-property.html"
+    },
+    {
+      "source": "/sectors-retail",
+      "destination": "/sectors-retail.html"
+    },
+    {
+      "source": "/sectors-startups",
+      "destination": "/sectors-startups.html"
+    },
+    {
+      "source": "/sectors-trades",
+      "destination": "/sectors-trades.html"
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog.html"
+    },
+    {
+      "source": "/blog-post",
+      "destination": "/blog-post.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    }
+  ],
+  "headers": [
+    {
       "source": "/(.*)",
-      "destination": "/$1.html",
-      "has": [
+      "headers": [
         {
-          "type": "header",
-          "key": "accept",
-          "value": "text/html"
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
         }
       ]
     }
