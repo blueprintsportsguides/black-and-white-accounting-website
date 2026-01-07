@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insights - Blog | Black and White Accounting</title>
+    <meta name="description" content="Expert insights on tax, accounts, and business advisory from Black and White Accounting.">
+    <link rel="icon" type="image/png" href="Images/circle logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .blog-hero {
+            background: linear-gradient(135deg, var(--gradient-1-start) 0%, var(--gradient-1-end) 100%);
+            padding: var(--spacing-3xl) var(--spacing-lg);
+            text-align: center;
+        }
+        .blog-hero h1 {
+            font-size: var(--font-size-4xl);
+            margin-bottom: var(--spacing-md);
+        }
+        .blog-hero p {
+            font-size: var(--font-size-lg);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .blog-filters {
+            background: white;
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .filters-container {
+            max-width: var(--container-max-width);
+            margin: 0 auto;
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 2px solid #e5e7eb;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-base);
+        }
+        .category-tabs {
+            display: flex;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+        .category-tab {
+            padding: var(--spacing-xs) var(--spacing-md);
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .category-tab:hover,
+        .category-tab.active {
+            background: var(--text-primary);
+            color: white;
+            border-color: var(--text-primary);
+        }
+        .blog-content {
+            max-width: var(--container-max-width);
+            margin: 0 auto;
+            padding: var(--spacing-xl) var(--spacing-lg);
+        }
+        .featured-post {
+            margin-bottom: var(--spacing-3xl);
+        }
+        .featured-post-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+        .featured-post-image {
+            aspect-ratio: 16/9;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .featured-post-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .featured-post-content {
+            padding: var(--spacing-xl);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .featured-post-content .category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e5e7eb;
+            border-radius: 12px;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            width: fit-content;
+        }
+        .featured-post-content h2 {
+            font-size: var(--font-size-3xl);
+            margin-bottom: var(--spacing-md);
+        }
+        .featured-post-content h2 a {
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+        }
+        .featured-post-content h2 a:hover,
+        .featured-post-content h2 a:visited,
+        .featured-post-content h2 a:active {
+            text-decoration: none;
+            color: inherit;
+        }
+        .featured-post-content p {
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-lg);
+        }
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-xl);
+        }
+        .post-card {
+            background: white;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        .post-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+        }
+        .post-card-image {
+            aspect-ratio: 16/9;
+            background: #f3f4f6;
+            overflow: hidden;
+            position: relative;
+        }
+        .post-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .post-card-image img[src=""],
+        .post-card-image img:not([src]) {
+            display: none;
+        }
+        .post-card-image > div {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .post-card-content {
+            padding: var(--spacing-lg);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .post-card-meta {
+            display: flex;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+        .post-card-title {
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--spacing-sm);
+        }
+        .post-card-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .post-card-title a:hover {
+            text-decoration: underline;
+        }
+        .post-card-excerpt {
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-md);
+            flex: 1;
+        }
+        .post-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+        .read-more {
+            color: var(--text-primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .read-more:hover {
+            text-decoration: underline;
+        }
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-3xl);
+            color: var(--text-secondary);
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-3xl);
+        }
+        .pagination-btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .pagination-btn:hover,
+        .pagination-btn.active {
+            background: var(--text-primary);
+            color: white;
+            border-color: var(--text-primary);
+        }
+        @media (max-width: 768px) {
+            .featured-post-card {
+                grid-template-columns: 1fr;
+            }
+            .posts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-logo">
+                <a href="/">
+                    <img src="Images/long logo.png" alt="Black and White Accounting" class="logo-horizontal">
+                </a>
+            </div>
+            <nav class="main-nav">
+                <div class="mobile-menu-header">
+                    <img src="Images/long logo.png" alt="Black and White Accounting" style="height: 32px;">
+                    <button class="mobile-menu-close" aria-label="Close menu">×</button>
+                </div>
+                <ul class="nav-list">
+                    <li class="nav-item has-mega-menu">
+                        <a href="/services.html" class="nav-link">Services</a>
+                        <div class="mega-menu">
+                            <div class="mega-menu-content">
+                                <div class="mega-menu-pillar">
+                                    <h3>Tax</h3>
+                                    <p>Helping you stay compliant, efficient, and confident.</p>
+                                    <ul class="mega-menu-sublinks">
+                                        <li><a href="/services-tax.html#personal">Personal Tax</a></li>
+                                        <li><a href="/services-tax.html#business">Business Tax</a></li>
+                                        <li><a href="/services-tax.html#property">Property & Specialist Tax</a></li>
+                                    </ul>
+                                    <a href="/services-tax.html" class="mega-menu-cta">Explore Tax Services</a>
+                                </div>
+                                <div class="mega-menu-pillar">
+                                    <h3>Accounts</h3>
+                                    <p>Clear, accurate accounts you can actually understand.</p>
+                                    <ul class="mega-menu-sublinks">
+                                        <li><a href="/services-accounts.html#sole-traders">Sole Traders & Freelancers</a></li>
+                                        <li><a href="/services-accounts.html#limited-companies">Limited Companies</a></li>
+                                        <li><a href="/services-accounts.html#compliance">Compliance & Reporting</a></li>
+                                    </ul>
+                                    <a href="/services-accounts.html" class="mega-menu-cta">Explore Accounts Services</a>
+                                </div>
+                                <div class="mega-menu-pillar">
+                                    <h3>Advisory</h3>
+                                    <p>Forward-thinking advice to help your business grow.</p>
+                                    <ul class="mega-menu-sublinks">
+                                        <li><a href="/services-advisory.html#growth">Business Growth & Planning</a></li>
+                                        <li><a href="/services-advisory.html#profit">Profit & Efficiency</a></li>
+                                        <li><a href="/services-advisory.html#decisions">Support for Key Decisions</a></li>
+                                    </ul>
+                                    <a href="/services-advisory.html" class="mega-menu-cta">Explore Advisory Services</a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/sectors.html" class="nav-link">Sectors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/about.html" class="nav-link">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/blog.html" class="nav-link">Insights</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/contact.html" class="nav-link">Contact</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="header-ctas">
+                <a href="tel:08001404644" class="btn btn-primary">Phone Us</a>
+                <a href="/contact.html" class="btn btn-secondary">Make an Enquiry</a>
+            </div>
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Blog Hero -->
+    <section class="blog-hero">
+        <h1>Insights</h1>
+        <p>Expert advice, updates, and insights on tax, accounts, and business growth</p>
+    </section>
+
+    <!-- Blog Filters -->
+    <div class="blog-filters">
+        <div class="filters-container">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search posts...">
+            </div>
+            <div class="category-tabs" id="category-tabs">
+                <a href="#" class="category-tab active" data-category="">All</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Content -->
+    <div class="blog-content">
+        <div id="featured-post-container"></div>
+        <div id="posts-container"></div>
+        <div id="pagination-container"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-section footer-logo-section">
+                <img src="Images/long logo.png" alt="Black and White Accounting" class="footer-logo">
+            </div>
+            <div class="footer-section footer-services">
+                <h4>Services</h4>
+                <ul class="footer-links">
+                    <li><a href="/services-tax.html">Tax</a></li>
+                    <li><a href="/services-accounts.html">Accounts</a></li>
+                    <li><a href="/services-advisory.html">Advisory</a></li>
+                </ul>
+            </div>
+            <div class="footer-section footer-sectors">
+                <h4>Sectors</h4>
+                <ul class="footer-links">
+                    <li><a href="/sectors/construction">Construction</a></li>
+                    <li><a href="/sectors/property">Property & Landlords</a></li>
+                    <li><a href="/sectors/ecommerce">E-commerce</a></li>
+                    <li><a href="/sectors/professional-services">Professional Services</a></li>
+                    <li><a href="/sectors/retail">Retail</a></li>
+                    <li><a href="/sectors/trades">Trades</a></li>
+                    <li><a href="/sectors/startups">Startups</a></li>
+                    <li><a href="/sectors/healthcare">Healthcare</a></li>
+                    <li><a href="/sectors/hospitality">Hospitality</a></li>
+                </ul>
+            </div>
+            <div class="footer-section footer-contact">
+                <h4>Contact</h4>
+                <p class="footer-phone">
+                    <a href="tel:08001404644">0800 140 4644</a>
+                </p>
+                <div class="footer-locations">
+                    <div class="footer-location">
+                        <strong>Wraysbury</strong>
+                        <p>Wraysbury Hall, Ferry Lane<br>Wraysbury, Staines-Upon-Thames TW19 6HG</p>
+                    </div>
+                    <div class="footer-location">
+                        <strong>Herriard</strong>
+                        <p>The Well House, 4 Stable Court<br>Herriard, Basingstoke, England, RG25 2PL</p>
+                    </div>
+                </div>
+                <a href="/contact.html" class="btn btn-secondary btn-small">Make an Enquiry</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-container">
+                <div class="footer-legal">
+                    <a href="/privacy.html">Privacy Policy</a>
+                    <a href="/terms.html">Terms & Conditions</a>
+                </div>
+                <p class="footer-copyright">&copy; 2024 Black and White Accounting. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script type="module">
+        import { getPublishedPosts, searchPosts, getCategories, formatDate } from './blog-data.js';
+
+        const POSTS_PER_PAGE = 9;
+        let currentPage = 1;
+        let currentCategory = '';
+        let searchQuery = '';
+
+        // Load categories
+        const categories = getCategories();
+        const categoryTabs = document.getElementById('category-tabs');
+        categories.forEach(cat => {
+            const tab = document.createElement('a');
+            tab.href = '#';
+            tab.className = 'category-tab';
+            tab.textContent = cat.name;
+            tab.dataset.category = cat.id;
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                currentCategory = this.dataset.category;
+                currentPage = 1;
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                renderPosts();
+            });
+            categoryTabs.appendChild(tab);
+        });
+
+        // Search handler
+        document.getElementById('search-input').addEventListener('input', function() {
+            searchQuery = this.value.trim();
+            currentPage = 1;
+            renderPosts();
+        });
+
+        // Render posts
+        function renderPosts() {
+            const posts = searchPosts(searchQuery, {
+                category: currentCategory || undefined
+            });
+
+            // Featured post (first published post)
+            const featuredPost = posts[0];
+            const featuredContainer = document.getElementById('featured-post-container');
+            
+            if (featuredPost && currentPage === 1 && !searchQuery && !currentCategory) {
+                const category = categories.find(c => c.id === featuredPost.category_id);
+                featuredContainer.innerHTML = `
+                    <div class="featured-post">
+                        <div class="featured-post-card">
+                            <div class="featured-post-image">
+                                ${featuredPost.featured_image_url 
+                                    ? `<img src="${featuredPost.featured_image_url}" alt="${featuredPost.featured_image_alt || featuredPost.title}">`
+                                    : '<div style="display: flex; align-items: center; justify-content: center; color: #9ca3af;">No image</div>'
+                                }
+                            </div>
+                            <div class="featured-post-content">
+                                ${category ? `<span class="category">${category.name}</span>` : ''}
+                                <h2><a href="blog-post.html?slug=${featuredPost.slug}">${featuredPost.title}</a></h2>
+                                <p>${featuredPost.excerpt}</p>
+                                <div style="display: flex; gap: var(--spacing-md); font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                    <span>${formatDate(featuredPost.published_at)}</span>
+                                    <span>•</span>
+                                    <span>${featuredPost.reading_time_minutes || 5} min read</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                featuredContainer.innerHTML = '';
+            }
+
+            // Regular posts (skip featured if on first page)
+            const postsToShow = (currentPage === 1 && featuredPost && !searchQuery && !currentCategory) 
+                ? posts.slice(1) 
+                : posts;
+            
+            const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+            const endIndex = startIndex + POSTS_PER_PAGE;
+            const paginatedPosts = postsToShow.slice(startIndex, endIndex);
+
+            const postsContainer = document.getElementById('posts-container');
+            
+            if (paginatedPosts.length === 0) {
+                postsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No posts found</h3>
+                        <p>${searchQuery || currentCategory ? 'Try adjusting your search or filters.' : 'Check back soon for new insights!'}</p>
+                    </div>
+                `;
+            } else {
+                postsContainer.innerHTML = `
+                    <div class="posts-grid">
+                        ${paginatedPosts.map(post => {
+                            const category = categories.find(c => c.id === post.category_id);
+                            // Debug: log image URL for first few posts
+                            if (paginatedPosts.indexOf(post) < 3) {
+                                console.log(`Post "${post.title}": featured_image_url =`, post.featured_image_url, typeof post.featured_image_url);
+                            }
+                            const hasImage = post.featured_image_url && 
+                                           post.featured_image_url !== null && 
+                                           post.featured_image_url !== 'null' && 
+                                           post.featured_image_url !== 'undefined' && 
+                                           String(post.featured_image_url).trim() !== '';
+                            return `
+                                <article class="post-card">
+                                    <div class="post-card-image">
+                                        ${hasImage
+                                            ? `<img src="${post.featured_image_url}" alt="${post.featured_image_alt || post.title}" 
+                                               onload="console.log('✓ Image loaded:', '${post.featured_image_url}'); this.style.display='block';"
+                                               onerror="console.error('✗ Image failed:', '${post.featured_image_url}'); this.style.display='none'; const placeholder = this.nextElementSibling; if (placeholder) placeholder.style.display='flex';">
+                                               <div class="image-placeholder" style="display: none; align-items: center; justify-content: center; height: 100%; color: #9ca3af; background: #f3f4f6;">No image</div>`
+                                            : '<div class="image-placeholder" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #9ca3af; background: #f3f4f6;">No image</div>'
+                                        }
+                                    </div>
+                                    <div class="post-card-content">
+                                        <div class="post-card-meta">
+                                            ${category ? `<span>${category.name}</span>` : ''}
+                                            <span>•</span>
+                                            <span>${formatDate(post.published_at)}</span>
+                                            <span>•</span>
+                                            <span>${post.reading_time_minutes || 5} min read</span>
+                                        </div>
+                                        <h3 class="post-card-title">
+                                            <a href="blog-post.html?slug=${post.slug}">${post.title}</a>
+                                        </h3>
+                                        <p class="post-card-excerpt">${post.excerpt}</p>
+                                        <div class="post-card-footer">
+                                            <a href="blog-post.html?slug=${post.slug}" class="read-more">Read more →</a>
+                                        </div>
+                                    </div>
+                                </article>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            // Pagination
+            const totalPages = Math.ceil(postsToShow.length / POSTS_PER_PAGE);
+            const paginationContainer = document.getElementById('pagination-container');
+            
+            if (totalPages > 1) {
+                let paginationHTML = '<div class="pagination">';
+                
+                if (currentPage > 1) {
+                    paginationHTML += `<a href="#" class="pagination-btn" data-page="${currentPage - 1}">← Previous</a>`;
+                }
+                
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                        paginationHTML += `<a href="#" class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</a>`;
+                    } else if (i === currentPage - 2 || i === currentPage + 2) {
+                        paginationHTML += `<span style="padding: var(--spacing-sm);">...</span>`;
+                    }
+                }
+                
+                if (currentPage < totalPages) {
+                    paginationHTML += `<a href="#" class="pagination-btn" data-page="${currentPage + 1}">Next →</a>`;
+                }
+                
+                paginationHTML += '</div>';
+                paginationContainer.innerHTML = paginationHTML;
+                
+                paginationContainer.querySelectorAll('.pagination-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage = parseInt(this.dataset.page);
+                        renderPosts();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+            } else {
+                paginationContainer.innerHTML = '';
+            }
+        }
+
+        // Initial render
+        renderPosts();
+    </script>
+</body>
+</html>
+

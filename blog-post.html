@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post | Black and White Accounting</title>
+    <link rel="icon" type="image/png" href="Images/circle logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .blog-post-header {
+            background: linear-gradient(135deg, var(--gradient-1-start) 0%, var(--gradient-1-end) 100%);
+            padding: var(--spacing-3xl) var(--spacing-lg);
+        }
+        .blog-post-header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .blog-post-meta {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            flex-wrap: wrap;
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+        .blog-post-title {
+            font-size: var(--font-size-4xl);
+            margin-bottom: var(--spacing-lg);
+        }
+        .blog-post-content-wrapper {
+            max-width: 95%;
+            margin: 0 auto;
+            padding: var(--spacing-xl) var(--spacing-lg);
+            display: grid;
+            grid-template-columns: 200px 1fr 250px;
+            gap: var(--spacing-xl);
+        }
+        .blog-post-toc {
+            position: sticky;
+            top: 100px;
+            align-self: start;
+            background: white;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+        .toc-title {
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            font-size: var(--font-size-lg);
+        }
+        .toc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .toc-item {
+            margin-bottom: var(--spacing-xs);
+        }
+        .toc-item a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            display: block;
+            padding: var(--spacing-xs) 0;
+            transition: color 0.2s;
+        }
+        .toc-item a:hover {
+            color: var(--text-primary);
+        }
+        .toc-item.level-2 {
+            padding-left: var(--spacing-md);
+        }
+        .toc-item.level-3 {
+            padding-left: var(--spacing-lg);
+        }
+        .blog-post-main {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+        }
+        .blog-post-featured-image {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-xl);
+        }
+        .blog-post-content {
+            font-size: var(--font-size-lg);
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+        .blog-post-content h2 {
+            font-size: var(--font-size-2xl);
+            margin-top: var(--spacing-2xl);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-xs);
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .blog-post-content h3 {
+            font-size: var(--font-size-xl);
+            margin-top: var(--spacing-xl);
+            margin-bottom: var(--spacing-sm);
+        }
+        .blog-post-content p {
+            margin-bottom: var(--spacing-lg);
+        }
+        .blog-post-content ul,
+        .blog-post-content ol {
+            margin-bottom: var(--spacing-lg);
+            padding-left: var(--spacing-xl);
+        }
+        .blog-post-content li {
+            margin-bottom: var(--spacing-xs);
+        }
+        .blog-post-content a {
+            color: var(--text-primary);
+            text-decoration: underline;
+        }
+        .blog-post-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-md);
+            margin: var(--spacing-lg) 0;
+        }
+        .blog-post-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+        .cta-mini {
+            position: sticky;
+            top: 100px;
+            background: linear-gradient(135deg, var(--gradient-2-start) 0%, var(--gradient-2-end) 100%);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+        .cta-mini h3 {
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-sm);
+        }
+        .cta-mini p {
+            font-size: var(--font-size-base);
+            margin-bottom: var(--spacing-md);
+            color: var(--text-secondary);
+        }
+        .cta-mini .btn {
+            display: block;
+            width: 100%;
+            margin-bottom: var(--spacing-sm);
+        }
+        .blog-post-cta {
+            margin-top: var(--spacing-3xl);
+            background: linear-gradient(135deg, var(--gradient-1-start) 0%, var(--gradient-1-end) 100%);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-2xl);
+            text-align: center;
+        }
+        .blog-post-cta h2 {
+            font-size: var(--font-size-3xl);
+            margin-bottom: var(--spacing-md);
+            border: none;
+        }
+        .blog-post-cta p {
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-xl);
+            color: var(--text-secondary);
+        }
+        .blog-post-cta-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 1024px) {
+            .blog-post-content-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .blog-post-toc {
+                position: static;
+                max-height: none;
+                margin-bottom: var(--spacing-lg);
+            }
+            .toc-title {
+                cursor: pointer;
+            }
+            .toc-list {
+                display: none;
+            }
+            .toc-list.open {
+                display: block;
+            }
+            .blog-post-sidebar {
+                order: -1;
+            }
+            .cta-mini {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-logo">
+                <a href="/">
+                    <img src="Images/long logo.png" alt="Black and White Accounting" class="logo-horizontal">
+                </a>
+            </div>
+            <nav class="main-nav">
+                <div class="mobile-menu-header">
+                    <img src="Images/long logo.png" alt="Black and White Accounting" style="height: 32px;">
+                    <button class="mobile-menu-close" aria-label="Close menu">×</button>
+                </div>
+                <ul class="nav-list">
+                    <li class="nav-item has-mega-menu">
+                        <a href="/services.html" class="nav-link">Services</a>
+                        <div class="mega-menu">
+                            <div class="mega-menu-content">
+                                <div class="mega-menu-pillar">
+                                    <h3>Tax</h3>
+                                    <p>Helping you stay compliant, efficient, and confident.</p>
+                                    <ul class="mega-menu-sublinks">
+                                        <li><a href="/services-tax.html#personal">Personal Tax</a></li>
+                                        <li><a href="/services-tax.html#business">Business Tax</a></li>
+                                        <li><a href="/services-tax.html#property">Property & Specialist Tax</a></li>
+                                    </ul>
+                                    <a href="/services-tax.html" class="mega-menu-cta">Explore Tax Services</a>
+                                </div>
+                                <div class="mega-menu-pillar">
+                                    <h3>Accounts</h3>
+                                    <p>Clear, accurate accounts you can actually understand.</p>
+                                    <ul class="mega-menu-sublinks">
+                                        <li><a href="/services-accounts.html#sole-traders">Sole Traders & Freelancers</a></li>
+                                        <li><a href="/services-accounts.html#limited-companies">Limited Companies</a></li>
+                                        <li><a href="/services-accounts.html#compliance">Compliance & Reporting</a></li>
+                                    </ul>
+                                    <a href="/services-accounts.html" class="mega-menu-cta">Explore Accounts Services</a>
+                                </div>
+                                <div class="mega-menu-pillar">
+                                    <h3>Advisory</h3>
+                                    <p>Forward-thinking advice to help your business grow.</p>
+                                    <ul class="mega-menu-sublinks">
+                                        <li><a href="/services-advisory.html#growth">Business Growth & Planning</a></li>
+                                        <li><a href="/services-advisory.html#profit">Profit & Efficiency</a></li>
+                                        <li><a href="/services-advisory.html#decisions">Support for Key Decisions</a></li>
+                                    </ul>
+                                    <a href="/services-advisory.html" class="mega-menu-cta">Explore Advisory Services</a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/sectors.html" class="nav-link">Sectors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/about.html" class="nav-link">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/blog.html" class="nav-link">Insights</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/contact.html" class="nav-link">Contact</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="header-ctas">
+                <a href="tel:08001404644" class="btn btn-primary">Phone Us</a>
+                <a href="/contact.html" class="btn btn-secondary">Make an Enquiry</a>
+            </div>
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Blog Post Header -->
+    <section class="blog-post-header">
+        <div class="blog-post-header-content">
+            <div class="blog-post-meta" id="post-meta"></div>
+            <h1 class="blog-post-title" id="post-title"></h1>
+        </div>
+    </section>
+
+    <!-- Blog Post Content -->
+    <div class="blog-post-content-wrapper">
+        <aside class="blog-post-toc">
+            <div class="toc-title" id="toc-toggle">Table of Contents</div>
+            <ul class="toc-list" id="toc-list"></ul>
+        </aside>
+
+        <main class="blog-post-main">
+            <div id="post-featured-image"></div>
+            <div class="blog-post-content" id="post-content"></div>
+        </main>
+
+        <aside class="blog-post-sidebar">
+            <div class="cta-mini">
+                <h3>Need Help?</h3>
+                <p>Phone Us</p>
+                <a href="tel:08001404644" class="btn btn-primary">0800 140 4644</a>
+                <a href="/contact.html" class="btn btn-secondary">Make an Enquiry</a>
+            </div>
+        </aside>
+    </div>
+
+    <!-- End of Article CTA -->
+    <section class="section">
+        <div class="section-container">
+            <div class="blog-post-cta">
+                <h2>Need help with this?</h2>
+                <p>Get in touch with our team for expert advice and support.</p>
+                <div class="blog-post-cta-actions">
+                    <a href="/contact.html" class="btn btn-primary">Make an Enquiry</a>
+                    <a href="tel:08001404644" class="btn btn-secondary">Call 0800 140 4644</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-section footer-logo-section">
+                <img src="Images/long logo.png" alt="Black and White Accounting" class="footer-logo">
+            </div>
+            <div class="footer-section footer-services">
+                <h4>Services</h4>
+                <ul class="footer-links">
+                    <li><a href="/services-tax.html">Tax</a></li>
+                    <li><a href="/services-accounts.html">Accounts</a></li>
+                    <li><a href="/services-advisory.html">Advisory</a></li>
+                </ul>
+            </div>
+            <div class="footer-section footer-sectors">
+                <h4>Sectors</h4>
+                <ul class="footer-links">
+                    <li><a href="/sectors/construction">Construction</a></li>
+                    <li><a href="/sectors/property">Property & Landlords</a></li>
+                    <li><a href="/sectors/ecommerce">E-commerce</a></li>
+                    <li><a href="/sectors/professional-services">Professional Services</a></li>
+                    <li><a href="/sectors/retail">Retail</a></li>
+                    <li><a href="/sectors/trades">Trades</a></li>
+                    <li><a href="/sectors/startups">Startups</a></li>
+                    <li><a href="/sectors/healthcare">Healthcare</a></li>
+                    <li><a href="/sectors/hospitality">Hospitality</a></li>
+                </ul>
+            </div>
+            <div class="footer-section footer-contact">
+                <h4>Contact</h4>
+                <p class="footer-phone">
+                    <a href="tel:08001404644">0800 140 4644</a>
+                </p>
+                <div class="footer-locations">
+                    <div class="footer-location">
+                        <strong>Wraysbury</strong>
+                        <p>Wraysbury Hall, Ferry Lane<br>Wraysbury, Staines-Upon-Thames TW19 6HG</p>
+                    </div>
+                    <div class="footer-location">
+                        <strong>Herriard</strong>
+                        <p>The Well House, 4 Stable Court<br>Herriard, Basingstoke, England, RG25 2PL</p>
+                    </div>
+                </div>
+                <a href="/contact.html" class="btn btn-secondary btn-small">Make an Enquiry</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-container">
+                <div class="footer-legal">
+                    <a href="/privacy.html">Privacy Policy</a>
+                    <a href="/terms.html">Terms & Conditions</a>
+                </div>
+                <p class="footer-copyright">&copy; 2024 Black and White Accounting. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script type="module">
+        import { getPostBySlug, getCategories, formatDate } from './blog-data.js';
+
+        // Simple markdown to HTML converter
+        function markdownToHTML(markdown) {
+            let html = markdown;
+            
+            // Headings with ID generation
+            html = html.replace(/^### (.*$)/gim, (match, text) => {
+                const id = text.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-|-$/g, '');
+                return `<h3 id="${id}">${text}</h3>`;
+            });
+            html = html.replace(/^## (.*$)/gim, (match, text) => {
+                const id = text.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-|-$/g, '');
+                return `<h2 id="${id}">${text}</h2>`;
+            });
+            html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+            
+            // Bold
+            html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+            
+            // Italic
+            html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
+            
+            // Links
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2">$1</a>');
+            
+            // Lists
+            html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
+            html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+            
+            // Paragraphs
+            html = html.split('\n\n').map(p => {
+                if (!p.trim()) return '';
+                if (p.startsWith('<')) return p;
+                return '<p>' + p.trim() + '</p>';
+            }).join('\n');
+            
+            return html;
+        }
+
+        // Generate TOC from headings
+        function generateTOC(contentElement) {
+            const headings = contentElement.querySelectorAll('h2, h3');
+            const tocList = document.getElementById('toc-list');
+            tocList.innerHTML = '';
+            
+            headings.forEach((heading, index) => {
+                const id = heading.id || `heading-${index}`;
+                if (!heading.id) heading.id = id;
+                
+                const level = heading.tagName === 'H2' ? 2 : 3;
+                const li = document.createElement('li');
+                li.className = `toc-item level-${level}`;
+                li.innerHTML = `<a href="#${id}">${heading.textContent}</a>`;
+                tocList.appendChild(li);
+            });
+        }
+
+        // Get post from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('slug');
+        
+        if (!slug) {
+            window.location.href = '/blog.html';
+        }
+
+        const post = getPostBySlug(slug);
+        
+        if (!post) {
+            document.body.innerHTML = `
+                <div style="text-align: center; padding: var(--spacing-3xl);">
+                    <h1>Post Not Found</h1>
+                    <p>The blog post you're looking for doesn't exist.</p>
+                    <a href="/blog.html">← Back to Blog</a>
+                </div>
+            `;
+        } else {
+            // Set page title
+            document.title = (post.meta_title || post.title) + ' | Black and White Accounting';
+            
+            // Set meta description
+            const metaDesc = document.createElement('meta');
+            metaDesc.name = 'description';
+            metaDesc.content = post.meta_description || post.excerpt;
+            document.head.appendChild(metaDesc);
+            
+            // Set post title
+            document.getElementById('post-title').textContent = post.title;
+            
+            // Set post meta
+            const categories = getCategories();
+            const category = categories.find(c => c.id === post.category_id);
+            const metaHTML = `
+                ${category ? `<span>${category.name}</span>` : ''}
+                ${category ? '<span>•</span>' : ''}
+                <span>${formatDate(post.published_at)}</span>
+                <span>•</span>
+                <span>${post.reading_time_minutes || 5} min read</span>
+            `;
+            document.getElementById('post-meta').innerHTML = metaHTML;
+            
+            // Set featured image
+            if (post.featured_image_url) {
+                document.getElementById('post-featured-image').innerHTML = `
+                    <img src="${post.featured_image_url}" alt="${post.featured_image_alt || post.title}" class="blog-post-featured-image">
+                `;
+            }
+            
+            // Set content - check if it's HTML or Markdown
+            const contentDiv = document.getElementById('post-content');
+            // If content contains HTML tags, use as-is; otherwise convert Markdown
+            const isHTML = /<[a-z][\s\S]*>/i.test(post.content);
+            if (isHTML) {
+                contentDiv.innerHTML = post.content;
+            } else {
+                contentDiv.innerHTML = markdownToHTML(post.content);
+            }
+            
+            // Generate TOC
+            generateTOC(contentDiv);
+            
+            // TOC toggle on mobile
+            const tocToggle = document.getElementById('toc-toggle');
+            const tocList = document.getElementById('toc-list');
+            if (window.innerWidth <= 1024) {
+                tocToggle.style.cursor = 'pointer';
+                tocToggle.addEventListener('click', function() {
+                    tocList.classList.toggle('open');
+                });
+            }
+            
+            // Smooth scroll for TOC links
+            tocList.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const target = document.getElementById(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        if (window.innerWidth <= 1024) {
+                            tocList.classList.remove('open');
+                        }
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Post - Blog Admin | Black and White Accounting</title>
+    <link rel="icon" type="image/png" href="../../Images/circle logo.png">
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+        .admin-header {
+            background: white;
+            border-bottom: 2px solid #e5e7eb;
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        .admin-header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+        .admin-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+        }
+        .admin-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: var(--text-primary);
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .editor-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--spacing-xl);
+        }
+        .editor-main {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+        }
+        .editor-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+        .editor-section {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        .editor-section h3 {
+            margin-bottom: var(--spacing-md);
+            font-size: var(--font-size-lg);
+        }
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border: 2px solid #e5e7eb;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-base);
+            font-family: var(--font-family);
+        }
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--text-primary);
+        }
+        .content-editor {
+            min-height: 400px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .editor-toolbar {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: #f9fafb;
+            border-radius: var(--radius-sm);
+            flex-wrap: wrap;
+        }
+        .toolbar-btn {
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+        .toolbar-btn:hover {
+            background: #f3f4f6;
+        }
+        .tags-input {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm);
+            border: 2px solid #e5e7eb;
+            border-radius: var(--radius-sm);
+            min-height: 44px;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 4px 12px;
+            background: #e5e7eb;
+            border-radius: 12px;
+            font-size: var(--font-size-sm);
+        }
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+            color: #6b7280;
+        }
+        .tag-input {
+            border: none;
+            outline: none;
+            flex: 1;
+            min-width: 100px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+        .status-options {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+        .status-option {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+        .status-option input[type="radio"] {
+            width: auto;
+        }
+        .error-message {
+            color: #dc2626;
+            font-size: var(--font-size-sm);
+            margin-top: var(--spacing-xs);
+        }
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+        @media (max-width: 1024px) {
+            .editor-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <h1 class="admin-title" id="page-title">New Post</h1>
+            <div class="admin-actions">
+                <a href="../blog.html" class="btn-secondary">← Back to Posts</a>
+                <button class="btn-primary" id="save-btn">Save Post</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-container">
+        <div id="success-message" class="success-message" style="display: none;"></div>
+        
+        <form id="post-form" class="editor-layout">
+            <div class="editor-main">
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="slug">URL Slug</label>
+                    <input type="text" id="slug" name="slug" placeholder="Auto-generated from title">
+                    <small style="color: var(--text-secondary); font-size: var(--font-size-sm);">Leave empty to auto-generate</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="excerpt">Excerpt *</label>
+                    <textarea id="excerpt" name="excerpt" required placeholder="Brief summary of the post (used in listings and meta descriptions)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="content">Content *</label>
+                    <div class="editor-toolbar">
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('**', '**', 'Bold')">B</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('*', '*', 'Italic')">I</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('## ', '', 'Heading')">H2</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('### ', '', 'Subheading')">H3</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('- ', '', 'List')">List</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('[', '](url)', 'Link')">Link</button>
+                    </div>
+                    <textarea id="content" name="content" class="content-editor" required placeholder="Write your post content here. You can use Markdown formatting."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="featured-image-url">Featured Image URL</label>
+                    <input type="url" id="featured-image-url" name="featured_image_url" placeholder="https://example.com/image.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label for="featured-image-alt">Featured Image Alt Text</label>
+                    <input type="text" id="featured-image-alt" name="featured_image_alt" placeholder="Description of the image">
+                </div>
+            </div>
+
+            <div class="editor-sidebar">
+                <div class="editor-section">
+                    <h3>Publish</h3>
+                    <div class="form-group">
+                        <div class="status-options">
+                            <div class="status-option">
+                                <input type="radio" id="status-draft" name="status" value="draft" checked>
+                                <label for="status-draft">Draft</label>
+                            </div>
+                            <div class="status-option">
+                                <input type="radio" id="status-scheduled" name="status" value="scheduled">
+                                <label for="status-scheduled">Scheduled</label>
+                            </div>
+                            <div class="status-option">
+                                <input type="radio" id="status-published" name="status" value="published">
+                                <label for="status-published">Published</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="publish-date-group" style="display: none;">
+                        <label for="published-at">Publish Date & Time</label>
+                        <input type="datetime-local" id="published-at" name="published_at">
+                    </div>
+                </div>
+
+                <div class="editor-section">
+                    <h3>Category</h3>
+                    <div class="form-group">
+                        <select id="category" name="category_id">
+                            <option value="">Select a category</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="editor-section">
+                    <h3>Tags</h3>
+                    <div class="form-group">
+                        <div class="tags-input" id="tags-container">
+                            <input type="text" class="tag-input" id="tag-input" placeholder="Type and press Enter">
+                        </div>
+                        <div class="checkbox-group" id="existing-tags"></div>
+                    </div>
+                </div>
+
+                <div class="editor-section">
+                    <h3>SEO</h3>
+                    <div class="form-group">
+                        <label for="meta-title">Meta Title</label>
+                        <input type="text" id="meta-title" name="meta_title" placeholder="Leave empty to use post title">
+                    </div>
+                    <div class="form-group">
+                        <label for="meta-description">Meta Description</label>
+                        <textarea id="meta-description" name="meta_description" rows="3" placeholder="Leave empty to use excerpt"></textarea>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script type="module">
+        import { requireAuth } from '../../admin-auth.js';
+        import { getPostById, savePost, getCategories, getTags, generateSlug, ensureUniqueSlug } from '../../blog-data.js';
+
+        // Require authentication
+        if (!requireAuth()) {
+            throw new Error('Not authenticated');
+        }
+
+        // Get post ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+        let currentPost = null;
+
+        // Load categories and tags
+        const categories = getCategories();
+        const tags = getTags();
+
+        const categorySelect = document.getElementById('category');
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            categorySelect.appendChild(option);
+        });
+
+        // Load existing tags as checkboxes
+        const existingTagsContainer = document.getElementById('existing-tags');
+        tags.forEach(tag => {
+            const label = document.createElement('label');
+            label.className = 'checkbox-item';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = tag.id;
+            checkbox.id = `tag-${tag.id}`;
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(tag.name));
+            existingTagsContainer.appendChild(label);
+        });
+
+        // Load post if editing
+        if (postId) {
+            currentPost = getPostById(postId);
+            if (currentPost) {
+                document.getElementById('page-title').textContent = 'Edit Post';
+                document.getElementById('title').value = currentPost.title || '';
+                document.getElementById('slug').value = currentPost.slug || '';
+                document.getElementById('excerpt').value = currentPost.excerpt || '';
+                document.getElementById('content').value = currentPost.content || '';
+                document.getElementById('featured-image-url').value = currentPost.featured_image_url || '';
+                document.getElementById('featured-image-alt').value = currentPost.featured_image_alt || '';
+                document.getElementById('meta-title').value = currentPost.meta_title || '';
+                document.getElementById('meta-description').value = currentPost.meta_description || '';
+                
+                if (currentPost.status) {
+                    document.getElementById(`status-${currentPost.status}`).checked = true;
+                }
+                
+                if (currentPost.category_id) {
+                    categorySelect.value = currentPost.category_id;
+                }
+                
+                if (currentPost.tags) {
+                    currentPost.tags.forEach(tagId => {
+                        const checkbox = document.getElementById(`tag-${tagId}`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+                
+                if (currentPost.published_at) {
+                    const date = new Date(currentPost.published_at);
+                    const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                    document.getElementById('published-at').value = localDateTime;
+                }
+            }
+        }
+
+        // Auto-generate slug from title
+        document.getElementById('title').addEventListener('input', function() {
+            const slugInput = document.getElementById('slug');
+            if (!slugInput.value || slugInput.dataset.autoGenerated === 'true') {
+                const slug = generateSlug(this.value);
+                slugInput.value = slug;
+                slugInput.dataset.autoGenerated = 'true';
+            }
+        });
+
+        // Manual slug edit
+        document.getElementById('slug').addEventListener('input', function() {
+            this.dataset.autoGenerated = 'false';
+        });
+
+        // Show/hide publish date based on status
+        document.querySelectorAll('input[name="status"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const publishDateGroup = document.getElementById('publish-date-group');
+                if (this.value === 'scheduled' || this.value === 'published') {
+                    publishDateGroup.style.display = 'block';
+                    if (!document.getElementById('published-at').value) {
+                        const now = new Date();
+                        const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                        document.getElementById('published-at').value = localDateTime;
+                    }
+                } else {
+                    publishDateGroup.style.display = 'none';
+                }
+            });
+        });
+
+        // Tag input handler
+        const tagInput = document.getElementById('tag-input');
+        const tagsContainer = document.getElementById('tags-container');
+        let selectedTags = currentPost?.tags || [];
+
+        // Render selected tags
+        function renderSelectedTags() {
+            const tagElements = tagsContainer.querySelectorAll('.tag');
+            tagElements.forEach(el => el.remove());
+            
+            selectedTags.forEach(tagId => {
+                const tag = tags.find(t => t.id === tagId);
+                if (tag) {
+                    const tagEl = document.createElement('span');
+                    tagEl.className = 'tag';
+                    tagEl.innerHTML = `${tag.name} <span class="tag-remove" data-tag-id="${tagId}">×</span>`;
+                    tagsContainer.insertBefore(tagEl, tagInput);
+                    
+                    tagEl.querySelector('.tag-remove').addEventListener('click', function() {
+                        selectedTags = selectedTags.filter(id => id !== tagId);
+                        const checkbox = document.getElementById(`tag-${tagId}`);
+                        if (checkbox) checkbox.checked = false;
+                        renderSelectedTags();
+                    });
+                }
+            });
+        }
+
+        // Checkbox change handler
+        existingTagsContainer.addEventListener('change', function(e) {
+            if (e.target.type === 'checkbox') {
+                if (e.target.checked) {
+                    if (!selectedTags.includes(e.target.value)) {
+                        selectedTags.push(e.target.value);
+                    }
+                } else {
+                    selectedTags = selectedTags.filter(id => id !== e.target.value);
+                }
+                renderSelectedTags();
+            }
+        });
+
+        // Initial render
+        if (currentPost?.tags) {
+            currentPost.tags.forEach(tagId => {
+                const checkbox = document.getElementById(`tag-${tagId}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+        renderSelectedTags();
+
+        // Markdown toolbar
+        window.insertMarkdown = function(before, after, placeholder) {
+            const textarea = document.getElementById('content');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            const replacement = before + (selectedText || placeholder) + after;
+            
+            textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
+            textarea.focus();
+            textarea.setSelectionRange(start + before.length, start + before.length + (selectedText || placeholder).length);
+        };
+
+        // Save handler
+        document.getElementById('save-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const form = document.getElementById('post-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const formData = {
+                id: postId || undefined,
+                title: document.getElementById('title').value.trim(),
+                slug: document.getElementById('slug').value.trim() || generateSlug(document.getElementById('title').value),
+                excerpt: document.getElementById('excerpt').value.trim(),
+                content: document.getElementById('content').value.trim(),
+                status: document.querySelector('input[name="status"]:checked').value,
+                category_id: document.getElementById('category').value || null,
+                tags: selectedTags,
+                featured_image_url: document.getElementById('featured-image-url').value.trim() || null,
+                featured_image_alt: document.getElementById('featured-image-alt').value.trim() || null,
+                meta_title: document.getElementById('meta-title').value.trim() || null,
+                meta_description: document.getElementById('meta-description').value.trim() || null,
+            };
+
+            const publishedAt = document.getElementById('published-at').value;
+            if (publishedAt && (formData.status === 'published' || formData.status === 'scheduled')) {
+                formData.published_at = new Date(publishedAt).toISOString();
+            } else if (formData.status === 'published' && !publishedAt) {
+                formData.published_at = new Date().toISOString();
+            }
+
+            // Ensure unique slug
+            formData.slug = ensureUniqueSlug(formData.slug, postId);
+
+            try {
+                const savedPost = savePost(formData);
+                
+                // Show success message
+                const successMsg = document.getElementById('success-message');
+                successMsg.textContent = 'Post saved successfully!';
+                successMsg.style.display = 'block';
+                
+                // Update URL if new post
+                if (!postId && savedPost.id) {
+                    window.history.replaceState({}, '', `edit.html?id=${savedPost.id}`);
+                    document.getElementById('page-title').textContent = 'Edit Post';
+                }
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            } catch (error) {
+                alert('Error saving post: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
+

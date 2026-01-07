@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wipe Imported Posts - Blog Admin | Black and White Accounting</title>
+    <link rel="icon" type="image/png" href="../Images/circle logo.png">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .admin-header {
+            background: white;
+            border-bottom: 2px solid #e5e7eb;
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        .admin-header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+        }
+        .admin-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .wipe-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+        .wipe-section {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            width: 100%;
+            margin-top: var(--spacing-md);
+        }
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-top: var(--spacing-lg);
+        }
+        .post-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f9fafb;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-top: var(--spacing-md);
+        }
+        .post-item {
+            padding: var(--spacing-xs) 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .post-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <h1 class="admin-title">Wipe Imported Posts</h1>
+            <div class="admin-actions">
+                <a href="blog.html" class="btn-secondary">← Back to Posts</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="wipe-container">
+        <div class="wipe-section">
+            <h2>Delete All Imported WordPress Posts</h2>
+            <div class="warning-box">
+                <p><strong>⚠️ Warning:</strong> This will permanently delete all posts that were imported from WordPress (posts with a <code>legacy_wp_id</code>). This action cannot be undone.</p>
+            </div>
+            <p>This is useful before doing a fresh import from WordPress REST API or XML.</p>
+            <div id="posts-preview"></div>
+            <button class="btn-danger" id="wipe-btn">Delete All Imported Posts</button>
+            <div id="success-message" class="success-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { requireAuth } from '../admin-auth.js';
+        import { getAllPosts, deletePost } from '../blog-data.js';
+
+        // Require authentication
+        if (!requireAuth()) {
+            throw new Error('Not authenticated');
+        }
+
+        const wipeBtn = document.getElementById('wipe-btn');
+        const successMessage = document.getElementById('success-message');
+        const postsPreview = document.getElementById('posts-preview');
+
+        // Show preview of posts that will be deleted
+        const allPosts = getAllPosts();
+        const importedPosts = allPosts.filter(p => p.legacy_wp_id);
+
+        if (importedPosts.length === 0) {
+            postsPreview.innerHTML = '<p style="color: var(--text-secondary);">No imported posts found.</p>';
+            wipeBtn.disabled = true;
+        } else {
+            postsPreview.innerHTML = `
+                <p><strong>${importedPosts.length} imported posts will be deleted:</strong></p>
+                <div class="post-list">
+                    ${importedPosts.slice(0, 20).map(p => `
+                        <div class="post-item">${p.title}</div>
+                    `).join('')}
+                    ${importedPosts.length > 20 ? `<div class="post-item" style="color: var(--text-secondary);">... and ${importedPosts.length - 20} more</div>` : ''}
+                </div>
+            `;
+        }
+
+        wipeBtn.addEventListener('click', function() {
+            if (!confirm(`Are you absolutely sure you want to delete ${importedPosts.length} imported posts? This cannot be undone!`)) {
+                return;
+            }
+
+            if (!confirm('This is your last chance. Click OK to permanently delete all imported posts.')) {
+                return;
+            }
+
+            wipeBtn.disabled = true;
+            wipeBtn.textContent = 'Deleting...';
+
+            let deletedCount = 0;
+            importedPosts.forEach(post => {
+                try {
+                    deletePost(post.id);
+                    deletedCount++;
+                } catch (error) {
+                    console.error(`Error deleting post ${post.id}:`, error);
+                }
+            });
+
+            successMessage.innerHTML = `
+                <h3>Success!</h3>
+                <p>Deleted <strong>${deletedCount}</strong> imported posts.</p>
+                <p><a href="blog.html">View remaining posts →</a></p>
+            `;
+            successMessage.style.display = 'block';
+
+            wipeBtn.disabled = false;
+            wipeBtn.textContent = 'Delete All Imported Posts';
+            postsPreview.innerHTML = '<p style="color: var(--text-secondary);">All imported posts have been deleted.</p>';
+        });
+    </script>
+</body>
+</html>
+

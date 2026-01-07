@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-01-07T11:53:19.614Z",
+  "mode": "import",
+  "stats": {
+    "totalItems": 21,
+    "postsFound": 21,
+    "postsImported": 0,
+    "postsUpdated": 0,
+    "attachmentsFound": 0,
+    "imagesDownloaded": 0,
+    "imagesReplaced": 0,
+    "categoriesCreated": 0,
+    "tagsCreated": 0,
+    "failures": []
+  },
+  "summary": {
+    "posts": 21,
+    "categories": 4,
+    "tags": 51
+  }
+}

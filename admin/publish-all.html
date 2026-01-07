@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publish All Posts - Blog Admin | Black and White Accounting</title>
+    <link rel="icon" type="image/png" href="../Images/circle logo.png">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .admin-header {
+            background: white;
+            border-bottom: 2px solid #e5e7eb;
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        .admin-header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-title {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+        }
+        .admin-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .publish-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+        .publish-section {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-primary {
+            background: var(--text-primary);
+            color: white;
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            width: 100%;
+            margin-top: var(--spacing-md);
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-top: var(--spacing-lg);
+        }
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <h1 class="admin-title">Publish All Imported Posts</h1>
+            <div class="admin-actions">
+                <a href="blog.html" class="btn-secondary">← Back to Posts</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="publish-container">
+        <div class="publish-section">
+            <h2>Publish All Draft Posts</h2>
+            <div class="info-box">
+                <p><strong>Note:</strong> This will change all draft posts to published status. Only posts with a <code>legacy_wp_id</code> (imported from WordPress) will be affected.</p>
+            </div>
+            <p>This is useful after importing WordPress posts, as they are imported as drafts by default.</p>
+            <button class="btn-primary" id="publish-btn">Publish All Imported Posts</button>
+            <div id="success-message" class="success-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { requireAuth } from '../admin-auth.js';
+        import { getAllPosts, savePost } from '../blog-data.js';
+
+        // Require authentication
+        if (!requireAuth()) {
+            throw new Error('Not authenticated');
+        }
+
+        const publishBtn = document.getElementById('publish-btn');
+        const successMessage = document.getElementById('success-message');
+
+        publishBtn.addEventListener('click', function() {
+            if (!confirm('Are you sure you want to publish all imported posts? This will make them visible on the public blog.')) {
+                return;
+            }
+
+            publishBtn.disabled = true;
+            publishBtn.textContent = 'Publishing...';
+
+            const allPosts = getAllPosts();
+            const importedPosts = allPosts.filter(p => p.legacy_wp_id && p.status === 'draft');
+            let publishedCount = 0;
+
+            importedPosts.forEach(post => {
+                // Set status to published and set published_at if not set
+                const updatedPost = {
+                    ...post,
+                    status: 'published',
+                    published_at: post.published_at || post.created_at || new Date().toISOString()
+                };
+                savePost(updatedPost);
+                publishedCount++;
+            });
+
+            successMessage.innerHTML = `
+                <h3>Success!</h3>
+                <p>Published <strong>${publishedCount}</strong> posts. They are now visible on the public blog.</p>
+                <p><a href="../blog.html">View blog →</a> | <a href="blog.html">View all posts →</a></p>
+            `;
+            successMessage.style.display = 'block';
+
+            publishBtn.disabled = false;
+            publishBtn.textContent = 'Publish All Imported Posts';
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-01-07T13:12:16.404Z",
+  "mode": "import",
+  "wp_base_url": "https://blackandwhiteaccounting.co.uk",
+  "limit": 5,
+  "wipe": false,
+  "stats": {
+    "totalFetched": 100,
+    "postsCreated": 0,
+    "postsUpdated": 0,
+    "featuredImagesDownloaded": 1,
+    "inlineImagesDownloaded": 0,
+    "inlineImagesReplaced": 0,
+    "failures": []
+  },
+  "summary": {
+    "posts": 5
+  }
+}

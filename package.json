@@ -1,0 +1,22 @@
+{
+  "name": "black-and-white-accounting",
+  "version": "1.0.0",
+  "description": "Black and White Accounting website",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "import:dry-run": "node scripts/import-wordpress-xml.js --file data/blackandwhiteaccounting.WordPress.2026-01-07.xml --dry-run",
+    "import": "node scripts/import-wordpress-xml.js --file data/blackandwhiteaccounting.WordPress.2026-01-07.xml --import",
+    "import:rest:dry-run": "node scripts/import-wp-rest.js --dry-run",
+    "import:rest": "node scripts/import-wp-rest.js --import",
+    "import:rest:test": "node scripts/import-wp-rest.js --import --limit=5"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "fast-xml-parser": "^4.3.2",
+    "node-fetch": "^3.3.2"
+  }
+}
+
