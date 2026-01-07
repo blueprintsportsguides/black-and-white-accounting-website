@@ -6,13 +6,35 @@ const ADMIN_SESSION_TIMEOUT = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
 
 // Get credentials from environment variables
 // Vite will replace these at build time with actual values from .env files or Vercel env vars
-const ADMIN_USERNAME = (import.meta.env.VITE_ADMIN_USERNAME || 'admin').trim();
-const ADMIN_PASSWORD = (import.meta.env.VITE_ADMIN_PASSWORD || '').trim();
+// IMPORTANT: These must be accessed directly (not conditionally) for Vite to replace them
+const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || '';
 
-// Debug: Log what values we're using (remove in production if needed)
-// Note: In production build, these will be replaced with actual values
-if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-  console.log('Admin auth loaded - username length:', ADMIN_USERNAME.length, 'password length:', ADMIN_PASSWORD.length);
+// Debug: Log what values we're using
+if (typeof window !== 'undefined') {
+  // Check if env vars were replaced (in production build, they'll be strings, not undefined)
+  const usernameReplaced = ADMIN_USERNAME !== undefined && ADMIN_USERNAME !== 'undefined';
+  const passwordReplaced = ADMIN_PASSWORD !== undefined && ADMIN_PASSWORD !== 'undefined';
+  
+  console.log('Admin auth loaded:', {
+    username: ADMIN_USERNAME,
+    usernameLength: ADMIN_USERNAME ? ADMIN_USERNAME.length : 0,
+    passwordLength: ADMIN_PASSWORD ? ADMIN_PASSWORD.length : 0,
+    hasPassword: ADMIN_PASSWORD && ADMIN_PASSWORD.length > 0,
+    usernameReplaced,
+    passwordReplaced,
+    rawEnvUsername: import.meta.env?.VITE_ADMIN_USERNAME,
+    rawEnvPassword: import.meta.env?.VITE_ADMIN_PASSWORD ? '***' : undefined
+  });
+  
+  if (!passwordReplaced || !ADMIN_PASSWORD) {
+    console.error('⚠️ WARNING: VITE_ADMIN_PASSWORD was not replaced during build!');
+    console.error('This means the environment variable was not available during the Vite build process.');
+    console.error('Please ensure:');
+    console.error('1. Environment variables are set in Vercel dashboard');
+    console.error('2. A new deployment is triggered after setting env vars');
+    console.error('3. The build command runs: npm run build');
+  }
 }
 
 // Check if user is authenticated

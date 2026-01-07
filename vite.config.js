@@ -42,5 +42,10 @@ export default defineConfig({
         'admin/blog/edit': './admin/blog/edit.html'
       }
     }
+  },
+  // Explicitly define environment variables to ensure they're replaced
+  define: {
+    'import.meta.env.VITE_ADMIN_USERNAME': JSON.stringify(process.env.VITE_ADMIN_USERNAME || 'admin'),
+    'import.meta.env.VITE_ADMIN_PASSWORD': JSON.stringify(process.env.VITE_ADMIN_PASSWORD || '')
   }
 });
