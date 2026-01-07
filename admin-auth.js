@@ -6,8 +6,14 @@ const ADMIN_SESSION_TIMEOUT = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
 
 // Get credentials from environment variables
 // Vite will replace these at build time with actual values from .env files or Vercel env vars
-const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || '';
+const ADMIN_USERNAME = (import.meta.env.VITE_ADMIN_USERNAME || 'admin').trim();
+const ADMIN_PASSWORD = (import.meta.env.VITE_ADMIN_PASSWORD || '').trim();
+
+// Debug: Log what values we're using (remove in production if needed)
+// Note: In production build, these will be replaced with actual values
+if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+  console.log('Admin auth loaded - username length:', ADMIN_USERNAME.length, 'password length:', ADMIN_PASSWORD.length);
+}
 
 // Check if user is authenticated
 export function isAuthenticated() {
@@ -46,7 +52,22 @@ export function clearAuthentication() {
 
 // Verify credentials
 export function verifyCredentials(username, password) {
-    return username === ADMIN_USERNAME && password === ADMIN_PASSWORD;
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+    
+    // Debug logging (remove in production)
+    if (typeof window !== 'undefined') {
+        console.log('Verifying credentials:', {
+            providedUsername: trimmedUsername,
+            providedPasswordLength: trimmedPassword.length,
+            expectedUsername: ADMIN_USERNAME,
+            expectedPasswordLength: ADMIN_PASSWORD.length,
+            usernameMatch: trimmedUsername === ADMIN_USERNAME,
+            passwordMatch: trimmedPassword === ADMIN_PASSWORD
+        });
+    }
+    
+    return trimmedUsername === ADMIN_USERNAME && trimmedPassword === ADMIN_PASSWORD;
 }
 
 // Require authentication - redirect to login if not authenticated
