@@ -15,6 +15,10 @@ html {
     max-width: 100vw;
     height: auto;
     min-height: 100%;
+    -webkit-text-size-adjust: 100%; /* Prevent iOS text size adjustment */
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 :root {
@@ -568,8 +572,8 @@ body > * {
 
 /* Shrunk header state when scrolled */
 .site-header.scrolled {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+    padding: 0 !important;
 }
 
 @media (max-width: 768px) {
@@ -703,6 +707,9 @@ body > * {
     border: none;
     cursor: pointer;
     padding: var(--spacing-xs);
+    position: relative;
+    z-index: 1002;
+    pointer-events: auto;
 }
 
 .mobile-menu-toggle span {
@@ -868,13 +875,16 @@ body > * {
     
     /* Mobile Menu Toggle - Better positioning */
     .mobile-menu-toggle {
-        display: flex;
-        z-index: 1001;
+        display: flex !important;
+        z-index: 1002 !important;
         padding: var(--spacing-xs);
         min-width: 44px;
         min-height: 44px;
         align-items: center;
         justify-content: center;
+        position: relative;
+        pointer-events: auto !important;
+        cursor: pointer !important;
     }
     
     .mobile-menu-toggle span {
@@ -1916,11 +1926,19 @@ body > * {
         padding: var(--spacing-md);
     }
     
+    /* Ensure ALL form inputs are mobile-friendly - prevents zoom on iOS */
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 16px !important; /* Prevents zoom on iOS Safari */
+        min-height: 44px;
+    }
+    
     /* Ensure homepage form inputs are mobile-friendly */
     .enquiry-form .form-group input,
     .enquiry-form .form-group textarea,
     .enquiry-form .form-group select {
-        font-size: 16px; /* Prevents zoom on iOS */
+        font-size: 16px !important; /* Prevents zoom on iOS */
         min-height: 48px;
         padding: var(--spacing-md);
     }

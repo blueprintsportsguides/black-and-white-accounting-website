@@ -1,26 +1,51 @@
-// Mobile Menu Toggle
-document.addEventListener('DOMContentLoaded', function() {
-    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-    const mainNav = document.querySelector('.main-nav');
-    const headerCtas = document.querySelector('.header-ctas');
-    const body = document.body;
+// Mobile Menu Toggle - Initialize immediately and on DOM ready
+(function() {
+    'use strict';
+    
+    let mobileMenuToggle = null;
+    let mainNav = null;
+    let headerCtas = null;
+    let initialized = false;
+    
+    function getElements() {
+        if (!mobileMenuToggle) mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        if (!mainNav) mainNav = document.querySelector('.main-nav');
+        if (!headerCtas) headerCtas = document.querySelector('.header-ctas');
+        return { mobileMenuToggle, mainNav, headerCtas };
+    }
     
     function closeMobileMenu() {
-        mainNav.classList.remove('mobile-nav-open');
+        const { mainNav, headerCtas, mobileMenuToggle } = getElements();
+        if (mainNav) mainNav.classList.remove('mobile-nav-open');
         if (headerCtas) headerCtas.classList.remove('mobile-nav-open');
         if (mobileMenuToggle) mobileMenuToggle.classList.remove('active');
-        body.classList.remove('menu-open');
+        document.body.classList.remove('menu-open');
     }
     
     function openMobileMenu() {
-        mainNav.classList.add('mobile-nav-open');
+        const { mainNav, headerCtas, mobileMenuToggle } = getElements();
+        if (mainNav) mainNav.classList.add('mobile-nav-open');
         if (headerCtas) headerCtas.classList.add('mobile-nav-open');
         if (mobileMenuToggle) mobileMenuToggle.classList.add('active');
-        body.classList.add('menu-open');
+        document.body.classList.add('menu-open');
     }
     
-    if (mobileMenuToggle) {
+    function initMobileMenu() {
+        if (initialized) return;
+        
+        const { mobileMenuToggle, mainNav } = getElements();
+        
+        if (!mobileMenuToggle || !mainNav) {
+            // Retry if elements not found
+            setTimeout(initMobileMenu, 50);
+            return;
+        }
+        
+        initialized = true;
+        
+        // Toggle button click handler
         mobileMenuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
             e.stopPropagation();
             const isOpen = mainNav.classList.contains('mobile-nav-open');
             
@@ -30,19 +55,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 openMobileMenu();
             }
         });
-    }
-    
-    // Mobile menu close button
-    const mobileMenuClose = document.querySelector('.mobile-menu-close');
-    if (mobileMenuClose) {
-        mobileMenuClose.addEventListener('click', function(e) {
-            e.stopPropagation();
-            closeMobileMenu();
-        });
-    }
-    
-    // Close mobile menu when clicking on a nav link (except mega menu toggle)
-    if (mainNav) {
+        
+        // Mobile menu close button
+        const mobileMenuClose = document.querySelector('.mobile-menu-close');
+        if (mobileMenuClose) {
+            mobileMenuClose.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeMobileMenu();
+            });
+        }
+        
+        // Close mobile menu when clicking on a nav link (except mega menu toggle)
         mainNav.addEventListener('click', function(e) {
             if (window.innerWidth <= 768) {
                 const navLink = e.target.closest('.nav-link');
@@ -53,74 +77,88 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-    }
-    
-    // Close mobile menu when clicking outside
-    document.addEventListener('click', function(event) {
-        if (window.innerWidth <= 768) {
-            const isClickInsideNav = mainNav && mainNav.contains(event.target);
-            const isClickOnToggle = mobileMenuToggle && mobileMenuToggle.contains(event.target);
-            
-            if (!isClickInsideNav && !isClickOnToggle && mainNav && mainNav.classList.contains('mobile-nav-open')) {
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 768) {
+                const { mainNav, mobileMenuToggle } = getElements();
+                const isClickInsideNav = mainNav && mainNav.contains(event.target);
+                const isClickOnToggle = mobileMenuToggle && mobileMenuToggle.contains(event.target);
+                
+                if (!isClickInsideNav && !isClickOnToggle && mainNav && mainNav.classList.contains('mobile-nav-open')) {
+                    closeMobileMenu();
+                }
+            }
+        });
+        
+        // Close menu on window resize to desktop
+        window.addEventListener('resize', function() {
+            const { mainNav } = getElements();
+            if (window.innerWidth > 768 && mainNav && mainNav.classList.contains('mobile-nav-open')) {
                 closeMobileMenu();
             }
-        }
-    });
-    
-    // Close menu on window resize to desktop
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768 && mainNav && mainNav.classList.contains('mobile-nav-open')) {
-            closeMobileMenu();
-        }
-    });
-    
-    // Handle mega menu on mobile (convert to accordion)
-    const megaMenuItems = document.querySelectorAll('.has-mega-menu');
-    
-    megaMenuItems.forEach(item => {
-        const navLink = item.querySelector('.nav-link');
-        const megaMenu = item.querySelector('.mega-menu');
+        });
         
-        if (navLink && megaMenu) {
-            navLink.addEventListener('click', function(e) {
-                if (window.innerWidth <= 768) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const isOpen = item.classList.contains('mega-menu-open');
-                    
-                    // Close all other mega menus
-                    megaMenuItems.forEach(otherItem => {
-                        if (otherItem !== item) {
-                            otherItem.classList.remove('mega-menu-open');
+        // Handle mega menu on mobile (convert to accordion)
+        const megaMenuItems = document.querySelectorAll('.has-mega-menu');
+        
+        megaMenuItems.forEach(item => {
+            const navLink = item.querySelector('.nav-link');
+            const megaMenu = item.querySelector('.mega-menu');
+            
+            if (navLink && megaMenu) {
+                navLink.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 768) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const isOpen = item.classList.contains('mega-menu-open');
+                        
+                        // Close all other mega menus
+                        megaMenuItems.forEach(otherItem => {
+                            if (otherItem !== item) {
+                                otherItem.classList.remove('mega-menu-open');
+                            }
+                        });
+                        
+                        // Toggle current mega menu
+                        if (isOpen) {
+                            item.classList.remove('mega-menu-open');
+                        } else {
+                            item.classList.add('mega-menu-open');
                         }
-                    });
-                    
-                    // Toggle current mega menu
-                    if (isOpen) {
-                        item.classList.remove('mega-menu-open');
-                    } else {
-                        item.classList.add('mega-menu-open');
                     }
-                }
-            });
-        }
-    });
-});
-
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        const href = this.getAttribute('href');
-        if (href !== '#' && href.length > 1) {
-            const target = document.querySelector(href);
-            if (target) {
-                e.preventDefault();
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
                 });
             }
-        }
+        });
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMobileMenu);
+    } else {
+        initMobileMenu();
+    }
+    
+    // Also try after a delay as fallback
+    setTimeout(initMobileMenu, 100);
+})();
+
+// Smooth scroll for anchor links
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href !== '#' && href.length > 1) {
+                const target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        });
     });
 });
 
@@ -337,8 +375,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Debug sticky header positioning
     debugStickyHeader();
     
-    // Header shrink on scroll
-    setupHeaderShrink();
+    // Header shrink on scroll is initialized automatically via IIFE
+    // No need to call setupHeaderShrink() here as it's self-initializing
     
     // Mega menu positioning is handled by CSS
 });
@@ -525,32 +563,35 @@ function debugStickyHeader() {
     }, 1000);
 }
 
-// Header shrink on scroll
-function setupHeaderShrink() {
-    const header = document.querySelector('.site-header');
-    if (!header) return;
+// Header shrink on scroll - Initialize immediately
+(function() {
+    'use strict';
     
-    let lastScrollY = window.scrollY || window.pageYOffset;
-    const scrollThreshold = 50; // Start shrinking after 50px of scroll
+    const scrollThreshold = 50;
+    let ticking = false;
+    let header = null;
     
-    function handleScroll() {
-        const currentScrollY = window.scrollY || window.pageYOffset;
-        
-        if (currentScrollY > scrollThreshold) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
+    function getHeader() {
+        if (!header) {
+            header = document.querySelector('.site-header');
         }
-        
-        lastScrollY = currentScrollY;
+        return header;
     }
     
-    // Initial check
-    handleScroll();
+    function handleScroll() {
+        const h = getHeader();
+        if (!h) return;
+        
+        const currentScrollY = window.scrollY || window.pageYOffset || 0;
+        
+        if (currentScrollY > scrollThreshold) {
+            h.classList.add('scrolled');
+        } else {
+            h.classList.remove('scrolled');
+        }
+    }
     
-    // Throttle scroll events for performance
-    let ticking = false;
-    window.addEventListener('scroll', () => {
+    function scrollHandler() {
         if (!ticking) {
             window.requestAnimationFrame(() => {
                 handleScroll();
@@ -558,8 +599,45 @@ function setupHeaderShrink() {
             });
             ticking = true;
         }
-    }, { passive: true });
-}
+    }
+    
+    // Initialize when DOM is ready
+    function init() {
+        const h = getHeader();
+        if (h) {
+            // Initial check
+            handleScroll();
+            
+            // Add scroll listener
+            window.addEventListener('scroll', scrollHandler, { passive: true });
+            
+            // Check on load in case page loads scrolled
+            window.addEventListener('load', handleScroll, { passive: true });
+        } else {
+            // Retry if header not found
+            setTimeout(init, 50);
+        }
+    }
+    
+    // Start initialization - try multiple times to ensure it works
+    function startInit() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            // DOM already loaded
+            init();
+        }
+        
+        // Also try after a short delay as fallback
+        setTimeout(init, 100);
+        setTimeout(init, 500);
+    }
+    
+    startInit();
+    
+    // Also expose function for manual calls if needed
+    window.setupHeaderShrink = init;
+})();
 
 // Google Maps error handling and fallback
 function setupMapErrorHandling() {
