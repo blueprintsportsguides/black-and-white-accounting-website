@@ -5,6 +5,7 @@ const ADMIN_SESSION_KEY = 'baw_admin_authenticated';
 const ADMIN_SESSION_TIMEOUT = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
 
 // Get credentials from environment variables
+// Vite will replace these at build time with actual values from .env files or Vercel env vars
 const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || '';
 

@@ -31,9 +31,16 @@ export default defineConfig({
         blog: './blog.html',
         'blog-post': './blog-post.html',
         privacy: './privacy.html',
-        terms: './terms.html'
+        terms: './terms.html',
+        'admin-login': './admin-login.html',
+        'admin/blog': './admin/blog.html',
+        'admin/import': './admin/import.html',
+        'admin/import-direct': './admin/import-direct.html',
+        'admin/publish-all': './admin/publish-all.html',
+        'admin/wipe-imported': './admin/wipe-imported.html',
+        'admin/blog/new': './admin/blog/new.html',
+        'admin/blog/edit': './admin/blog/edit.html'
       }
     }
   }
 });
-
