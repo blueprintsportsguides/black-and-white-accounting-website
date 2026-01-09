@@ -54,9 +54,6 @@ let initializationPromise = null;
 function ensureDataLoaded() {
     if (!initializationPromise) {
         initializationPromise = (async () => {
-            // Check if we've already loaded from JSON in this session
-            const alreadyLoaded = localStorage.getItem(DATA_LOADED_KEY) === 'true';
-            
             // Always try to load from JSON (in case it was updated)
             // But if localStorage has data and JSON load fails, use localStorage
             const jsonLoaded = await loadDataFromJSON();
@@ -92,7 +89,7 @@ function ensureDataLoaded() {
 
 // Initialize default categories if none exist
 function initDefaultCategories() {
-    const existing = getCategoriesSync();
+    const existing = getCategoriesSyncInternal();
     if (existing.length === 0) {
         const defaults = [
             { id: 'tax', name: 'Tax', slug: 'tax' },
@@ -110,7 +107,7 @@ function initDefaultCategories() {
 
 // Initialize default tags if none exist
 function initDefaultTags() {
-    const existing = getTagsSync();
+    const existing = getTagsSyncInternal();
     if (existing.length === 0) {
         const defaults = [
             { id: 'self-assessment', name: 'Self Assessment', slug: 'self-assessment' },
@@ -150,7 +147,7 @@ function generateSlug(title) {
 
 // Ensure unique slug
 function ensureUniqueSlug(slug, excludeId = null) {
-    const posts = getAllPostsSync();
+    const posts = getAllPostsSyncInternal();
     let uniqueSlug = slug;
     let counter = 1;
     
@@ -162,8 +159,8 @@ function ensureUniqueSlug(slug, excludeId = null) {
     return uniqueSlug;
 }
 
-// Synchronous getters (use cache or localStorage)
-function getAllPostsSync() {
+// Internal synchronous getters (use cache or localStorage)
+function getAllPostsSyncInternal() {
     if (dataCache.posts !== null) {
         return dataCache.posts;
     }
@@ -171,7 +168,7 @@ function getAllPostsSync() {
     return data ? JSON.parse(data) : [];
 }
 
-function getCategoriesSync() {
+function getCategoriesSyncInternal() {
     if (dataCache.categories !== null) {
         return dataCache.categories;
     }
@@ -179,7 +176,7 @@ function getCategoriesSync() {
     return data ? JSON.parse(data) : [];
 }
 
-function getTagsSync() {
+function getTagsSyncInternal() {
     if (dataCache.tags !== null) {
         return dataCache.tags;
     }
@@ -187,51 +184,71 @@ function getTagsSync() {
     return data ? JSON.parse(data) : [];
 }
 
-// Async getters (ensure data is loaded first)
-export async function getAllPosts() {
-    await ensureDataLoaded();
-    return getAllPostsSync();
+// Main exported functions (sync - data loads in background automatically)
+export function getAllPosts() {
+    ensureDataLoaded(); // Trigger background load (non-blocking)
+    return getAllPostsSyncInternal();
 }
 
-export async function getPublishedPosts() {
-    await ensureDataLoaded();
-    return getAllPostsSync().filter(post => post.status === 'published');
+export function getPublishedPosts() {
+    ensureDataLoaded(); // Trigger background load (non-blocking)
+    return getAllPostsSyncInternal().filter(post => post.status === 'published');
 }
 
-export async function getPostById(id) {
-    await ensureDataLoaded();
-    const posts = getAllPostsSync();
+export function getPostById(id) {
+    ensureDataLoaded(); // Trigger background load (non-blocking)
+    const posts = getAllPostsSyncInternal();
     return posts.find(p => p.id === id);
 }
 
-export async function getPostBySlug(slug) {
-    await ensureDataLoaded();
-    const posts = getAllPostsSync();
+export function getPostBySlug(slug) {
+    ensureDataLoaded(); // Trigger background load (non-blocking)
+    const posts = getAllPostsSyncInternal();
     return posts.find(p => p.slug === slug && p.status === 'published');
 }
 
-// For backward compatibility, provide sync versions that use cache
+// Exported sync versions for explicit use
 export function getAllPostsSync() {
-    return getAllPostsSync();
+    return getAllPostsSyncInternal();
 }
 
 export function getPublishedPostsSync() {
-    return getAllPostsSync().filter(post => post.status === 'published');
+    return getAllPostsSyncInternal().filter(post => post.status === 'published');
 }
 
 export function getPostByIdSync(id) {
-    const posts = getAllPostsSync();
+    const posts = getAllPostsSyncInternal();
     return posts.find(p => p.id === id);
 }
 
 export function getPostBySlugSync(slug) {
-    const posts = getAllPostsSync();
+    const posts = getAllPostsSyncInternal();
     return posts.find(p => p.slug === slug && p.status === 'published');
+}
+
+// Get categories (sync - uses cache/localStorage)
+export function getCategories() {
+    return getCategoriesSyncInternal();
+}
+
+// Exported sync version
+export function getCategoriesSync() {
+    return getCategoriesSyncInternal();
+}
+
+// Get tags (sync - uses cache/localStorage)
+export function getTags() {
+    return getTagsSyncInternal();
+}
+
+// Exported sync version
+export function getTagsSync() {
+    return getTagsSyncInternal();
 }
 
 // Save post (updates localStorage and cache)
 export function savePost(postData) {
-    const posts = getAllPostsSync();
+    const posts = getAllPostsSyncInternal();
     const now = new Date().toISOString();
     
     // Check for existing post by ID
@@ -278,21 +295,16 @@ export function savePost(postData) {
 
 // Delete post
 export function deletePost(id) {
-    const posts = getAllPostsSync();
+    const posts = getAllPostsSyncInternal();
     const filtered = posts.filter(p => p.id !== id);
     dataCache.posts = filtered;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     return true;
 }
 
-// Get categories
-export function getCategories() {
-    return getCategoriesSync();
-}
-
 // Save category
 export function saveCategory(categoryData) {
-    const categories = getCategoriesSync();
+    const categories = getCategoriesSyncInternal();
     
     if (categoryData.id) {
         const index = categories.findIndex(c => c.id === categoryData.id);
@@ -312,14 +324,9 @@ export function saveCategory(categoryData) {
     return categories;
 }
 
-// Get tags
-export function getTags() {
-    return getTagsSync();
-}
-
 // Save tag
 export function saveTag(tagData) {
-    const tags = getTagsSync();
+    const tags = getTagsSyncInternal();
     
     if (tagData.id) {
         const index = tags.findIndex(t => t.id === tagData.id);
@@ -341,7 +348,7 @@ export function saveTag(tagData) {
 
 // Search posts
 export function searchPosts(query, filters = {}) {
-    let posts = filters.status ? getAllPostsSync() : getPublishedPostsSync();
+    let posts = filters.status ? getAllPostsSyncInternal() : getPublishedPostsSync();
     
     // Filter by status
     if (filters.status) {
@@ -380,7 +387,7 @@ export function searchPosts(query, filters = {}) {
 
 // Get posts by category
 export function getPostsByCategory(categorySlug) {
-    const category = getCategoriesSync().find(c => c.slug === categorySlug);
+    const category = getCategoriesSyncInternal().find(c => c.slug === categorySlug);
     if (!category) return [];
     
     return getPublishedPostsSync().filter(p => p.category_id === category.id);
@@ -388,7 +395,7 @@ export function getPostsByCategory(categorySlug) {
 
 // Get posts by tag
 export function getPostsByTag(tagSlug) {
-    const tag = getTagsSync().find(t => t.slug === tagSlug);
+    const tag = getTagsSyncInternal().find(t => t.slug === tagSlug);
     if (!tag) return [];
     
     return getPublishedPostsSync().filter(p => p.tags && p.tags.includes(tag.id));
@@ -408,9 +415,9 @@ export function formatDate(dateString) {
 // Export data to JSON (for downloading and committing to repo)
 export function exportToJSON() {
     const data = {
-        posts: getAllPostsSync(),
-        categories: getCategoriesSync(),
-        tags: getTagsSync()
+        posts: getAllPostsSyncInternal(),
+        categories: getCategoriesSyncInternal(),
+        tags: getTagsSyncInternal()
     };
     return JSON.stringify(data, null, 2);
 }
@@ -432,7 +439,7 @@ export function downloadJSON() {
 // Export for use in other modules
 export { generateSlug, ensureUniqueSlug, calculateReadingTime };
 
-// Auto-initialize on module load
+// Auto-initialize on module load (non-blocking)
 if (typeof window !== 'undefined') {
     ensureDataLoaded();
 }
