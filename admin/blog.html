@@ -203,6 +203,7 @@
             <h1 class="admin-title">Insights Blog Admin</h1>
             <div class="admin-actions">
                 <a href="import.html" class="btn-secondary" style="background: #6b7280; color: white; padding: var(--spacing-sm) var(--spacing-lg); border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">Import</a>
+                <button id="export-json-btn" class="btn-secondary" style="background: #2563eb; color: white; padding: var(--spacing-sm) var(--spacing-lg); border-radius: var(--radius-sm); border: none; font-weight: 600; cursor: pointer;">Export JSON</button>
                 <a href="publish-all.html" class="btn-secondary" style="background: #059669; color: white; padding: var(--spacing-sm) var(--spacing-lg); border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">Publish All</a>
                 <a href="wipe-imported.html" class="btn-secondary" style="background: #dc2626; color: white; padding: var(--spacing-sm) var(--spacing-lg); border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">Wipe Imported</a>
                 <a href="blog/new.html" class="btn-new-post">+ New Post</a>
@@ -248,7 +249,7 @@
 
     <script type="module">
         import { requireAuth, clearAuthentication } from '/admin-auth.js';
-        import { getAllPosts, deletePost, searchPosts, getCategories, formatDate } from '/blog-data.js';
+        import { getAllPosts, deletePost, searchPosts, getCategories, formatDate, downloadJSON } from '/blog-data.js';
 
         // Require authentication
         if (!requireAuth()) {
@@ -260,6 +261,17 @@
             if (confirm('Are you sure you want to logout?')) {
                 clearAuthentication();
                 window.location.href = '/admin-login.html';
+            }
+        });
+
+        // Export JSON handler
+        document.getElementById('export-json-btn').addEventListener('click', function() {
+            try {
+                downloadJSON();
+                alert('JSON file downloaded! Replace data/blog-posts.json with this file and commit to git to persist your changes.');
+            } catch (error) {
+                alert('Error exporting JSON: ' + error.message);
+                console.error('Export error:', error);
             }
         });
 

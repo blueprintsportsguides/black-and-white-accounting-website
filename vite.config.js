@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { copyFileSync, existsSync, mkdirSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 
 export default defineConfig({
@@ -75,6 +75,29 @@ export default defineConfig({
             copyFileSync(blogDataSrc, blogDataDest);
             console.log(`✓ Copied data/blog-posts.json to dist/data/`);
           }
+        }
+        
+        // Copy Images directory (recursively)
+        const imagesSrc = join(process.cwd(), 'Images');
+        const imagesDest = join(process.cwd(), 'dist', 'Images');
+        if (existsSync(imagesSrc)) {
+          function copyRecursive(src, dest) {
+            if (!existsSync(dest)) {
+              mkdirSync(dest, { recursive: true });
+            }
+            const entries = readdirSync(src, { withFileTypes: true });
+            for (const entry of entries) {
+              const srcPath = join(src, entry.name);
+              const destPath = join(dest, entry.name);
+              if (entry.isDirectory()) {
+                copyRecursive(srcPath, destPath);
+              } else {
+                copyFileSync(srcPath, destPath);
+              }
+            }
+          }
+          copyRecursive(imagesSrc, imagesDest);
+          console.log(`✓ Copied Images directory to dist/Images/`);
         }
       }
     }

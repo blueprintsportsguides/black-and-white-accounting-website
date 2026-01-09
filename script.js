@@ -675,6 +675,8 @@ function setupMapErrorHandling() {
         let hasLoaded = false;
         let errorDetected = false;
         let checkInterval;
+        let timeoutStarted = false;
+        let observer;
         
         // Improved: Check if iframe actually loaded content (not just the iframe element)
         function checkMapLoaded() {
@@ -701,6 +703,7 @@ function setupMapErrorHandling() {
                             hasLoaded = true;
                             clearTimeout(loadTimeout);
                             if (checkInterval) clearInterval(checkInterval);
+                            if (observer) observer.disconnect();
                             return;
                         }
                         
@@ -714,6 +717,7 @@ function setupMapErrorHandling() {
                             showMapFallback(container, iframe, fallback);
                             errorDetected = true;
                             if (checkInterval) clearInterval(checkInterval);
+                            if (observer) observer.disconnect();
                             return;
                         }
                     }
@@ -725,18 +729,46 @@ function setupMapErrorHandling() {
             }
         }
         
-        // Set a timeout to detect if map doesn't load within reasonable time
-        loadTimeout = setTimeout(() => {
-            if (!hasLoaded && !errorDetected) {
-                console.warn('Map load timeout, showing fallback');
-                showMapFallback(container, iframe, fallback);
-                errorDetected = true;
-                if (checkInterval) clearInterval(checkInterval);
-            }
-        }, 10000); // Increased to 10 seconds for slower connections
+        // Start timeout only when map becomes visible
+        function startTimeout() {
+            if (timeoutStarted || hasLoaded || errorDetected) return;
+            timeoutStarted = true;
+            
+            // Set a timeout to detect if map doesn't load within reasonable time
+            loadTimeout = setTimeout(() => {
+                if (!hasLoaded && !errorDetected) {
+                    console.warn('Map load timeout, showing fallback');
+                    showMapFallback(container, iframe, fallback);
+                    errorDetected = true;
+                    if (checkInterval) clearInterval(checkInterval);
+                    if (observer) observer.disconnect();
+                }
+            }, 10000); // 10 seconds from when map becomes visible
+        }
+        
+        // Use Intersection Observer to start timeout only when map is visible
+        observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !timeoutStarted && !hasLoaded && !errorDetected) {
+                    // Map just became visible, start the timeout now
+                    startTimeout();
+                }
+            });
+        }, {
+            threshold: 0.1 // Start when 10% of map is visible
+        });
+        
+        observer.observe(container);
         
         // Listen for successful load event
         iframe.addEventListener('load', () => {
+            // If map is visible, start timeout if not already started
+            const rect = container.getBoundingClientRect();
+            const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+            if (isVisible && !timeoutStarted) {
+                startTimeout();
+            }
+            
             // Give it a moment to fully render
             setTimeout(() => {
                 checkMapLoaded();
@@ -758,6 +790,7 @@ function setupMapErrorHandling() {
                             // (CORS prevents us from verifying, but load event fired)
                             hasLoaded = true;
                             clearTimeout(loadTimeout);
+                            if (observer) observer.disconnect();
                         }
                     }, 5000);
                 }
@@ -772,6 +805,7 @@ function setupMapErrorHandling() {
                 errorDetected = true;
                 clearTimeout(loadTimeout);
                 if (checkInterval) clearInterval(checkInterval);
+                if (observer) observer.disconnect();
             }
         });
         
@@ -788,6 +822,7 @@ function setupMapErrorHandling() {
                         errorDetected = true;
                         clearTimeout(loadTimeout);
                         if (checkInterval) clearInterval(checkInterval);
+                        if (observer) observer.disconnect();
                         window.removeEventListener('message', messageHandler);
                     }
                 }
