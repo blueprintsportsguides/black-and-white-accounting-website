@@ -1,13 +1,98 @@
 // Blog Data Storage and Management
-// Uses localStorage for persistence (can be migrated to IndexedDB or backend later)
+// Loads from JSON file in repo (data/blog-posts.json) as source of truth
+// Uses localStorage as cache and for admin edits
 
 const STORAGE_KEY = 'baw_blog_posts';
 const CATEGORIES_KEY = 'baw_blog_categories';
 const TAGS_KEY = 'baw_blog_tags';
+const JSON_SOURCE = '/data/blog-posts.json';
+const DATA_LOADED_KEY = 'baw_data_loaded_from_json';
+
+// Cache for loaded data
+let dataCache = {
+    posts: null,
+    categories: null,
+    tags: null
+};
+
+// Load data from JSON file (source of truth)
+async function loadDataFromJSON() {
+    try {
+        const response = await fetch(JSON_SOURCE);
+        if (!response.ok) {
+            console.warn('Could not load blog data from JSON file, using localStorage fallback');
+            return false;
+        }
+        const jsonData = await response.json();
+        
+        // Store in cache
+        dataCache.posts = jsonData.posts || [];
+        dataCache.categories = jsonData.categories || [];
+        dataCache.tags = jsonData.tags || [];
+        
+        // Also store in localStorage as cache
+        if (dataCache.posts.length > 0) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataCache.posts));
+        }
+        if (dataCache.categories.length > 0) {
+            localStorage.setItem(CATEGORIES_KEY, JSON.stringify(dataCache.categories));
+        }
+        if (dataCache.tags.length > 0) {
+            localStorage.setItem(TAGS_KEY, JSON.stringify(dataCache.tags));
+        }
+        
+        localStorage.setItem(DATA_LOADED_KEY, 'true');
+        return true;
+    } catch (error) {
+        console.warn('Error loading blog data from JSON:', error);
+        return false;
+    }
+}
+
+// Initialize: Load from JSON file on first access
+let initializationPromise = null;
+function ensureDataLoaded() {
+    if (!initializationPromise) {
+        initializationPromise = (async () => {
+            // Check if we've already loaded from JSON in this session
+            const alreadyLoaded = localStorage.getItem(DATA_LOADED_KEY) === 'true';
+            
+            // Always try to load from JSON (in case it was updated)
+            // But if localStorage has data and JSON load fails, use localStorage
+            const jsonLoaded = await loadDataFromJSON();
+            
+            if (!jsonLoaded) {
+                // Fallback to localStorage if JSON load failed
+                const localPosts = localStorage.getItem(STORAGE_KEY);
+                const localCategories = localStorage.getItem(CATEGORIES_KEY);
+                const localTags = localStorage.getItem(TAGS_KEY);
+                
+                if (localPosts) {
+                    dataCache.posts = JSON.parse(localPosts);
+                }
+                if (localCategories) {
+                    dataCache.categories = JSON.parse(localCategories);
+                }
+                if (localTags) {
+                    dataCache.tags = JSON.parse(localTags);
+                }
+            }
+            
+            // Initialize defaults if still empty
+            if (!dataCache.categories || dataCache.categories.length === 0) {
+                initDefaultCategories();
+            }
+            if (!dataCache.tags || dataCache.tags.length === 0) {
+                initDefaultTags();
+            }
+        })();
+    }
+    return initializationPromise;
+}
 
 // Initialize default categories if none exist
 function initDefaultCategories() {
-    const existing = getCategories();
+    const existing = getCategoriesSync();
     if (existing.length === 0) {
         const defaults = [
             { id: 'tax', name: 'Tax', slug: 'tax' },
@@ -16,6 +101,7 @@ function initDefaultCategories() {
             { id: 'business', name: 'Business', slug: 'business' },
             { id: 'news', name: 'News', slug: 'news' }
         ];
+        dataCache.categories = defaults;
         localStorage.setItem(CATEGORIES_KEY, JSON.stringify(defaults));
         return defaults;
     }
@@ -24,7 +110,7 @@ function initDefaultCategories() {
 
 // Initialize default tags if none exist
 function initDefaultTags() {
-    const existing = getTags();
+    const existing = getTagsSync();
     if (existing.length === 0) {
         const defaults = [
             { id: 'self-assessment', name: 'Self Assessment', slug: 'self-assessment' },
@@ -33,15 +119,12 @@ function initDefaultTags() {
             { id: 'planning', name: 'Planning', slug: 'planning' },
             { id: 'compliance', name: 'Compliance', slug: 'compliance' }
         ];
+        dataCache.tags = defaults;
         localStorage.setItem(TAGS_KEY, JSON.stringify(defaults));
         return defaults;
     }
     return existing;
 }
-
-// Initialize on first load
-initDefaultCategories();
-initDefaultTags();
 
 // Generate unique ID
 function generateId() {
@@ -67,7 +150,7 @@ function generateSlug(title) {
 
 // Ensure unique slug
 function ensureUniqueSlug(slug, excludeId = null) {
-    const posts = getAllPosts();
+    const posts = getAllPostsSync();
     let uniqueSlug = slug;
     let counter = 1;
     
@@ -79,32 +162,76 @@ function ensureUniqueSlug(slug, excludeId = null) {
     return uniqueSlug;
 }
 
-// Get all posts
-export function getAllPosts() {
+// Synchronous getters (use cache or localStorage)
+function getAllPostsSync() {
+    if (dataCache.posts !== null) {
+        return dataCache.posts;
+    }
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
 }
 
-// Get published posts only
-export function getPublishedPosts() {
-    return getAllPosts().filter(post => post.status === 'published');
+function getCategoriesSync() {
+    if (dataCache.categories !== null) {
+        return dataCache.categories;
+    }
+    const data = localStorage.getItem(CATEGORIES_KEY);
+    return data ? JSON.parse(data) : [];
 }
 
-// Get post by ID
-export function getPostById(id) {
-    const posts = getAllPosts();
+function getTagsSync() {
+    if (dataCache.tags !== null) {
+        return dataCache.tags;
+    }
+    const data = localStorage.getItem(TAGS_KEY);
+    return data ? JSON.parse(data) : [];
+}
+
+// Async getters (ensure data is loaded first)
+export async function getAllPosts() {
+    await ensureDataLoaded();
+    return getAllPostsSync();
+}
+
+export async function getPublishedPosts() {
+    await ensureDataLoaded();
+    return getAllPostsSync().filter(post => post.status === 'published');
+}
+
+export async function getPostById(id) {
+    await ensureDataLoaded();
+    const posts = getAllPostsSync();
     return posts.find(p => p.id === id);
 }
 
-// Get post by slug
-export function getPostBySlug(slug) {
-    const posts = getAllPosts();
+export async function getPostBySlug(slug) {
+    await ensureDataLoaded();
+    const posts = getAllPostsSync();
     return posts.find(p => p.slug === slug && p.status === 'published');
 }
 
-// Save post
+// For backward compatibility, provide sync versions that use cache
+export function getAllPostsSync() {
+    return getAllPostsSync();
+}
+
+export function getPublishedPostsSync() {
+    return getAllPostsSync().filter(post => post.status === 'published');
+}
+
+export function getPostByIdSync(id) {
+    const posts = getAllPostsSync();
+    return posts.find(p => p.id === id);
+}
+
+export function getPostBySlugSync(slug) {
+    const posts = getAllPostsSync();
+    return posts.find(p => p.slug === slug && p.status === 'published');
+}
+
+// Save post (updates localStorage and cache)
 export function savePost(postData) {
-    const posts = getAllPosts();
+    const posts = getAllPostsSync();
     const now = new Date().toISOString();
     
     // Check for existing post by ID
@@ -143,27 +270,29 @@ export function savePost(postData) {
         posts.push(newPost);
     }
     
+    // Update cache and localStorage
+    dataCache.posts = posts;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
     return existingIndex >= 0 ? posts[existingIndex] : posts[posts.length - 1];
 }
 
 // Delete post
 export function deletePost(id) {
-    const posts = getAllPosts();
+    const posts = getAllPostsSync();
     const filtered = posts.filter(p => p.id !== id);
+    dataCache.posts = filtered;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     return true;
 }
 
 // Get categories
 export function getCategories() {
-    const data = localStorage.getItem(CATEGORIES_KEY);
-    return data ? JSON.parse(data) : [];
+    return getCategoriesSync();
 }
 
 // Save category
 export function saveCategory(categoryData) {
-    const categories = getCategories();
+    const categories = getCategoriesSync();
     
     if (categoryData.id) {
         const index = categories.findIndex(c => c.id === categoryData.id);
@@ -178,19 +307,19 @@ export function saveCategory(categoryData) {
         });
     }
     
+    dataCache.categories = categories;
     localStorage.setItem(CATEGORIES_KEY, JSON.stringify(categories));
     return categories;
 }
 
 // Get tags
 export function getTags() {
-    const data = localStorage.getItem(TAGS_KEY);
-    return data ? JSON.parse(data) : [];
+    return getTagsSync();
 }
 
 // Save tag
 export function saveTag(tagData) {
-    const tags = getTags();
+    const tags = getTagsSync();
     
     if (tagData.id) {
         const index = tags.findIndex(t => t.id === tagData.id);
@@ -205,13 +334,14 @@ export function saveTag(tagData) {
         });
     }
     
+    dataCache.tags = tags;
     localStorage.setItem(TAGS_KEY, JSON.stringify(tags));
     return tags;
 }
 
 // Search posts
 export function searchPosts(query, filters = {}) {
-    let posts = filters.status ? getAllPosts() : getPublishedPosts();
+    let posts = filters.status ? getAllPostsSync() : getPublishedPostsSync();
     
     // Filter by status
     if (filters.status) {
@@ -250,18 +380,18 @@ export function searchPosts(query, filters = {}) {
 
 // Get posts by category
 export function getPostsByCategory(categorySlug) {
-    const category = getCategories().find(c => c.slug === categorySlug);
+    const category = getCategoriesSync().find(c => c.slug === categorySlug);
     if (!category) return [];
     
-    return getPublishedPosts().filter(p => p.category_id === category.id);
+    return getPublishedPostsSync().filter(p => p.category_id === category.id);
 }
 
 // Get posts by tag
 export function getPostsByTag(tagSlug) {
-    const tag = getTags().find(t => t.slug === tagSlug);
+    const tag = getTagsSync().find(t => t.slug === tagSlug);
     if (!tag) return [];
     
-    return getPublishedPosts().filter(p => p.tags && p.tags.includes(tag.id));
+    return getPublishedPostsSync().filter(p => p.tags && p.tags.includes(tag.id));
 }
 
 // Format date for display
@@ -275,6 +405,34 @@ export function formatDate(dateString) {
     });
 }
 
+// Export data to JSON (for downloading and committing to repo)
+export function exportToJSON() {
+    const data = {
+        posts: getAllPostsSync(),
+        categories: getCategoriesSync(),
+        tags: getTagsSync()
+    };
+    return JSON.stringify(data, null, 2);
+}
+
+// Download JSON file (for admin to update repo)
+export function downloadJSON() {
+    const json = exportToJSON();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'blog-posts.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
 // Export for use in other modules
 export { generateSlug, ensureUniqueSlug, calculateReadingTime };
 
+// Auto-initialize on module load
+if (typeof window !== 'undefined') {
+    ensureDataLoaded();
+}
