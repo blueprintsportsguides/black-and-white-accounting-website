@@ -1,4 +1,6 @@
 import { defineConfig } from 'vite';
+import { copyFileSync, existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
 
 export default defineConfig({
   server: {
@@ -9,7 +11,7 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: true,
-    rollupOptions: {
+      rollupOptions: {
       input: {
         main: './index.html',
         about: './about.html',
@@ -43,6 +45,40 @@ export default defineConfig({
       }
     }
   },
+  publicDir: 'public', // Use public directory for static assets
+  plugins: [
+    {
+      name: 'copy-static-assets',
+      writeBundle() {
+        // Copy script.js, styles.css, blog-data.js, and admin-auth.js to dist root
+        const filesToCopy = ['script.js', 'styles.css', 'blog-data.js', 'admin-auth.js'];
+        filesToCopy.forEach(file => {
+          const src = join(process.cwd(), file);
+          const dest = join(process.cwd(), 'dist', file);
+          if (existsSync(src)) {
+            copyFileSync(src, dest);
+            console.log(`✓ Copied ${file} to dist/`);
+          }
+        });
+        
+        // Copy data directory
+        const dataSrc = join(process.cwd(), 'data');
+        const dataDest = join(process.cwd(), 'dist', 'data');
+        if (existsSync(dataSrc)) {
+          // Copy blog-posts.json specifically
+          const blogDataSrc = join(dataSrc, 'blog-posts.json');
+          const blogDataDest = join(dataDest, 'blog-posts.json');
+          if (existsSync(blogDataSrc)) {
+            if (!existsSync(dataDest)) {
+              mkdirSync(dataDest, { recursive: true });
+            }
+            copyFileSync(blogDataSrc, blogDataDest);
+            console.log(`✓ Copied data/blog-posts.json to dist/data/`);
+          }
+        }
+      }
+    }
+  ],
   // Explicitly define environment variables to ensure they're replaced
   define: {
     'import.meta.env.VITE_ADMIN_USERNAME': JSON.stringify(process.env.VITE_ADMIN_USERNAME || 'admin'),
