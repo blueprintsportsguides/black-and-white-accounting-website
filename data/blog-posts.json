@@ -1,0 +1,57 @@
+{
+  "posts": [],
+  "categories": [
+    {
+      "id": "tax",
+      "name": "Tax",
+      "slug": "tax"
+    },
+    {
+      "id": "accounts",
+      "name": "Accounts",
+      "slug": "accounts"
+    },
+    {
+      "id": "advisory",
+      "name": "Advisory",
+      "slug": "advisory"
+    },
+    {
+      "id": "business",
+      "name": "Business",
+      "slug": "business"
+    },
+    {
+      "id": "news",
+      "name": "News",
+      "slug": "news"
+    }
+  ],
+  "tags": [
+    {
+      "id": "self-assessment",
+      "name": "Self Assessment",
+      "slug": "self-assessment"
+    },
+    {
+      "id": "vat",
+      "name": "VAT",
+      "slug": "vat"
+    },
+    {
+      "id": "corporation-tax",
+      "name": "Corporation Tax",
+      "slug": "corporation-tax"
+    },
+    {
+      "id": "planning",
+      "name": "Planning",
+      "slug": "planning"
+    },
+    {
+      "id": "compliance",
+      "name": "Compliance",
+      "slug": "compliance"
+    }
+  ]
+}

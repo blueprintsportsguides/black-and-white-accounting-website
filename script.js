@@ -570,6 +570,7 @@ function debugStickyHeader() {
     const scrollThreshold = 50;
     let ticking = false;
     let header = null;
+    let scrollListenerAdded = false;
     
     function getHeader() {
         if (!header) {
@@ -608,35 +609,56 @@ function debugStickyHeader() {
             // Initial check
             handleScroll();
             
-            // Add scroll listener
-            window.addEventListener('scroll', scrollHandler, { passive: true });
+            // Add scroll listener only once
+            if (!scrollListenerAdded) {
+                window.addEventListener('scroll', scrollHandler, { passive: true });
+                scrollListenerAdded = true;
+            }
             
-            // Check on load in case page loads scrolled
-            window.addEventListener('load', handleScroll, { passive: true });
-        } else {
-            // Retry if header not found
-            setTimeout(init, 50);
+            return true; // Successfully initialized
         }
+        return false; // Header not found yet
     }
     
     // Start initialization - try multiple times to ensure it works
     function startInit() {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            // DOM already loaded
-            init();
+        // Try immediately if DOM is ready
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            if (init()) return; // Success, no need for more attempts
         }
         
-        // Also try after a short delay as fallback
-        setTimeout(init, 100);
-        setTimeout(init, 500);
+        // Also try on DOMContentLoaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                init();
+            }, { once: true });
+        }
+        
+        // Try on window load
+        window.addEventListener('load', function() {
+            init();
+            handleScroll(); // Check scroll position on load
+        }, { once: true });
+        
+        // Retry attempts with increasing delays
+        let attempts = 0;
+        const maxAttempts = 10;
+        const retryInterval = setInterval(function() {
+            attempts++;
+            if (init() || attempts >= maxAttempts) {
+                clearInterval(retryInterval);
+            }
+        }, 100);
     }
     
+    // Start immediately
     startInit();
     
     // Also expose function for manual calls if needed
-    window.setupHeaderShrink = init;
+    window.setupHeaderShrink = function() {
+        init();
+        handleScroll();
+    };
 })();
 
 // Google Maps error handling and fallback
