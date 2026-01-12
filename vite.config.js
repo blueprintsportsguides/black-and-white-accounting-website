@@ -30,8 +30,16 @@ export default defineConfig({
         'sectors-retail': './sectors-retail.html',
         'sectors-startups': './sectors-startups.html',
         'sectors-trades': './sectors-trades.html',
+        'sectors-contractors-consultants': './sectors-contractors-consultants.html',
+        'sectors-freelancers-creatives': './sectors-freelancers-creatives.html',
+        'sectors-farming-agriculture': './sectors-farming-agriculture.html',
+        'sectors-it-tech': './sectors-it-tech.html',
+        'sectors-automotive-engineering': './sectors-automotive-engineering.html',
+        'sectors-education-training': './sectors-education-training.html',
+        'sectors-charities': './sectors-charities.html',
         blog: './blog.html',
         'blog-post': './blog-post.html',
+        tools: './tools.html',
         privacy: './privacy.html',
         terms: './terms.html',
         'admin-login': './admin-login.html',
@@ -64,7 +72,18 @@ export default defineConfig({
         'services-accounts/partnership-accounts': './services-accounts/partnership-accounts.html',
         'services-accounts/llp-accounts': './services-accounts/llp-accounts.html',
         'services-accounts/dormant-accounts': './services-accounts/dormant-accounts.html',
-        'services-accounts/group-accounts': './services-accounts/group-accounts.html'
+        'services-accounts/group-accounts': './services-accounts/group-accounts.html',
+        // Advisory topic pages
+        'services-advisory/business-planning-startups': './services-advisory/business-planning-startups.html',
+        'services-advisory/cashflow-forecasting-budgeting': './services-advisory/cashflow-forecasting-budgeting.html',
+        'services-advisory/growth-advisory': './services-advisory/growth-advisory.html',
+        'services-advisory/profit-improvement-cost-optimisation': './services-advisory/profit-improvement-cost-optimisation.html',
+        'services-advisory/funding-support-investor-readiness': './services-advisory/funding-support-investor-readiness.html',
+        'services-advisory/due-diligence-support': './services-advisory/due-diligence-support.html',
+        'services-advisory/business-valuation': './services-advisory/business-valuation.html',
+        'services-advisory/exit-succession-planning': './services-advisory/exit-succession-planning.html',
+        'services-advisory/company-secretarial': './services-advisory/company-secretarial.html',
+        'services-advisory/software-systems-advisory': './services-advisory/software-systems-advisory.html'
       }
     }
   },

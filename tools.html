@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Tools & Calculators - Black and White Accounting</title>
+    <link rel="icon" type="image/png" href="/Images/circle logo.png">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .tool-section {
+            margin-bottom: var(--spacing-2xl);
+        }
+        .tool-card {
+            background: var(--bg-white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+        }
+        .calculator-card {
+            background: var(--bg-white);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        .calculator-card h3 {
+            margin-bottom: var(--spacing-md);
+            font-size: var(--font-size-lg);
+        }
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-base);
+        }
+        .calculator-result {
+            background: var(--bg-alt);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-md);
+            border-left: 4px solid var(--accent-primary);
+        }
+        .calculator-result h4 {
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
+        }
+        .deadline-wizard {
+            background: var(--bg-white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-sm);
+        }
+        .wizard-step {
+            display: none;
+        }
+        .wizard-step.active {
+            display: block;
+        }
+        .wizard-progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-xl);
+            position: relative;
+        }
+        .wizard-progress::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.1);
+            z-index: 0;
+        }
+        .wizard-progress-step {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            flex: 1;
+        }
+        .wizard-progress-step::before {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-white);
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            margin: 0 auto var(--spacing-xs);
+        }
+        .wizard-progress-step.active::before {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+        .wizard-progress-step.completed::before {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+        .wizard-progress-step.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-weight: bold;
+        }
+        .deadline-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .deadline-item {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .deadline-item:last-child {
+            border-bottom: none;
+        }
+        .deadline-date {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .deadline-urgent {
+            color: #dc2626;
+        }
+        .deadline-soon {
+            color: #f59e0b;
+        }
+        .deadline-upcoming {
+            color: var(--text-secondary);
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-sm);
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-logo">
+                <a href="/">
+                    <img src="/Images/long logo.png" alt="Black and White Accounting" class="logo-horizontal">
+                </a>
+            </div>
+            <nav class="main-nav">
+                <div class="mobile-menu-header">
+                    <img src="/Images/long logo.png" alt="Black and White Accounting" style="height: 32px;">
+                    <button class="mobile-menu-close" aria-label="Close menu">×</button>
+                </div>
+                <ul class="nav-list">
+                    <li class="nav-item has-mega-menu">
+                        <a href="/services" class="nav-link">Services</a>
+                        <div class="mega-menu">
+                            <div class="mega-menu-content">
+                                <div class="mega-menu-pillar">
+                                    <h3>Tax</h3>
+                                    <p>Helping you stay compliant, efficient, and confident.</p>
+                                    <ul class="mega-menu-sublinks">
+                                        <li><a href="/services-tax#personal-tax">Personal Tax</a></li>
+                                        <li><a href="/services-tax#business-tax">Business Tax</a></li>
+                                        <li><a href="/services-tax#property-tax">Property & Specialist Tax</a></li>
+                                    </ul>
+                                    <a href="/services-tax" class="mega-menu-cta">Explore Tax Services</a>
+                                </div>
+                                <div class="mega-menu-pillar">
+                                    <h3>Accounts</h3>
+                                    <p>Clear, accurate accounts you can actually understand.</p>
+                                    <ul class="mega-menu-sublinks">
+                                        <li><a href="/services-accounts#core-services">Core Services</a></li>
+                                        <li><a href="/services-accounts#business-structures">Business Structures</a></li>
+                                        <li><a href="/services-accounts#specialised">Specialised Accounts</a></li>
+                                    </ul>
+                                    <a href="/services-accounts" class="mega-menu-cta">Explore Accounts Services</a>
+                                </div>
+                                <div class="mega-menu-pillar">
+                                    <h3>Advisory</h3>
+                                    <p>Forward-thinking advice to help your business grow.</p>
+                                    <ul class="mega-menu-sublinks">
+                                        <li><a href="/services-advisory#growth">Business Growth & Planning</a></li>
+                                        <li><a href="/services-advisory#profit">Profit & Efficiency</a></li>
+                                        <li><a href="/services-advisory#decisions">Support for Key Decisions</a></li>
+                                    </ul>
+                                    <a href="/services-advisory" class="mega-menu-cta">Explore Advisory Services</a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item"><a href="/sectors" class="nav-link">Sectors</a></li>
+                    <li class="nav-item"><a href="/about" class="nav-link">About</a></li>
+                    <li class="nav-item"><a href="/blog" class="nav-link">Insights</a></li>
+                    <li class="nav-item"><a href="/tools" class="nav-link">Tools</a></li>
+                </ul>
+            </nav>
+            <div class="header-ctas">
+                <a href="tel:08001404644" class="btn btn-primary">Phone Us</a>
+                <a href="/contact" class="btn btn-secondary">Contact Us</a>
+            </div>
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <section class="section">
+            <div class="section-container">
+                <div class="service-page-header">
+                    <h1>Tools & Calculators</h1>
+                    <p class="service-page-intro">Free tools and calculators to help you understand your tax obligations, plan ahead, and make informed financial decisions. All calculations are estimates for guidance purposes only.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tax Calculators Section -->
+        <section class="section-alt tool-section" id="calculators">
+            <div class="section-container">
+                <div class="tool-card">
+                    <h2 style="margin-bottom: var(--spacing-md);">Tax Calculators</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg);">Use our calculators to estimate your tax liability, compare different scenarios, and plan your finances.</p>
+                    
+                    <div class="calculator-grid">
+                        <!-- Self Assessment Tax Calculator -->
+                        <div class="calculator-card">
+                            <h3>Self Assessment Tax Calculator</h3>
+                            <div class="form-group">
+                                <label for="sa-income">Annual Income (£)</label>
+                                <input type="number" id="sa-income" placeholder="50000" min="0" step="1000">
+                            </div>
+                            <div class="form-group">
+                                <label for="sa-allowance">Personal Allowance (£)</label>
+                                <input type="number" id="sa-allowance" value="12570" min="0" step="100">
+                            </div>
+                            <button class="btn btn-primary" onclick="calculateSelfAssessment()" style="width: 100%;">Calculate</button>
+                            <div id="sa-result" class="calculator-result" style="display: none;"></div>
+                        </div>
+
+                        <!-- Corporation Tax Calculator -->
+                        <div class="calculator-card">
+                            <h3>Corporation Tax Calculator</h3>
+                            <div class="form-group">
+                                <label for="ct-profit">Annual Profit (£)</label>
+                                <input type="number" id="ct-profit" placeholder="100000" min="0" step="1000">
+                            </div>
+                            <div class="form-group">
+                                <label for="ct-year">Tax Year</label>
+                                <select id="ct-year">
+                                    <option value="2024">2024/25 (25%)</option>
+                                    <option value="2023">2023/24 (19%)</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="calculateCorporationTax()" style="width: 100%;">Calculate</button>
+                            <div id="ct-result" class="calculator-result" style="display: none;"></div>
+                        </div>
+
+                        <!-- VAT Calculator -->
+                        <div class="calculator-card">
+                            <h3>VAT Calculator</h3>
+                            <div class="form-group">
+                                <label for="vat-amount">Amount (£)</label>
+                                <input type="number" id="vat-amount" placeholder="1000" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="vat-rate">VAT Rate</label>
+                                <select id="vat-rate">
+                                    <option value="20">Standard Rate (20%)</option>
+                                    <option value="5">Reduced Rate (5%)</option>
+                                    <option value="0">Zero Rate (0%)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Calculation Type</label>
+                                <select id="vat-type">
+                                    <option value="add">Add VAT</option>
+                                    <option value="remove">Remove VAT</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="calculateVAT()" style="width: 100%;">Calculate</button>
+                            <div id="vat-result" class="calculator-result" style="display: none;"></div>
+                        </div>
+
+                        <!-- Salary vs Dividend Calculator -->
+                        <div class="calculator-card">
+                            <h3>Salary vs Dividend Calculator</h3>
+                            <div class="form-group">
+                                <label for="svd-profit">Company Profit (£)</label>
+                                <input type="number" id="svd-profit" placeholder="50000" min="0" step="1000">
+                            </div>
+                            <div class="form-group">
+                                <label for="svd-salary">Director Salary (£)</label>
+                                <input type="number" id="svd-salary" value="12570" min="0" step="100">
+                            </div>
+                            <button class="btn btn-primary" onclick="calculateSalaryVsDividend()" style="width: 100%;">Calculate</button>
+                            <div id="svd-result" class="calculator-result" style="display: none;"></div>
+                        </div>
+
+                        <!-- Capital Gains Tax Calculator -->
+                        <div class="calculator-card">
+                            <h3>Capital Gains Tax Calculator</h3>
+                            <div class="form-group">
+                                <label for="cgt-sale">Sale Price (£)</label>
+                                <input type="number" id="cgt-sale" placeholder="200000" min="0" step="1000">
+                            </div>
+                            <div class="form-group">
+                                <label for="cgt-cost">Purchase Price (£)</label>
+                                <input type="number" id="cgt-cost" placeholder="150000" min="0" step="1000">
+                            </div>
+                            <div class="form-group">
+                                <label for="cgt-allowance">Annual Allowance (£)</label>
+                                <input type="number" id="cgt-allowance" value="3000" min="0" step="100">
+                            </div>
+                            <button class="btn btn-primary" onclick="calculateCGT()" style="width: 100%;">Calculate</button>
+                            <div id="cgt-result" class="calculator-result" style="display: none;"></div>
+                        </div>
+
+                        <!-- Tax-Free Allowance Calculator -->
+                        <div class="calculator-card">
+                            <h3>Tax-Free Allowance Calculator</h3>
+                            <div class="form-group">
+                                <label for="tfa-income">Annual Income (£)</label>
+                                <input type="number" id="tfa-income" placeholder="60000" min="0" step="1000">
+                            </div>
+                            <div class="form-group">
+                                <label for="tfa-year">Tax Year</label>
+                                <select id="tfa-year">
+                                    <option value="2024">2024/25</option>
+                                    <option value="2023">2023/24</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="calculateTaxFreeAllowance()" style="width: 100%;">Calculate</button>
+                            <div id="tfa-result" class="calculator-result" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tax Deadlines Wizard -->
+        <section class="section tool-section" id="deadlines">
+            <div class="section-container">
+                <div class="tool-card">
+                    <h2 style="margin-bottom: var(--spacing-md);">Tax Deadlines Finder</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg);">Answer a few questions to get a personalised list of all your tax deadlines for the year.</p>
+                    
+                    <div class="deadline-wizard">
+                        <div class="wizard-progress" id="wizard-progress"></div>
+                        
+                        <!-- Step 1: Business Type -->
+                        <div class="wizard-step active" id="step-1">
+                            <h3 style="margin-bottom: var(--spacing-md);">What is your business type?</h3>
+                            <div class="form-group">
+                                <select id="business-type" onchange="updateWizard()">
+                                    <option value="">Select...</option>
+                                    <option value="sole-trader">Sole Trader</option>
+                                    <option value="limited-company">Limited Company</option>
+                                    <option value="partnership">Partnership</option>
+                                    <option value="llp">Limited Liability Partnership (LLP)</option>
+                                    <option value="individual">Individual (No Business)</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="nextStep()" disabled id="step-1-btn">Next</button>
+                        </div>
+
+                        <!-- Step 2: Additional Questions (Dynamic) -->
+                        <div class="wizard-step" id="step-2">
+                            <h3 style="margin-bottom: var(--spacing-md);" id="step-2-title"></h3>
+                            <div id="step-2-content"></div>
+                            <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
+                                <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+                                <button class="btn btn-primary" onclick="nextStep()" disabled id="step-2-btn">Next</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Results -->
+                        <div class="wizard-step" id="step-3">
+                            <h3 style="margin-bottom: var(--spacing-md);">Your Tax Deadlines</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg);">Based on your answers, here are all the deadlines you need to be aware of:</p>
+                            <ul class="deadline-list" id="deadline-results"></ul>
+                            <div style="margin-top: var(--spacing-lg);">
+                                <button class="btn btn-secondary" onclick="resetWizard()">Start Over</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Other Tools Section -->
+        <section class="section-alt tool-section" id="other-tools">
+            <div class="section-container">
+                <div class="tool-card">
+                    <h2 style="margin-bottom: var(--spacing-md);">Other Useful Tools</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg);">Additional tools to help you make informed business decisions.</p>
+                    
+                    <div class="calculator-grid">
+                        <!-- Business Structure Comparison -->
+                        <div class="calculator-card" style="grid-column: 1 / -1;">
+                            <h3>Business Structure Comparison</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md);">Select up to 3 business structures to compare side by side.</p>
+                            <div class="form-group">
+                                <label>Select Business Structures to Compare (up to 3):</label>
+                                <div class="checkbox-group" style="flex-direction: column; gap: var(--spacing-sm);">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="compare-sole-trader" value="sole-trader" onchange="updateComparisonSelection()">
+                                        <label for="compare-sole-trader">Sole Trader</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="compare-limited-company" value="limited-company" onchange="updateComparisonSelection()">
+                                        <label for="compare-limited-company">Limited Company</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="compare-partnership" value="partnership" onchange="updateComparisonSelection()">
+                                        <label for="compare-partnership">Partnership</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="compare-llp" value="llp" onchange="updateComparisonSelection()">
+                                        <label for="compare-llp">Limited Liability Partnership (LLP)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="showStructureComparison()" style="width: 100%;" id="compare-btn" disabled>Compare Selected Structures</button>
+                            <div id="structure-comparison" style="display: none; margin-top: var(--spacing-md);"></div>
+                        </div>
+
+                        <!-- Tax Year Planner -->
+                        <div class="calculator-card" style="grid-column: 1 / -1;">
+                            <h3>Tax Year Planner</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: var(--spacing-md);">View important dates and deadlines for the current tax year.</p>
+                            <div class="form-group" style="max-width: 400px;">
+                                <label for="planner-year">Tax Year</label>
+                                <select id="planner-year">
+                                    <option value="2026">2026/27 (6 April 2026 - 5 April 2027)</option>
+                                    <option value="2025">2025/26 (6 April 2025 - 5 April 2026)</option>
+                                    <option value="2024">2024/25 (6 April 2024 - 5 April 2025)</option>
+                                    <option value="2023">2023/24 (6 April 2023 - 5 April 2024)</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="showTaxYearPlanner()" style="width: auto; min-width: 200px;">View Planner</button>
+                            <div id="tax-planner" style="display: none; margin-top: var(--spacing-md);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="section">
+            <div class="section-container">
+                <div class="cta-banner cta-banner-gradient-1">
+                    <h2>Need Help with Your Tax & Accounts?</h2>
+                    <p>These tools provide estimates for guidance only. For accurate advice tailored to your situation, speak to our team.</p>
+                    <div class="cta-banner-actions">
+                        <a href="/contact" class="btn btn-primary">Get Expert Advice</a>
+                        <a href="tel:08001404644" class="btn btn-secondary">Call 0800 140 4644</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-section footer-logo-section">
+                <img src="/Images/long logo.png" alt="Black and White Accounting" class="footer-logo">
+            </div>
+            <div class="footer-section footer-services">
+                <h4>Services</h4>
+                <ul class="footer-links">
+                    <li><a href="/services-tax">Tax</a></li>
+                    <li><a href="/services-accounts">Accounts</a></li>
+                    <li><a href="/services-advisory">Advisory</a></li>
+                </ul>
+            </div>
+            <div class="footer-section footer-sectors">
+                <h4>Sectors</h4>
+                <ul class="footer-links">
+                    <li><a href="/sectors-construction">Construction</a></li>
+                    <li><a href="/sectors-property">Property & Landlords</a></li>
+                    <li><a href="/sectors-ecommerce">E-commerce</a></li>
+                    <li><a href="/sectors-professional-services">Professional Services</a></li>
+                    <li><a href="/sectors-retail">Retail</a></li>
+                    <li><a href="/sectors-trades">Trades</a></li>
+                    <li><a href="/sectors-startups">Startups</a></li>
+                    <li><a href="/sectors-healthcare">Healthcare</a></li>
+                    <li><a href="/sectors-hospitality">Hospitality</a></li>
+                </ul>
+            </div>
+            <div class="footer-section footer-contact">
+                <h4>Contact</h4>
+                <p class="footer-phone">
+                    <a href="tel:08001404644">0800 140 4644</a>
+                </p>
+                <div class="footer-locations">
+                    <div class="footer-location">
+                        <strong>Wraysbury</strong>
+                        <p>Wraysbury Hall, Ferry Lane<br>Wraysbury, Staines-Upon-Thames TW19 6HG</p>
+                    </div>
+                    <div class="footer-location">
+                        <strong>Herriard</strong>
+                        <p>The Well House, 4 Stable Court<br>Herriard, Basingstoke, England, RG25 2PL</p>
+                    </div>
+                </div>
+                <a href="/contact" class="btn btn-secondary btn-small">Contact Us</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-container">
+                <div class="footer-legal">
+                    <a href="/privacy">Privacy Policy</a>
+                    <a href="/terms">Terms & Conditions</a>
+                </div>
+                <p class="footer-copyright">&copy; 2024 Black and White Accounting. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/script.js"></script>
+    <script>
+        // Tax Calculator Functions
+        function calculateSelfAssessment() {
+            const income = parseFloat(document.getElementById('sa-income').value) || 0;
+            const allowance = parseFloat(document.getElementById('sa-allowance').value) || 12570;
+            const taxable = Math.max(0, income - allowance);
+            
+            let tax = 0;
+            if (taxable > 0) {
+                const basicRate = Math.min(taxable, 37700) * 0.20;
+                const higherRate = Math.max(0, Math.min(taxable - 37700, 112300 - 37700)) * 0.40;
+                const additionalRate = Math.max(0, taxable - 112300) * 0.45;
+                tax = basicRate + higherRate + additionalRate;
+            }
+            
+            const result = document.getElementById('sa-result');
+            result.innerHTML = `
+                <h4>Self Assessment Tax Calculation</h4>
+                <p><strong>Annual Income:</strong> £${income.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p><strong>Personal Allowance:</strong> £${allowance.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p><strong>Taxable Income:</strong> £${taxable.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p style="font-size: var(--font-size-lg); margin-top: var(--spacing-md);"><strong>Estimated Tax Due:</strong> £${tax.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-sm);">This is an estimate. Actual tax may vary based on other income, deductions, and reliefs.</p>
+            `;
+            result.style.display = 'block';
+        }
+
+        function calculateCorporationTax() {
+            const profit = parseFloat(document.getElementById('ct-profit').value) || 0;
+            const year = document.getElementById('ct-year').value;
+            const rate = year === '2024' ? 0.25 : 0.19;
+            
+            let tax = 0;
+            if (year === '2024' && profit > 50000) {
+                // Marginal relief for 2024/25
+                if (profit <= 250000) {
+                    const marginalRelief = (250000 - profit) * 0.015;
+                    tax = (profit * rate) - marginalRelief;
+                } else {
+                    tax = profit * rate;
+                }
+            } else {
+                tax = profit * rate;
+            }
+            
+            const result = document.getElementById('ct-result');
+            result.innerHTML = `
+                <h4>Corporation Tax Calculation</h4>
+                <p><strong>Annual Profit:</strong> £${profit.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p><strong>Tax Rate:</strong> ${(rate * 100).toFixed(0)}%</p>
+                <p style="font-size: var(--font-size-lg); margin-top: var(--spacing-md);"><strong>Corporation Tax Due:</strong> £${tax.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-sm);">This is an estimate. Actual tax may vary based on allowances and reliefs.</p>
+            `;
+            result.style.display = 'block';
+        }
+
+        function calculateVAT() {
+            const amount = parseFloat(document.getElementById('vat-amount').value) || 0;
+            const rate = parseFloat(document.getElementById('vat-rate').value) / 100;
+            const type = document.getElementById('vat-type').value;
+            
+            let vatAmount, total, net;
+            if (type === 'add') {
+                vatAmount = amount * rate;
+                total = amount + vatAmount;
+                net = amount;
+            } else {
+                total = amount;
+                net = amount / (1 + rate);
+                vatAmount = total - net;
+            }
+            
+            const result = document.getElementById('vat-result');
+            result.innerHTML = `
+                <h4>VAT Calculation</h4>
+                <p><strong>${type === 'add' ? 'Net Amount' : 'Total Amount'}:</strong> £${(type === 'add' ? net : total).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p><strong>VAT (${(rate * 100).toFixed(0)}%):</strong> £${vatAmount.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p style="font-size: var(--font-size-lg); margin-top: var(--spacing-md);"><strong>${type === 'add' ? 'Total (inc. VAT)' : 'Net Amount'}:</strong> £${(type === 'add' ? total : net).toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+            `;
+            result.style.display = 'block';
+        }
+
+        function calculateSalaryVsDividend() {
+            const profit = parseFloat(document.getElementById('svd-profit').value) || 0;
+            const salary = parseFloat(document.getElementById('svd-salary').value) || 12570;
+            const dividend = profit - salary;
+            
+            // Salary tax (assuming basic rate)
+            const salaryTaxable = Math.max(0, salary - 12570);
+            const salaryTax = salaryTaxable * 0.20;
+            const salaryNI = salary > 12570 ? (salary - 12570) * 0.12 : 0;
+            const salaryAfterTax = salary - salaryTax - salaryNI;
+            
+            // Dividend tax (assuming basic rate, first £500 tax-free)
+            const dividendAllowance = 500;
+            const dividendTaxable = Math.max(0, dividend - dividendAllowance);
+            const dividendTax = dividendTaxable * 0.075; // 8.75% for basic rate, but calculated on taxable amount
+            const dividendAfterTax = dividend - dividendTax;
+            
+            const totalTakeHome = salaryAfterTax + dividendAfterTax;
+            const totalTax = salaryTax + salaryNI + dividendTax;
+            
+            const result = document.getElementById('svd-result');
+            result.innerHTML = `
+                <h4>Salary vs Dividend Calculation</h4>
+                <p><strong>Company Profit:</strong> £${profit.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p><strong>Salary:</strong> £${salary.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p><strong>Dividend:</strong> £${dividend.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <hr style="margin: var(--spacing-md) 0; border: none; border-top: 1px solid rgba(0,0,0,0.1);">
+                <p><strong>Total Tax & NI:</strong> £${totalTax.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p style="font-size: var(--font-size-lg); margin-top: var(--spacing-md);"><strong>Total Take Home:</strong> £${totalTakeHome.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-sm);">This is an estimate. Actual tax may vary based on other income and tax bands.</p>
+            `;
+            result.style.display = 'block';
+        }
+
+        function calculateCGT() {
+            const sale = parseFloat(document.getElementById('cgt-sale').value) || 0;
+            const cost = parseFloat(document.getElementById('cgt-cost').value) || 0;
+            const allowance = parseFloat(document.getElementById('cgt-allowance').value) || 3000;
+            
+            const gain = sale - cost;
+            const taxableGain = Math.max(0, gain - allowance);
+            const cgt = taxableGain * 0.20; // Assuming basic rate
+            
+            const result = document.getElementById('cgt-result');
+            result.innerHTML = `
+                <h4>Capital Gains Tax Calculation</h4>
+                <p><strong>Sale Price:</strong> £${sale.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p><strong>Purchase Price:</strong> £${cost.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p><strong>Gain:</strong> £${gain.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p><strong>Annual Allowance:</strong> £${allowance.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p><strong>Taxable Gain:</strong> £${taxableGain.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p style="font-size: var(--font-size-lg); margin-top: var(--spacing-md);"><strong>CGT Due:</strong> £${cgt.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-sm);">This is an estimate. Actual CGT may vary based on tax band and other factors.</p>
+            `;
+            result.style.display = 'block';
+        }
+
+        function calculateTaxFreeAllowance() {
+            const income = parseFloat(document.getElementById('tfa-income').value) || 0;
+            const year = document.getElementById('tfa-year').value;
+            const personalAllowance = 12570;
+            const dividendAllowance = 500;
+            const savingsAllowance = income <= 50270 ? 1000 : (income <= 150000 ? 500 : 0);
+            
+            const result = document.getElementById('tfa-result');
+            result.innerHTML = `
+                <h4>Tax-Free Allowances (${year === '2024' ? '2024/25' : '2023/24'})</h4>
+                <p><strong>Personal Allowance:</strong> £${personalAllowance.toLocaleString('en-GB')}</p>
+                <p><strong>Dividend Allowance:</strong> £${dividendAllowance.toLocaleString('en-GB')}</p>
+                <p><strong>Savings Allowance:</strong> £${savingsAllowance.toLocaleString('en-GB')}</p>
+                <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--spacing-sm);">Allowances may be reduced if your income exceeds certain thresholds.</p>
+            `;
+            result.style.display = 'block';
+        }
+
+        // Deadlines Wizard
+        let wizardData = {
+            businessType: '',
+            corporationDate: '',
+            vatRegistered: false,
+            payeRegistered: false,
+            hasEmployees: false,
+            accountingDate: '',
+            yearEnd: ''
+        };
+
+        function updateWizard() {
+            const businessType = document.getElementById('business-type').value;
+            wizardData.businessType = businessType;
+            document.getElementById('step-1-btn').disabled = !businessType;
+        }
+
+        function nextStep() {
+            const currentStep = document.querySelector('.wizard-step.active');
+            const currentStepNum = parseInt(currentStep.id.split('-')[1]);
+            
+            if (currentStepNum === 1) {
+                showStep2();
+            } else if (currentStepNum === 2) {
+                showStep3();
+            }
+        }
+
+        function prevStep() {
+            const currentStep = document.querySelector('.wizard-step.active');
+            const currentStepNum = parseInt(currentStep.id.split('-')[1]);
+            
+            if (currentStepNum === 2) {
+                showStep1();
+            } else if (currentStepNum === 3) {
+                showStep2();
+            }
+        }
+
+        function showStep1() {
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-1').classList.add('active');
+            updateProgress(1);
+        }
+
+        function showStep2() {
+            const businessType = wizardData.businessType;
+            const step2 = document.getElementById('step-2');
+            const step2Title = document.getElementById('step-2-title');
+            const step2Content = document.getElementById('step-2-content');
+            const step2Btn = document.getElementById('step-2-btn');
+            
+            let html = '';
+            let title = '';
+            
+            if (businessType === 'limited-company') {
+                title = 'Limited Company Details';
+                html = `
+                    <div class="form-group">
+                        <label for="corp-date">Company Incorporation Date</label>
+                        <input type="date" id="corp-date" onchange="updateWizardData()">
+                    </div>
+                    <div class="form-group">
+                        <label for="year-end">Accounting Year End Date</label>
+                        <input type="date" id="year-end" onchange="updateWizardData()">
+                    </div>
+                    <div class="form-group">
+                        <label>Are you VAT registered?</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" name="vat" id="vat-yes" value="yes" onchange="updateWizardData()">
+                                <label for="vat-yes">Yes</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" name="vat" id="vat-no" value="no" onchange="updateWizardData()">
+                                <label for="vat-no">No</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Do you have employees?</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" name="employees" id="emp-yes" value="yes" onchange="updateWizardData()">
+                                <label for="emp-yes">Yes</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" name="employees" id="emp-no" value="no" onchange="updateWizardData()">
+                                <label for="emp-no">No</label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (businessType === 'sole-trader') {
+                title = 'Sole Trader Details';
+                html = `
+                    <div class="form-group">
+                        <label for="accounting-date">Accounting Year End Date</label>
+                        <input type="date" id="accounting-date" onchange="updateWizardData()">
+                    </div>
+                    <div class="form-group">
+                        <label>Are you VAT registered?</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" name="vat" id="vat-yes" value="yes" onchange="updateWizardData()">
+                                <label for="vat-yes">Yes</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" name="vat" id="vat-no" value="no" onchange="updateWizardData()">
+                                <label for="vat-no">No</label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (businessType === 'partnership' || businessType === 'llp') {
+                title = businessType === 'partnership' ? 'Partnership Details' : 'LLP Details';
+                html = `
+                    <div class="form-group">
+                        <label for="accounting-date">Accounting Year End Date</label>
+                        <input type="date" id="accounting-date" onchange="updateWizardData()">
+                    </div>
+                    <div class="form-group">
+                        <label>Are you VAT registered?</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" name="vat" id="vat-yes" value="yes" onchange="updateWizardData()">
+                                <label for="vat-yes">Yes</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" name="vat" id="vat-no" value="no" onchange="updateWizardData()">
+                                <label for="vat-no">No</label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                title = 'Individual Details';
+                html = `
+                    <div class="form-group">
+                        <label>Do you have rental income?</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" name="rental" id="rental-yes" value="yes" onchange="updateWizardData()">
+                                <label for="rental-yes">Yes</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" name="rental" id="rental-no" value="no" onchange="updateWizardData()">
+                                <label for="rental-no">No</label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            step2Title.textContent = title;
+            step2Content.innerHTML = html;
+            step2Btn.disabled = true;
+            
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            step2.classList.add('active');
+            updateProgress(2);
+        }
+
+        function showStep3() {
+            const deadlines = calculateDeadlines();
+            const resultsList = document.getElementById('deadline-results');
+            resultsList.innerHTML = '';
+            
+            deadlines.forEach(deadline => {
+                const li = document.createElement('li');
+                li.className = 'deadline-item';
+                const urgencyClass = deadline.urgency === 'urgent' ? 'deadline-urgent' : 
+                                   deadline.urgency === 'soon' ? 'deadline-soon' : 'deadline-upcoming';
+                li.innerHTML = `
+                    <div>
+                        <strong>${deadline.title}</strong>
+                        <p style="margin: var(--spacing-xs) 0 0 0; color: var(--text-secondary); font-size: var(--font-size-sm);">${deadline.description}</p>
+                    </div>
+                    <span class="deadline-date ${urgencyClass}">${deadline.date}</span>
+                `;
+                resultsList.appendChild(li);
+            });
+            
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-3').classList.add('active');
+            updateProgress(3);
+        }
+
+        function updateWizardData() {
+            const businessType = wizardData.businessType;
+            
+            if (businessType === 'limited-company') {
+                wizardData.corporationDate = document.getElementById('corp-date')?.value || '';
+                wizardData.yearEnd = document.getElementById('year-end')?.value || '';
+                wizardData.vatRegistered = document.getElementById('vat-yes')?.checked || false;
+                wizardData.hasEmployees = document.getElementById('emp-yes')?.checked || false;
+                
+                const btn = document.getElementById('step-2-btn');
+                btn.disabled = !(wizardData.corporationDate && wizardData.yearEnd && 
+                                (document.getElementById('vat-yes')?.checked || document.getElementById('vat-no')?.checked) &&
+                                (document.getElementById('emp-yes')?.checked || document.getElementById('emp-no')?.checked));
+            } else if (businessType === 'sole-trader' || businessType === 'partnership' || businessType === 'llp') {
+                wizardData.accountingDate = document.getElementById('accounting-date')?.value || '';
+                wizardData.vatRegistered = document.getElementById('vat-yes')?.checked || false;
+                
+                const btn = document.getElementById('step-2-btn');
+                btn.disabled = !(wizardData.accountingDate && 
+                                (document.getElementById('vat-yes')?.checked || document.getElementById('vat-no')?.checked));
+            } else {
+                const btn = document.getElementById('step-2-btn');
+                btn.disabled = !(document.getElementById('rental-yes')?.checked || document.getElementById('rental-no')?.checked);
+            }
+        }
+
+        function calculateDeadlines() {
+            const deadlines = [];
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            
+            // Self Assessment deadlines (for all)
+            deadlines.push({
+                title: 'Self Assessment Online Return',
+                description: 'File your Self Assessment tax return online',
+                date: `31 January ${currentYear + 1}`,
+                urgency: today.getMonth() === 0 && today.getDate() <= 31 ? 'urgent' : 'upcoming'
+            });
+            
+            deadlines.push({
+                title: 'Self Assessment Payment',
+                description: 'Pay any tax due for the previous tax year',
+                date: `31 January ${currentYear + 1}`,
+                urgency: today.getMonth() === 0 && today.getDate() <= 31 ? 'urgent' : 'upcoming'
+            });
+            
+            if (wizardData.businessType === 'limited-company') {
+                // Corporation Tax
+                if (wizardData.yearEnd) {
+                    const yearEnd = new Date(wizardData.yearEnd);
+                    const ctDeadline = new Date(yearEnd);
+                    ctDeadline.setMonth(ctDeadline.getMonth() + 9);
+                    deadlines.push({
+                        title: 'Corporation Tax Return',
+                        description: 'File Corporation Tax return (CT600)',
+                        date: formatDate(ctDeadline),
+                        urgency: getUrgency(ctDeadline)
+                    });
+                    
+                    const ctPayment = new Date(yearEnd);
+                    ctPayment.setMonth(ctPayment.getMonth() + 9);
+                    deadlines.push({
+                        title: 'Corporation Tax Payment',
+                        description: 'Pay Corporation Tax due',
+                        date: formatDate(ctPayment),
+                        urgency: getUrgency(ctPayment)
+                    });
+                }
+                
+                // Confirmation Statement
+                if (wizardData.corporationDate) {
+                    const corpDate = new Date(wizardData.corporationDate);
+                    const confirmationDate = new Date(corpDate);
+                    confirmationDate.setFullYear(currentYear);
+                    if (confirmationDate < today) {
+                        confirmationDate.setFullYear(currentYear + 1);
+                    }
+                    deadlines.push({
+                        title: 'Confirmation Statement',
+                        description: 'File annual confirmation statement with Companies House',
+                        date: formatDate(confirmationDate),
+                        urgency: getUrgency(confirmationDate)
+                    });
+                }
+                
+                // Annual Accounts
+                if (wizardData.yearEnd) {
+                    const yearEnd = new Date(wizardData.yearEnd);
+                    const accountsDeadline = new Date(yearEnd);
+                    accountsDeadline.setMonth(accountsDeadline.getMonth() + 9);
+                    deadlines.push({
+                        title: 'Annual Accounts Filing',
+                        description: 'File annual accounts with Companies House',
+                        date: formatDate(accountsDeadline),
+                        urgency: getUrgency(accountsDeadline)
+                    });
+                }
+            }
+            
+            // VAT deadlines
+            if (wizardData.vatRegistered) {
+                deadlines.push({
+                    title: 'VAT Return (Quarterly)',
+                    description: 'Submit VAT return and payment (if applicable)',
+                    date: 'Quarterly - 1 month after quarter end',
+                    urgency: 'upcoming'
+                });
+            }
+            
+            // PAYE deadlines
+            if (wizardData.hasEmployees) {
+                deadlines.push({
+                    title: 'PAYE Payment',
+                    description: 'Pay PAYE and National Insurance',
+                    date: 'Monthly - by 22nd of following month',
+                    urgency: 'upcoming'
+                });
+                
+                deadlines.push({
+                    title: 'P11D Benefits Return',
+                    description: 'Report employee benefits',
+                    date: `6 July ${currentYear + 1}`,
+                    urgency: 'upcoming'
+                });
+            }
+            
+            // Sort by date
+            deadlines.sort((a, b) => {
+                if (a.date.includes('Quarterly') || a.date.includes('Monthly')) return 1;
+                if (b.date.includes('Quarterly') || b.date.includes('Monthly')) return -1;
+                return new Date(a.date) - new Date(b.date);
+            });
+            
+            return deadlines;
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function getUrgency(date) {
+            const today = new Date();
+            const diffTime = date - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) return 'urgent';
+            if (diffDays <= 30) return 'soon';
+            return 'upcoming';
+        }
+
+        function updateProgress(step) {
+            const progress = document.getElementById('wizard-progress');
+            const steps = ['Business Type', 'Details', 'Results'];
+            progress.innerHTML = '';
+            
+            steps.forEach((label, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'wizard-progress-step';
+                if (index + 1 < step) stepDiv.classList.add('completed');
+                if (index + 1 === step) stepDiv.classList.add('active');
+                stepDiv.innerHTML = `<span style="font-size: var(--font-size-sm);">${label}</span>`;
+                progress.appendChild(stepDiv);
+            });
+        }
+
+        function resetWizard() {
+            wizardData = {
+                businessType: '',
+                corporationDate: '',
+                vatRegistered: false,
+                payeRegistered: false,
+                hasEmployees: false,
+                accountingDate: '',
+                yearEnd: ''
+            };
+            document.getElementById('business-type').value = '';
+            showStep1();
+        }
+
+        // Other Tools
+        // Business structure data
+        const businessStructures = {
+            'sole-trader': {
+                name: 'Sole Trader',
+                liability: 'Unlimited',
+                taxRate: 'Income Tax (20-45%)',
+                setupCost: 'Free',
+                privacy: 'Private',
+                registration: 'Not required',
+                accounts: 'Self Assessment only',
+                nationalInsurance: 'Class 2 & 4',
+                taxEfficiency: 'Lower (no dividend allowance)',
+                complexity: 'Simple',
+                suitableFor: 'Single person businesses, freelancers'
+            },
+            'limited-company': {
+                name: 'Limited Company',
+                liability: 'Limited',
+                taxRate: 'Corporation Tax (19-25%)',
+                setupCost: '£12-£50',
+                privacy: 'Public records (Companies House)',
+                registration: 'Companies House',
+                accounts: 'Statutory accounts + CT600',
+                nationalInsurance: 'Class 1 (if salary)',
+                taxEfficiency: 'Higher (dividend allowance, lower CT)',
+                complexity: 'More complex',
+                suitableFor: 'Growing businesses, seeking investment'
+            },
+            'partnership': {
+                name: 'Partnership',
+                liability: 'Unlimited (joint & several)',
+                taxRate: 'Income Tax (20-45%)',
+                setupCost: 'Free',
+                privacy: 'Private',
+                registration: 'Not required',
+                accounts: 'Partnership return + individual SA',
+                nationalInsurance: 'Class 2 & 4',
+                taxEfficiency: 'Lower (no dividend allowance)',
+                complexity: 'Moderate',
+                suitableFor: '2+ people, professional services'
+            },
+            'llp': {
+                name: 'Limited Liability Partnership',
+                liability: 'Limited',
+                taxRate: 'Income Tax (20-45%)',
+                setupCost: '£10-£20',
+                privacy: 'Public records (Companies House)',
+                registration: 'Companies House',
+                accounts: 'Statutory accounts + individual SA',
+                nationalInsurance: 'Class 2 & 4',
+                taxEfficiency: 'Lower (no dividend allowance)',
+                complexity: 'More complex',
+                suitableFor: 'Professional partnerships, law/accounting firms'
+            }
+        };
+
+        function updateComparisonSelection() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][id^="compare-"]:checked');
+            const btn = document.getElementById('compare-btn');
+            
+            if (checkboxes.length === 0) {
+                btn.disabled = true;
+            } else if (checkboxes.length > 3) {
+                // Uncheck the last one if more than 3 selected
+                checkboxes[checkboxes.length - 1].checked = false;
+                btn.disabled = false;
+            } else {
+                btn.disabled = false;
+            }
+        }
+
+        function showStructureComparison() {
+            const selected = [];
+            document.querySelectorAll('input[type="checkbox"][id^="compare-"]:checked').forEach(cb => {
+                selected.push(cb.value);
+            });
+            
+            if (selected.length === 0) {
+                alert('Please select at least one business structure to compare.');
+                return;
+            }
+            
+            if (selected.length > 3) {
+                alert('Please select a maximum of 3 business structures.');
+                return;
+            }
+            
+            const comparison = document.getElementById('structure-comparison');
+            
+            // Build table header
+            let html = '<div style="overflow-x: auto; margin-top: var(--spacing-md);">';
+            html += '<table style="width: 100%; border-collapse: collapse;">';
+            html += '<thead><tr style="background: var(--bg-alt);">';
+            html += '<th style="padding: var(--spacing-md); text-align: left; border: 1px solid rgba(0,0,0,0.1); font-weight: 600;">Feature</th>';
+            selected.forEach(type => {
+                html += `<th style="padding: var(--spacing-md); text-align: left; border: 1px solid rgba(0,0,0,0.1); font-weight: 600;">${businessStructures[type].name}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            
+            // Build table rows
+            const features = [
+                { key: 'liability', label: 'Liability' },
+                { key: 'taxRate', label: 'Tax Rate' },
+                { key: 'setupCost', label: 'Setup Cost' },
+                { key: 'privacy', label: 'Privacy' },
+                { key: 'registration', label: 'Registration' },
+                { key: 'accounts', label: 'Accounts Required' },
+                { key: 'nationalInsurance', label: 'National Insurance' },
+                { key: 'taxEfficiency', label: 'Tax Efficiency' },
+                { key: 'complexity', label: 'Complexity' },
+                { key: 'suitableFor', label: 'Suitable For' }
+            ];
+            
+            features.forEach(feature => {
+                html += '<tr>';
+                html += `<td style="padding: var(--spacing-md); border: 1px solid rgba(0,0,0,0.1); font-weight: 500; background: var(--bg-alt);"><strong>${feature.label}</strong></td>`;
+                selected.forEach(type => {
+                    html += `<td style="padding: var(--spacing-md); border: 1px solid rgba(0,0,0,0.1);">${businessStructures[type][feature.key]}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            
+            comparison.innerHTML = html;
+            comparison.style.display = 'block';
+        }
+
+        function showTaxYearPlanner() {
+            const year = document.getElementById('planner-year').value;
+            const planner = document.getElementById('tax-planner');
+            
+            const taxYearData = {
+                '2026': {
+                    start: '6 April 2026',
+                    end: '5 April 2027',
+                    dates: [
+                        { date: '6 April 2026', event: 'Tax Year 2026/27 Begins' },
+                        { date: '31 July 2026', event: 'Second Payment on Account Due (2025/26)' },
+                        { date: '31 October 2026', event: 'Paper Self Assessment Deadline (2025/26)' },
+                        { date: '31 January 2027', event: 'Online Self Assessment & Payment Due (2025/26)' },
+                        { date: '31 July 2027', event: 'Second Payment on Account Due (2026/27)' },
+                        { date: '5 April 2027', event: 'Tax Year 2026/27 Ends' }
+                    ],
+                    rates: {
+                        personalAllowance: '£12,570',
+                        basicRate: '20% (up to £37,700)',
+                        higherRate: '40% (£37,701 - £125,140)',
+                        additionalRate: '45% (over £125,140)',
+                        corporationTax: '25% (profits over £250k), 19% (profits up to £50k), marginal relief (£50k-£250k)',
+                        dividendAllowance: '£500',
+                        cgtAllowance: '£3,000'
+                    }
+                },
+                '2025': {
+                    start: '6 April 2025',
+                    end: '5 April 2026',
+                    dates: [
+                        { date: '6 April 2025', event: 'Tax Year 2025/26 Begins' },
+                        { date: '31 July 2025', event: 'Second Payment on Account Due (2024/25)' },
+                        { date: '31 October 2025', event: 'Paper Self Assessment Deadline (2024/25)' },
+                        { date: '31 January 2026', event: 'Online Self Assessment & Payment Due (2024/25)' },
+                        { date: '31 July 2026', event: 'Second Payment on Account Due (2025/26)' },
+                        { date: '5 April 2026', event: 'Tax Year 2025/26 Ends' }
+                    ],
+                    rates: {
+                        personalAllowance: '£12,570',
+                        basicRate: '20% (up to £37,700)',
+                        higherRate: '40% (£37,701 - £125,140)',
+                        additionalRate: '45% (over £125,140)',
+                        corporationTax: '25% (profits over £250k), 19% (profits up to £50k), marginal relief (£50k-£250k)',
+                        dividendAllowance: '£500',
+                        cgtAllowance: '£3,000'
+                    }
+                },
+                '2024': {
+                    start: '6 April 2024',
+                    end: '5 April 2025',
+                    dates: [
+                        { date: '6 April 2024', event: 'Tax Year 2024/25 Begins' },
+                        { date: '31 July 2024', event: 'Second Payment on Account Due (2023/24)' },
+                        { date: '31 October 2024', event: 'Paper Self Assessment Deadline (2023/24)' },
+                        { date: '31 January 2025', event: 'Online Self Assessment & Payment Due (2023/24)' },
+                        { date: '31 July 2025', event: 'Second Payment on Account Due (2024/25)' },
+                        { date: '5 April 2025', event: 'Tax Year 2024/25 Ends' }
+                    ],
+                    rates: {
+                        personalAllowance: '£12,570',
+                        basicRate: '20% (up to £37,700)',
+                        higherRate: '40% (£37,701 - £125,140)',
+                        additionalRate: '45% (over £125,140)',
+                        corporationTax: '25% (profits over £250k), 19% (profits up to £50k), marginal relief (£50k-£250k)',
+                        dividendAllowance: '£500',
+                        cgtAllowance: '£3,000'
+                    }
+                },
+                '2023': {
+                    start: '6 April 2023',
+                    end: '5 April 2024',
+                    dates: [
+                        { date: '6 April 2023', event: 'Tax Year 2023/24 Begins' },
+                        { date: '31 July 2023', event: 'Second Payment on Account Due (2022/23)' },
+                        { date: '31 October 2023', event: 'Paper Self Assessment Deadline (2022/23)' },
+                        { date: '31 January 2024', event: 'Online Self Assessment & Payment Due (2022/23)' },
+                        { date: '31 July 2024', event: 'Second Payment on Account Due (2023/24)' },
+                        { date: '5 April 2024', event: 'Tax Year 2023/24 Ends' }
+                    ],
+                    rates: {
+                        personalAllowance: '£12,570',
+                        basicRate: '20% (up to £37,700)',
+                        higherRate: '40% (£37,701 - £125,140)',
+                        additionalRate: '45% (over £125,140)',
+                        corporationTax: '19% (all profits)',
+                        dividendAllowance: '£1,000',
+                        cgtAllowance: '£6,000'
+                    }
+                }
+            };
+            
+            const data = taxYearData[year];
+            
+            let html = `<div style="margin-top: var(--spacing-md);">`;
+            html += `<h4 style="margin-bottom: var(--spacing-md);">Tax Year ${year}/${parseInt(year) + 1 - 2000} (${data.start} - ${data.end})</h4>`;
+            
+            html += '<div style="background: var(--bg-alt); padding: var(--spacing-md); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);">';
+            html += '<h5 style="margin-bottom: var(--spacing-sm);">Key Tax Rates & Allowances</h5>';
+            html += '<ul style="list-style: none; padding: 0; margin: 0;">';
+            html += `<li style="padding: var(--spacing-xs) 0;"><strong>Personal Allowance:</strong> ${data.rates.personalAllowance}</li>`;
+            html += `<li style="padding: var(--spacing-xs) 0;"><strong>Basic Rate:</strong> ${data.rates.basicRate}</li>`;
+            html += `<li style="padding: var(--spacing-xs) 0;"><strong>Higher Rate:</strong> ${data.rates.higherRate}</li>`;
+            html += `<li style="padding: var(--spacing-xs) 0;"><strong>Additional Rate:</strong> ${data.rates.additionalRate}</li>`;
+            html += `<li style="padding: var(--spacing-xs) 0;"><strong>Corporation Tax:</strong> ${data.rates.corporationTax}</li>`;
+            html += `<li style="padding: var(--spacing-xs) 0;"><strong>Dividend Allowance:</strong> ${data.rates.dividendAllowance}</li>`;
+            html += `<li style="padding: var(--spacing-xs) 0;"><strong>CGT Allowance:</strong> ${data.rates.cgtAllowance}</li>`;
+            html += '</ul></div>';
+            
+            html += '<h5 style="margin-bottom: var(--spacing-md);">Important Dates</h5>';
+            html += '<ul style="list-style: none; padding: 0; margin: 0;">';
+            data.dates.forEach(item => {
+                html += `
+                    <li style="padding: var(--spacing-md); border-bottom: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+                        <span><strong>${item.date}</strong></span>
+                        <span style="text-align: right; color: var(--text-secondary);">${item.event}</span>
+                    </li>
+                `;
+            });
+            html += '</ul></div>';
+            
+            planner.innerHTML = html;
+            planner.style.display = 'block';
+        }
+
+        // Initialize
+        updateProgress(1);
+    </script>
+</body>
+</html>

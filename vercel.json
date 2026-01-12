@@ -69,17 +69,49 @@
       "destination": "/sectors-trades.html"
     },
     {
+      "source": "/sectors-contractors-consultants",
+      "destination": "/sectors-contractors-consultants.html"
+    },
+    {
+      "source": "/sectors-freelancers-creatives",
+      "destination": "/sectors-freelancers-creatives.html"
+    },
+    {
+      "source": "/sectors-farming-agriculture",
+      "destination": "/sectors-farming-agriculture.html"
+    },
+    {
+      "source": "/sectors-it-tech",
+      "destination": "/sectors-it-tech.html"
+    },
+    {
+      "source": "/sectors-automotive-engineering",
+      "destination": "/sectors-automotive-engineering.html"
+    },
+    {
+      "source": "/sectors-education-training",
+      "destination": "/sectors-education-training.html"
+    },
+    {
+      "source": "/sectors-charities",
+      "destination": "/sectors-charities.html"
+    },
+    {
       "source": "/blog",
       "destination": "/blog.html"
     },
-    {
-      "source": "/blog-post",
-      "destination": "/blog-post.html"
-    },
-    {
-      "source": "/privacy",
-      "destination": "/privacy.html"
-    },
+          {
+            "source": "/blog-post",
+            "destination": "/blog-post.html"
+          },
+          {
+            "source": "/tools",
+            "destination": "/tools.html"
+          },
+          {
+            "source": "/privacy",
+            "destination": "/privacy.html"
+          },
     {
       "source": "/terms",
       "destination": "/terms.html"
@@ -167,6 +199,46 @@
     {
       "source": "/services-accounts/group-accounts",
       "destination": "/services-accounts/group-accounts.html"
+    },
+    {
+      "source": "/services-advisory/business-planning-startups",
+      "destination": "/services-advisory/business-planning-startups.html"
+    },
+    {
+      "source": "/services-advisory/cashflow-forecasting-budgeting",
+      "destination": "/services-advisory/cashflow-forecasting-budgeting.html"
+    },
+    {
+      "source": "/services-advisory/growth-advisory",
+      "destination": "/services-advisory/growth-advisory.html"
+    },
+    {
+      "source": "/services-advisory/profit-improvement-cost-optimisation",
+      "destination": "/services-advisory/profit-improvement-cost-optimisation.html"
+    },
+    {
+      "source": "/services-advisory/funding-support-investor-readiness",
+      "destination": "/services-advisory/funding-support-investor-readiness.html"
+    },
+    {
+      "source": "/services-advisory/due-diligence-support",
+      "destination": "/services-advisory/due-diligence-support.html"
+    },
+    {
+      "source": "/services-advisory/business-valuation",
+      "destination": "/services-advisory/business-valuation.html"
+    },
+    {
+      "source": "/services-advisory/exit-succession-planning",
+      "destination": "/services-advisory/exit-succession-planning.html"
+    },
+    {
+      "source": "/services-advisory/company-secretarial",
+      "destination": "/services-advisory/company-secretarial.html"
+    },
+    {
+      "source": "/services-advisory/software-systems-advisory",
+      "destination": "/services-advisory/software-systems-advisory.html"
     }
   ],
   "headers": [
