@@ -896,10 +896,8 @@ function setupMegaMenuPositioning() {
     });
 }
 
-function setupAccordions() {
-    const expandableSections = document.querySelectorAll('.sub-pillar-expandable');
-    
-    if (expandableSections.length === 0) return;
+        return;
+    }
     
     expandableSections.forEach(section => {
         const header = section.querySelector('.sub-pillar-expandable-header');
@@ -907,10 +905,12 @@ function setupAccordions() {
         
         if (!header || !content) return;
         
+        // Ensure content starts collapsed
         if (!section.classList.contains('active')) {
             content.style.maxHeight = '0';
         }
         
+        // Make header clickable
         header.style.cursor = 'pointer';
         
         header.addEventListener('click', function(e) {
@@ -920,10 +920,15 @@ function setupAccordions() {
             const isActive = section.classList.contains('active');
             
             if (isActive) {
+                // Collapse
                 section.classList.remove('active');
                 content.style.maxHeight = '0';
             } else {
+                // Expand - use CSS class which sets max-height to 5000px
                 section.classList.add('active');
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
                 content.style.maxHeight = 'none';
                 const height = content.scrollHeight;
                 content.style.maxHeight = '0';
@@ -931,15 +936,432 @@ function setupAccordions() {
                 requestAnimationFrame(() => {
                     content.style.maxHeight = height + 'px';
                 });
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+        if (sectionId && window.location.hash === "#" + sectionId) {
+            section.classList.add("active");
+            content.style.maxHeight = "none";
+            const height = content.scrollHeight;
+            content.style.maxHeight = height + "px";
+        if (sectionId && window.location.hash === '#' + sectionId) {
+            section.classList.add('active');
+            content.style.maxHeight = '';
+            setTimeout(() => {
+                const headerHeight = document.querySelector('.site-header')?.offsetHeight || 80;
+                const sectionTop = section.getBoundingClientRect().top + window.pageYOffset - headerHeight - 20;
+                window.scrollTo({ top: sectionTop, behavior: 'smooth' });
+            }, 100);
+        }
+    });
+}
+
+// Initialize accordions on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupAccordions);
+} else {
+    setupAccordions();
+}
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+        header.addEventListener("click", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isActive = section.classList.contains("active");
+            
+            if (isActive) {
+                section.classList.remove("active");
+                content.style.maxHeight = "0";
+            } else {
+                section.classList.add("active");
+                content.style.maxHeight = "none";
+                const height = content.scrollHeight;
+                content.style.maxHeight = "0";
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + "px";
+                });
+            }
+        });
+                });
             }
         });
         
+        // Handle hash links (e.g., #bookkeeping)
         const sectionId = section.id;
         if (sectionId && window.location.hash === '#' + sectionId) {
             section.classList.add('active');
             content.style.maxHeight = 'none';
             const height = content.scrollHeight;
             content.style.maxHeight = height + 'px';
+            // Scroll to section with offset for sticky header
             setTimeout(() => {
                 const headerHeight = document.querySelector('.site-header')?.offsetHeight || 80;
                 const sectionTop = section.getBoundingClientRect().top + window.pageYOffset - headerHeight - 20;
