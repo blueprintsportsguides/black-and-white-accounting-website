@@ -12,7 +12,7 @@ html {
     overflow-x: hidden !important;
     overflow-y: visible !important; /* Critical: visible allows sticky to work */
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     height: auto;
     min-height: 100%;
     -webkit-text-size-adjust: 100%; /* Prevent iOS text size adjustment */
@@ -94,7 +94,7 @@ body {
     overflow-y: visible !important; /* Critical: visible allows sticky to work */
     overflow: visible !important; /* Ensure no overflow constraints */
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     margin: 0;
     padding: 0;
     position: relative;
@@ -132,7 +132,7 @@ body {
 .section {
     padding: var(--spacing-3xl) 0;
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     overflow-x: hidden;
     box-sizing: border-box;
 }
@@ -141,7 +141,7 @@ body {
     background-color: var(--bg-light-pastel-1);
     padding: var(--spacing-3xl) 0;
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     overflow-x: hidden;
     box-sizing: border-box;
 }
@@ -150,7 +150,7 @@ body {
     background-color: var(--bg-light-pastel-2);
     padding: var(--spacing-3xl) 0;
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     overflow-x: hidden;
     box-sizing: border-box;
 }
@@ -159,7 +159,7 @@ body {
     background-color: var(--bg-light-pastel-3);
     padding: var(--spacing-3xl) 0;
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     overflow-x: hidden;
     box-sizing: border-box;
 }
@@ -507,7 +507,7 @@ table, pre, code, iframe, video, embed, object {
 
 /* Ensure all direct children of body respect viewport */
 body > * {
-    max-width: 100vw;
+    max-width: 100%;
     overflow-x: hidden;
 }
 
@@ -519,7 +519,7 @@ body > * {
     
     /* Override for specific elements that need full width */
     html, body, .main-content, .site-header, .site-footer {
-        max-width: 100vw;
+        max-width: 100%;
     }
     
     /* Ensure all containers are properly constrained */
@@ -556,7 +556,7 @@ body > * {
     right: 0;
     z-index: 1000;
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     will-change: transform; /* Optimize for sticky positioning */
     margin: 0;
     padding: 0;
@@ -924,7 +924,7 @@ body > * {
         bottom: 0 !important;
         width: 100vw !important;
         height: 100vh !important;
-        max-width: 100vw !important;
+        max-width: 100% !important;
         max-height: 100vh !important;
         min-width: 100vw !important;
         min-height: 100vh !important;
@@ -1332,7 +1332,7 @@ body > * {
     min-height: calc(100vh - 200px);
     padding-bottom: var(--spacing-3xl);
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     overflow-x: hidden;
     box-sizing: border-box;
 }
@@ -1468,7 +1468,7 @@ body > * {
     .hero {
         padding: var(--spacing-xl) 0;
         width: 100%;
-        max-width: 100vw;
+        max-width: 100%;
         overflow-x: hidden;
     }
     
