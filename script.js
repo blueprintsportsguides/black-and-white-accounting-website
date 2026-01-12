@@ -956,3 +956,239 @@ if (document.readyState === 'loading') {
     // DOM already loaded
     setupAccordions();
 }
+// ============================================
+// SCROLL ANIMATIONS (Intersection Observer)
+// ============================================
+
+function initScrollAnimations() {
+    const animatedElements = document.querySelectorAll('.scroll-fade-in, .scroll-slide-left, .scroll-slide-right, .scroll-scale-in');
+    
+    if (animatedElements.length === 0) return;
+    
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    animatedElements.forEach(el => observer.observe(el));
+}
+
+// ============================================
+// RIPPLE EFFECT (Mobile Tap Feedback)
+// ============================================
+
+function initRippleEffects() {
+    const rippleElements = document.querySelectorAll('.btn, .card, .service-pillar-card, .sector-card');
+    
+    rippleElements.forEach(element => {
+        element.classList.add('ripple-container', 'touch-target');
+        
+        const createRipple = (e) => {
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            
+            const rect = element.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left - size / 2;
+            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            element.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+        };
+        
+        element.addEventListener('touchstart', createRipple);
+        element.addEventListener('mousedown', createRipple);
+    });
+}
+
+// ============================================
+
+// ============================================
+// ANIMATED STATISTICS COUNTER
+// ============================================
+
+function animateCounter(element, target, duration = 2000) {
+    const start = 0;
+    const increment = target / (duration / 16);
+    let current = start;
+    
+    const updateCounter = () => {
+        current += increment;
+        if (current < target) {
+            element.textContent = Math.floor(current);
+            requestAnimationFrame(updateCounter);
+        } else {
+            element.textContent = target;
+        }
+    };
+    
+    updateCounter();
+}
+
+function initAnimatedStats() {
+    const statNumbers = document.querySelectorAll('.stat-number[data-count]');
+    
+    if (statNumbers.length === 0) return;
+    
+    const observerOptions = {
+        threshold: 0.5
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                entry.target.classList.add('animated');
+                const target = parseInt(entry.target.getAttribute('data-count'));
+                animateCounter(entry.target, target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    statNumbers.forEach(stat => observer.observe(stat));
+}
+
+// ============================================
+// TESTIMONIALS CAROUSEL
+// ============================================
+
+function initTestimonialsCarousel() {
+    const carousel = document.querySelector('.testimonials-carousel');
+    if (!carousel) return;
+    
+    const track = carousel.querySelector('.testimonials-track');
+    const slides = carousel.querySelectorAll('.testimonial-slide');
+    const dots = carousel.querySelectorAll('.testimonial-dot');
+    const prevBtn = carousel.querySelector('.testimonial-nav-btn.prev');
+    const nextBtn = carousel.querySelector('.testimonial-nav-btn.next');
+    
+    if (!track || slides.length === 0) return;
+    
+    let currentIndex = 0;
+    let isTransitioning = false;
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    function updateCarousel() {
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentIndex);
+        });
+    }
+    
+    function goToSlide(index) {
+        if (isTransitioning) return;
+        currentIndex = Math.max(0, Math.min(index, slides.length - 1));
+        isTransitioning = true;
+        updateCarousel();
+        setTimeout(() => { isTransitioning = false; }, 500);
+    }
+    
+    function nextSlide() {
+        goToSlide(currentIndex + 1);
+    }
+    
+    function prevSlide() {
+        goToSlide(currentIndex - 1);
+    }
+    
+    // Auto-play
+    let autoPlayInterval = setInterval(nextSlide, 5000);
+    
+    function resetAutoPlay() {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = setInterval(nextSlide, 5000);
+    }
+    
+    // Navigation buttons
+    if (nextBtn) nextBtn.addEventListener('click', () => { nextSlide(); resetAutoPlay(); });
+    if (prevBtn) prevBtn.addEventListener('click', () => { prevSlide(); resetAutoPlay(); });
+    
+    // Dots
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => { goToSlide(index); resetAutoPlay(); });
+    });
+    
+    // Touch/swipe support
+    track.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+    });
+    
+    track.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].clientX;
+        handleSwipe();
+    });
+    
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const diff = touchStartX - touchEndX;
+        
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                nextSlide();
+            } else {
+                prevSlide();
+            }
+            resetAutoPlay();
+        }
+    }
+    
+    // Pause on hover
+    carousel.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
+    carousel.addEventListener('mouseleave', () => resetAutoPlay());
+}
+
+// ============================================
+// SCROLL PROGRESS INDICATOR
+// ============================================
+
+function initScrollProgress() {
+    const progressBar = document.createElement('div');
+    progressBar.className = 'scroll-progress';
+    document.body.appendChild(progressBar);
+    
+    function updateProgress() {
+        const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (window.scrollY / windowHeight) * 100;
+        progressBar.style.width = scrolled + '%';
+    }
+    
+    window.addEventListener('scroll', updateProgress);
+    updateProgress();
+}
+
+// ============================================
+// INITIALIZE ALL FEATURES
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    initScrollAnimations();
+    initRippleEffects();
+    initAnimatedStats();
+    initTestimonialsCarousel();
+    initScrollProgress();
+});
+
+// Also run if DOM already loaded
+if (document.readyState !== 'loading') {
+    initScrollAnimations();
+    initRippleEffects();
+    initAnimatedStats();
+    initTestimonialsCarousel();
+    initScrollProgress();
+}

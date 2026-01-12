@@ -33,6 +33,46 @@
       "destination": "/sectors.html"
     },
     {
+      "source": "/structures",
+      "destination": "/structures.html"
+    },
+    {
+      "source": "/structures-individuals",
+      "destination": "/structures-individuals.html"
+    },
+    {
+      "source": "/structures-sole-traders",
+      "destination": "/structures-sole-traders.html"
+    },
+    {
+      "source": "/structures-partnerships",
+      "destination": "/structures-partnerships.html"
+    },
+    {
+      "source": "/structures-limited-companies",
+      "destination": "/structures-limited-companies.html"
+    },
+    {
+      "source": "/structures-llp",
+      "destination": "/structures-llp.html"
+    },
+    {
+      "source": "/structures-landlords",
+      "destination": "/structures-landlords.html"
+    },
+    {
+      "source": "/structures-charities",
+      "destination": "/structures-charities.html"
+    },
+    {
+      "source": "/structures-cic",
+      "destination": "/structures-cic.html"
+    },
+    {
+      "source": "/structures-clubs-societies",
+      "destination": "/structures-clubs-societies.html"
+    },
+    {
       "source": "/sectors-construction",
       "destination": "/sectors-construction.html"
     },
@@ -163,6 +203,10 @@
     {
       "source": "/services-tax/business-planning-startups",
       "destination": "/services-tax/business-planning-startups.html"
+    },
+    {
+      "source": "/services-tax/making-tax-digital",
+      "destination": "/services-tax/making-tax-digital.html"
     },
     {
       "source": "/services-accounts/management-accounts",
