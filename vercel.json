@@ -83,6 +83,90 @@
     {
       "source": "/terms",
       "destination": "/terms.html"
+    },
+    {
+      "source": "/services-tax/self-assessment-tax",
+      "destination": "/services-tax/self-assessment-tax.html"
+    },
+    {
+      "source": "/services-tax/corporation-tax",
+      "destination": "/services-tax/corporation-tax.html"
+    },
+    {
+      "source": "/services-tax/rd-tax",
+      "destination": "/services-tax/rd-tax.html"
+    },
+    {
+      "source": "/services-tax/vat",
+      "destination": "/services-tax/vat.html"
+    },
+    {
+      "source": "/services-tax/cis",
+      "destination": "/services-tax/cis.html"
+    },
+    {
+      "source": "/services-tax/payroll-paye",
+      "destination": "/services-tax/payroll-paye.html"
+    },
+    {
+      "source": "/services-tax/capital-gains-tax",
+      "destination": "/services-tax/capital-gains-tax.html"
+    },
+    {
+      "source": "/services-tax/inheritance-tax",
+      "destination": "/services-tax/inheritance-tax.html"
+    },
+    {
+      "source": "/services-tax/landlord-tax",
+      "destination": "/services-tax/landlord-tax.html"
+    },
+    {
+      "source": "/services-tax/tax-planning",
+      "destination": "/services-tax/tax-planning.html"
+    },
+    {
+      "source": "/services-tax/hmrc-compliance",
+      "destination": "/services-tax/hmrc-compliance.html"
+    },
+    {
+      "source": "/services-tax/business-planning-startups",
+      "destination": "/services-tax/business-planning-startups.html"
+    },
+    {
+      "source": "/services-accounts/management-accounts",
+      "destination": "/services-accounts/management-accounts.html"
+    },
+    {
+      "source": "/services-accounts/bookkeeping",
+      "destination": "/services-accounts/bookkeeping.html"
+    },
+    {
+      "source": "/services-accounts/sole-trade-accounts",
+      "destination": "/services-accounts/sole-trade-accounts.html"
+    },
+    {
+      "source": "/services-accounts/statutory-accounts",
+      "destination": "/services-accounts/statutory-accounts.html"
+    },
+    {
+      "source": "/services-accounts/limited-company-accounts",
+      "destination": "/services-accounts/limited-company-accounts.html"
+    },
+    {
+      "source": "/services-accounts/partnership-accounts",
+      "destination": "/services-accounts/partnership-accounts.html"
+    },
+    {
+      "source": "/services-accounts/llp-accounts",
+      "destination": "/services-accounts/llp-accounts.html"
+    },
+    {
+      "source": "/services-accounts/dormant-accounts",
+      "destination": "/services-accounts/dormant-accounts.html"
+    },
+    {
+      "source": "/services-accounts/group-accounts",
+      "destination": "/services-accounts/group-accounts.html"
     }
   ],
   "headers": [

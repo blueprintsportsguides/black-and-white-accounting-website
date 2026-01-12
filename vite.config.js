@@ -41,7 +41,30 @@ export default defineConfig({
         'admin/publish-all': './admin/publish-all.html',
         'admin/wipe-imported': './admin/wipe-imported.html',
         'admin/blog/new': './admin/blog/new.html',
-        'admin/blog/edit': './admin/blog/edit.html'
+        'admin/blog/edit': './admin/blog/edit.html',
+        // Tax topic pages
+        'services-tax/self-assessment-tax': './services-tax/self-assessment-tax.html',
+        'services-tax/corporation-tax': './services-tax/corporation-tax.html',
+        'services-tax/rd-tax': './services-tax/rd-tax.html',
+        'services-tax/vat': './services-tax/vat.html',
+        'services-tax/cis': './services-tax/cis.html',
+        'services-tax/payroll-paye': './services-tax/payroll-paye.html',
+        'services-tax/capital-gains-tax': './services-tax/capital-gains-tax.html',
+        'services-tax/inheritance-tax': './services-tax/inheritance-tax.html',
+        'services-tax/landlord-tax': './services-tax/landlord-tax.html',
+        'services-tax/tax-planning': './services-tax/tax-planning.html',
+        'services-tax/hmrc-compliance': './services-tax/hmrc-compliance.html',
+        'services-tax/business-planning-startups': './services-tax/business-planning-startups.html',
+        // Accounts topic pages
+        'services-accounts/management-accounts': './services-accounts/management-accounts.html',
+        'services-accounts/bookkeeping': './services-accounts/bookkeeping.html',
+        'services-accounts/sole-trade-accounts': './services-accounts/sole-trade-accounts.html',
+        'services-accounts/statutory-accounts': './services-accounts/statutory-accounts.html',
+        'services-accounts/limited-company-accounts': './services-accounts/limited-company-accounts.html',
+        'services-accounts/partnership-accounts': './services-accounts/partnership-accounts.html',
+        'services-accounts/llp-accounts': './services-accounts/llp-accounts.html',
+        'services-accounts/dormant-accounts': './services-accounts/dormant-accounts.html',
+        'services-accounts/group-accounts': './services-accounts/group-accounts.html'
       }
     }
   },
