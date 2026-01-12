@@ -1100,11 +1100,19 @@ function initTestimonialsCarousel() {
     }
     
     function nextSlide() {
-        goToSlide(currentIndex + 1);
+        if (isTransitioning) return;
+        currentIndex = (currentIndex + 1) % slides.length; // Wrap to 0 after last slide
+        isTransitioning = true;
+        updateCarousel();
+        setTimeout(() => { isTransitioning = false; }, 500);
     }
     
     function prevSlide() {
-        goToSlide(currentIndex - 1);
+        if (isTransitioning) return;
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length; // Wrap to last slide when going back from first
+        isTransitioning = true;
+        updateCarousel();
+        setTimeout(() => { isTransitioning = false; }, 500);
     }
     
     // Auto-play
