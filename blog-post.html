@@ -440,16 +440,33 @@
 
         // Get post from URL - support both clean URLs (/blog/slug) and query params (?slug=...)
         let slug = null;
+        
+        // First, try to extract from pathname (clean URL)
         const pathMatch = window.location.pathname.match(/^\/blog\/([^\/]+)$/);
         if (pathMatch) {
             slug = pathMatch[1];
         } else {
+            // Try query parameter
             const urlParams = new URLSearchParams(window.location.search);
             slug = urlParams.get('slug');
+            
+            // If still no slug and we're on blog-post.html, try to get from referrer or hash
+            if (!slug && window.location.pathname.includes('blog-post')) {
+                // Check if there's a hash with the slug
+                if (window.location.hash) {
+                    slug = window.location.hash.replace('#', '');
+                }
+                // If still no slug, redirect to blog listing
+                if (!slug) {
+                    window.location.href = '/blog';
+                    return;
+                }
+            }
         }
         
         if (!slug) {
             window.location.href = '/blog';
+            return;
         }
 
         const post = getPostBySlug(slug);
