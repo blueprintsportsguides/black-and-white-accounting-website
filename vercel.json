@@ -141,7 +141,7 @@
       "destination": "/blog.html"
     },
     {
-      "source": "/blog/:slug",
+      "source": "/blog/(.*)",
       "destination": "/blog-post.html"
     },
     {
