@@ -291,6 +291,10 @@
     {
       "source": "/services-advisory/software-systems-advisory",
       "destination": "/services-advisory/software-systems-advisory.html"
+    },
+    {
+      "source": "/admin/import-json-to-supabase",
+      "destination": "/admin/import-json-to-supabase.html"
     }
   ],
   "redirects": [

@@ -61,6 +61,7 @@ export default defineConfig({
         'admin/wipe-imported': './admin/wipe-imported.html',
         'admin/blog/new': './admin/blog/new.html',
         'admin/blog/edit': './admin/blog/edit.html',
+        'admin/import-json-to-supabase': './admin/import-json-to-supabase.html',
         // Tax topic pages
         'services-tax/self-assessment-tax': './services-tax/self-assessment-tax.html',
         'services-tax/corporation-tax': './services-tax/corporation-tax.html',
@@ -104,8 +105,8 @@ export default defineConfig({
     {
       name: 'copy-static-assets',
       writeBundle() {
-        // Copy script.js, styles.css, blog-data.js, and admin-auth.js to dist root
-        const filesToCopy = ['script.js', 'styles.css', 'blog-data.js', 'admin-auth.js'];
+        // Copy script.js, styles.css, blog-data.js, admin-auth.js, and Supabase config files to dist root
+        const filesToCopy = ['script.js', 'styles.css', 'blog-data.js', 'admin-auth.js', 'supabase-config.js', 'blog-data-supabase.js'];
         filesToCopy.forEach(file => {
           const src = join(process.cwd(), file);
           const dest = join(process.cwd(), 'dist', file);
