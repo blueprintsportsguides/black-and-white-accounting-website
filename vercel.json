@@ -141,8 +141,8 @@
       "destination": "/blog.html"
     },
     {
-      "source": "/blog/:slug",
-      "destination": "/blog-post.html?slug=:slug"
+      "source": "/blog/([^/]+)",
+      "destination": "/blog-post.html?slug=$1"
     },
     {
       "source": "/blog-post",
