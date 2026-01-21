@@ -387,6 +387,16 @@
       "source": "/advisory-services/",
       "destination": "/services-advisory",
       "permanent": true
+    },
+    {
+      "source": "/triage",
+      "destination": "/admin/triage",
+      "permanent": false
+    },
+    {
+      "source": "/triage/",
+      "destination": "/admin/triage",
+      "permanent": false
     }
   ],
   "headers": [
