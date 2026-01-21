@@ -1,6 +1,9 @@
 // Blog Data Storage and Management
-// Loads from JSON file in repo (data/blog-posts.json) as source of truth
-// Uses localStorage as cache and for admin edits
+// Priority: Supabase (when configured) > JSON file > localStorage
+// Supabase provides centralized storage; import via /admin/import-json-to-supabase
+
+import { isSupabaseConfigured } from './supabase-config.js';
+import * as supabaseFunctions from './blog-data-supabase.js';
 
 const STORAGE_KEY = 'baw_blog_posts';
 const CATEGORIES_KEY = 'baw_blog_categories';
@@ -15,7 +18,29 @@ let dataCache = {
     tags: null
 };
 
-// Load data from JSON file (source of truth)
+// Load data from Supabase (when configured)
+async function loadDataFromSupabase() {
+    if (!isSupabaseConfigured()) return false;
+    try {
+        const [posts, categories, tags] = await Promise.all([
+            supabaseFunctions.loadPostsFromSupabase(),
+            supabaseFunctions.loadCategoriesFromSupabase(),
+            supabaseFunctions.loadTagsFromSupabase()
+        ]);
+        if (posts && Array.isArray(posts)) {
+            dataCache.posts = posts.map(p => ({ ...p, tags: p.tags || p.tag_slugs || [] }));
+            dataCache.categories = categories && Array.isArray(categories) ? categories : [];
+            dataCache.tags = tags && Array.isArray(tags) ? tags : [];
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.warn('Error loading data from Supabase:', error);
+        return false;
+    }
+}
+
+// Load data from JSON file (fallback)
 async function loadDataFromJSON() {
     try {
         const response = await fetch(JSON_SOURCE);
@@ -25,12 +50,20 @@ async function loadDataFromJSON() {
         }
         const jsonData = await response.json();
         
-        // Store in cache
-        dataCache.posts = jsonData.posts || [];
+        // Normalize: map category_slug -> category_id if needed
+        const posts = (jsonData.posts || []).map(p => {
+            if (p.category_id) return p;
+            if (p.category_slug && jsonData.categories) {
+                const cat = jsonData.categories.find(c => (c.slug || c.id) === p.category_slug);
+                if (cat) return { ...p, category_id: cat.id };
+            }
+            return p;
+        });
+        
+        dataCache.posts = posts;
         dataCache.categories = jsonData.categories || [];
         dataCache.tags = jsonData.tags || [];
         
-        // Also store in localStorage as cache
         if (dataCache.posts.length > 0) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dataCache.posts));
         }
@@ -49,33 +82,26 @@ async function loadDataFromJSON() {
     }
 }
 
-// Initialize: Load from JSON file on first access
+// Initialize: Supabase first, then JSON, then localStorage
 let initializationPromise = null;
 function ensureDataLoaded() {
     if (!initializationPromise) {
         initializationPromise = (async () => {
-            // Always try to load from JSON (in case it was updated)
-            // But if localStorage has data and JSON load fails, use localStorage
-            const jsonLoaded = await loadDataFromJSON();
-            
-            if (!jsonLoaded) {
-                // Fallback to localStorage if JSON load failed
+            let loaded = false;
+            if (isSupabaseConfigured()) {
+                loaded = await loadDataFromSupabase();
+            }
+            if (!loaded) {
+                loaded = await loadDataFromJSON();
+            }
+            if (!loaded) {
                 const localPosts = localStorage.getItem(STORAGE_KEY);
                 const localCategories = localStorage.getItem(CATEGORIES_KEY);
                 const localTags = localStorage.getItem(TAGS_KEY);
-                
-                if (localPosts) {
-                    dataCache.posts = JSON.parse(localPosts);
-                }
-                if (localCategories) {
-                    dataCache.categories = JSON.parse(localCategories);
-                }
-                if (localTags) {
-                    dataCache.tags = JSON.parse(localTags);
-                }
+                if (localPosts) dataCache.posts = JSON.parse(localPosts);
+                if (localCategories) dataCache.categories = JSON.parse(localCategories);
+                if (localTags) dataCache.tags = JSON.parse(localTags);
             }
-            
-            // Initialize defaults if still empty
             if (!dataCache.categories || dataCache.categories.length === 0) {
                 initDefaultCategories();
             }
@@ -437,7 +463,7 @@ export function downloadJSON() {
 }
 
 // Export for use in other modules
-export { generateSlug, ensureUniqueSlug, calculateReadingTime };
+export { generateSlug, ensureUniqueSlug, calculateReadingTime, ensureDataLoaded };
 
 // Auto-initialize on module load (non-blocking)
 if (typeof window !== 'undefined') {

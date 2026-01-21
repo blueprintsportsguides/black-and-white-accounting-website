@@ -137,7 +137,7 @@
       "destination": "/sectors-charities.html"
     },
     {
-      "source": "/blog/(.+)",
+      "source": "/blog/:slug",
       "destination": "/blog-post.html"
     },
     {

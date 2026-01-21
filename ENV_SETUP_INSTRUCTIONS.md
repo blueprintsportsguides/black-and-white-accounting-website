@@ -46,5 +46,10 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 ## Next Steps
 
 1. Make sure you've run the SQL setup in Supabase (from SUPABASE_SIMPLE_SETUP.md)
-2. The code integration is being completed
-3. Test by creating a blog post in the admin area
+2. **Redeploy** after adding env vars so the build picks up `VITE_SUPABASE_*` (they are needed at build time for blog-data and Supabase loading)
+3. Test by opening `/blog` and clicking a post; individual post URLs like `/blog/my-post-slug` are served via the `/blog/:slug` rewrite to `blog-post.html`
+
+## If blog post pages 404
+
+- Ensure `vercel.json` includes the rewrite: `{ "source": "/blog/:slug", "destination": "/blog-post.html" }` (must come **before** the `/blog` → `blog.html` rule)
+- Redeploy so the latest `vercel.json` and build are used

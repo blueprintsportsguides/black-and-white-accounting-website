@@ -380,7 +380,7 @@
 
     <script src="/script.js" type="module"></script>
     <script type="module">
-        import { getPostBySlug, getCategories, formatDate } from '/blog-data.js';
+        import { getPostBySlug, getCategories, formatDate, ensureDataLoaded } from '/blog-data.js';
 
         // Simple markdown to HTML converter
         function markdownToHTML(markdown) {
@@ -439,6 +439,7 @@
         }
 
         // Get post from URL - support both clean URLs (/blog/slug) and query params (?slug=...)
+        (async () => {
         let slug = null;
         
         // First, try to extract from pathname (clean URL)
@@ -465,8 +466,9 @@
         
         if (!slug) {
             window.location.href = '/blog';
-        } else {
-
+            return;
+        }
+        await ensureDataLoaded();
         const post = getPostBySlug(slug);
         
         if (!post) {
@@ -718,7 +720,7 @@
                 });
             });
         }
-        }
+        })();
     </script>
 </body>
 </html>
