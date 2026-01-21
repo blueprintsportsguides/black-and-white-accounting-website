@@ -459,15 +459,13 @@
                 // If still no slug, redirect to blog listing
                 if (!slug) {
                     window.location.href = '/blog';
-                    return;
                 }
             }
         }
         
         if (!slug) {
             window.location.href = '/blog';
-            return;
-        }
+        } else {
 
         const post = getPostBySlug(slug);
         
@@ -719,6 +717,7 @@
                     }
                 });
             });
+        }
         }
     </script>
 </body>
