@@ -27,11 +27,15 @@ async function loadDataFromSupabase() {
             supabaseFunctions.loadCategoriesFromSupabase(),
             supabaseFunctions.loadTagsFromSupabase()
         ]);
-        if (posts && Array.isArray(posts)) {
+        // Only treat as loaded when we have posts; empty Supabase should fall back to JSON
+        if (posts && Array.isArray(posts) && posts.length > 0) {
             dataCache.posts = posts.map(p => ({ ...p, tags: p.tags || p.tag_slugs || [] }));
             dataCache.categories = categories && Array.isArray(categories) ? categories : [];
             dataCache.tags = tags && Array.isArray(tags) ? tags : [];
             return true;
+        }
+        if (posts && Array.isArray(posts) && posts.length === 0) {
+            console.warn('Supabase returned no posts, falling back to JSON');
         }
         return false;
     } catch (error) {
