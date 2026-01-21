@@ -137,12 +137,12 @@
       "destination": "/sectors-charities.html"
     },
     {
-      "source": "/blog",
-      "destination": "/blog.html"
+      "source": "/blog/(.+)",
+      "destination": "/blog-post.html"
     },
     {
-      "source": "/blog/(.*)",
-      "destination": "/blog-post.html"
+      "source": "/blog",
+      "destination": "/blog.html"
     },
     {
       "source": "/blog-post",
