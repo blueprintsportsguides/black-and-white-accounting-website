@@ -209,6 +209,10 @@
       "destination": "/services-tax/making-tax-digital.html"
     },
     {
+      "source": "/mtd",
+      "destination": "/mtd.html"
+    },
+    {
       "source": "/services-accounts/management-accounts",
       "destination": "/services-accounts/management-accounts.html"
     },
