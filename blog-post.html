@@ -378,7 +378,7 @@
         </div>
     </footer>
 
-    <script src="/script.js"></script>
+    <script src="/script.js" type="module"></script>
     <script type="module">
         import { getPostBySlug, getCategories, formatDate } from '/blog-data.js';
 
@@ -647,8 +647,7 @@
             // Set post title
             document.getElementById('post-title').textContent = post.title;
             
-            // Set post meta
-            const categories = getCategories();
+            // Set post meta (reuse categories from above)
             const category = categories.find(c => c.id === post.category_id);
             const metaHTML = `
                 ${category ? `<span>${category.name}</span>` : ''}
