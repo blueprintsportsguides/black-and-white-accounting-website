@@ -438,12 +438,18 @@
             });
         }
 
-        // Get post from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const slug = urlParams.get('slug');
+        // Get post from URL - support both clean URLs (/blog/slug) and query params (?slug=...)
+        let slug = null;
+        const pathMatch = window.location.pathname.match(/^\/blog\/([^\/]+)$/);
+        if (pathMatch) {
+            slug = pathMatch[1];
+        } else {
+            const urlParams = new URLSearchParams(window.location.search);
+            slug = urlParams.get('slug');
+        }
         
         if (!slug) {
-            window.location.href = '/blog.html';
+            window.location.href = '/blog';
         }
 
         const post = getPostBySlug(slug);
@@ -457,14 +463,186 @@
                 </div>
             `;
         } else {
+            // Get base URL for canonical and OG tags
+            const baseUrl = window.location.origin;
+            // Use clean URL format for canonical
+            const postUrl = `${baseUrl}/blog/${post.slug}`;
+            
+            // Update browser URL to clean format if using query params
+            if (window.location.pathname === '/blog-post.html') {
+                window.history.replaceState({}, '', `/blog/${post.slug}`);
+            }
+            const siteName = 'Black and White Accounting';
+            const siteDescription = 'Expert tax, accounts, and advisory services for individuals and businesses';
+            
             // Set page title
-            document.title = (post.meta_title || post.title) + ' | Black and White Accounting';
+            const pageTitle = (post.meta_title || post.title) + ' | ' + siteName;
+            document.title = pageTitle;
             
             // Set meta description
-            const metaDesc = document.createElement('meta');
-            metaDesc.name = 'description';
-            metaDesc.content = post.meta_description || post.excerpt;
-            document.head.appendChild(metaDesc);
+            const metaDescription = post.meta_description || post.excerpt || siteDescription;
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (!metaDesc) {
+                metaDesc = document.createElement('meta');
+                metaDesc.name = 'description';
+                document.head.appendChild(metaDesc);
+            }
+            metaDesc.content = metaDescription;
+            
+            // Set canonical URL
+            let canonical = document.querySelector('link[rel="canonical"]');
+            if (!canonical) {
+                canonical = document.createElement('link');
+                canonical.rel = 'canonical';
+                document.head.appendChild(canonical);
+            }
+            canonical.href = postUrl;
+            
+            // Open Graph tags
+            const ogTags = {
+                'og:type': 'article',
+                'og:title': post.meta_title || post.title,
+                'og:description': metaDescription,
+                'og:url': postUrl,
+                'og:site_name': siteName,
+                'og:locale': 'en_GB'
+            };
+            
+            if (post.featured_image_url) {
+                ogTags['og:image'] = post.featured_image_url.startsWith('http') 
+                    ? post.featured_image_url 
+                    : `${baseUrl}${post.featured_image_url}`;
+                ogTags['og:image:alt'] = post.featured_image_alt || post.title;
+            }
+            
+            if (post.published_at) {
+                ogTags['article:published_time'] = new Date(post.published_at).toISOString();
+            }
+            
+            if (post.updated_at) {
+                ogTags['article:modified_time'] = new Date(post.updated_at).toISOString();
+            }
+            
+            const categories = getCategories();
+            const category = categories.find(c => c.id === post.category_id);
+            if (category) {
+                ogTags['article:section'] = category.name;
+            }
+            
+            // Add/update OG tags
+            Object.entries(ogTags).forEach(([property, content]) => {
+                let tag = document.querySelector(`meta[property="${property}"]`);
+                if (!tag) {
+                    tag = document.createElement('meta');
+                    tag.setAttribute('property', property);
+                    document.head.appendChild(tag);
+                }
+                tag.setAttribute('content', content);
+            });
+            
+            // Twitter Card tags
+            const twitterTags = {
+                'twitter:card': 'summary_large_image',
+                'twitter:title': post.meta_title || post.title,
+                'twitter:description': metaDescription
+            };
+            
+            if (post.featured_image_url) {
+                twitterTags['twitter:image'] = post.featured_image_url.startsWith('http')
+                    ? post.featured_image_url
+                    : `${baseUrl}${post.featured_image_url}`;
+                twitterTags['twitter:image:alt'] = post.featured_image_alt || post.title;
+            }
+            
+            // Add/update Twitter tags
+            Object.entries(twitterTags).forEach(([name, content]) => {
+                let tag = document.querySelector(`meta[name="${name}"]`);
+                if (!tag) {
+                    tag = document.createElement('meta');
+                    tag.setAttribute('name', name);
+                    document.head.appendChild(tag);
+                }
+                tag.setAttribute('content', content);
+            });
+            
+            // Structured Data (JSON-LD) for Article
+            const structuredData = {
+                '@context': 'https://schema.org',
+                '@type': 'Article',
+                'headline': post.title,
+                'description': metaDescription,
+                'image': post.featured_image_url ? (post.featured_image_url.startsWith('http') 
+                    ? post.featured_image_url 
+                    : `${baseUrl}${post.featured_image_url}`) : undefined,
+                'datePublished': post.published_at ? new Date(post.published_at).toISOString() : undefined,
+                'dateModified': post.updated_at ? new Date(post.updated_at).toISOString() : new Date(post.published_at).toISOString(),
+                'author': {
+                    '@type': 'Organization',
+                    'name': post.author_name || siteName,
+                    'url': baseUrl
+                },
+                'publisher': {
+                    '@type': 'Organization',
+                    'name': siteName,
+                    'url': baseUrl,
+                    'logo': {
+                        '@type': 'ImageObject',
+                        'url': `${baseUrl}/Images/long logo.png`
+                    }
+                },
+                'mainEntityOfPage': {
+                    '@type': 'WebPage',
+                    '@id': postUrl
+                }
+            };
+            
+            // Remove undefined values
+            Object.keys(structuredData).forEach(key => {
+                if (structuredData[key] === undefined) {
+                    delete structuredData[key];
+                }
+            });
+            
+            // Add BreadcrumbList structured data
+            const breadcrumbData = {
+                '@context': 'https://schema.org',
+                '@type': 'BreadcrumbList',
+                'itemListElement': [
+                    {
+                        '@type': 'ListItem',
+                        'position': 1,
+                        'name': 'Home',
+                        'item': baseUrl
+                    },
+                    {
+                        '@type': 'ListItem',
+                        'position': 2,
+                        'name': 'Insights',
+                        'item': `${baseUrl}/blog`
+                    },
+                    {
+                        '@type': 'ListItem',
+                        'position': 3,
+                        'name': post.title,
+                        'item': postUrl
+                    }
+                ]
+            };
+            
+            // Add structured data scripts
+            let structuredScript = document.querySelector('script[type="application/ld+json"]');
+            if (!structuredScript) {
+                structuredScript = document.createElement('script');
+                structuredScript.type = 'application/ld+json';
+                document.head.appendChild(structuredScript);
+            }
+            structuredScript.textContent = JSON.stringify(structuredData);
+            
+            // Add breadcrumb structured data
+            let breadcrumbScript = document.createElement('script');
+            breadcrumbScript.type = 'application/ld+json';
+            breadcrumbScript.textContent = JSON.stringify(breadcrumbData);
+            document.head.appendChild(breadcrumbScript);
             
             // Set post title
             document.getElementById('post-title').textContent = post.title;

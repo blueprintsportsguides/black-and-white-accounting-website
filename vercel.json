@@ -140,10 +140,14 @@
       "source": "/blog",
       "destination": "/blog.html"
     },
-          {
-            "source": "/blog-post",
-            "destination": "/blog-post.html"
-          },
+    {
+      "source": "/blog/:slug",
+      "destination": "/blog-post.html?slug=:slug"
+    },
+    {
+      "source": "/blog-post",
+      "destination": "/blog-post.html"
+    },
           {
             "source": "/tools",
             "destination": "/tools.html"
@@ -287,6 +291,78 @@
     {
       "source": "/services-advisory/software-systems-advisory",
       "destination": "/services-advisory/software-systems-advisory.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/contact-us",
+      "destination": "/contact",
+      "permanent": true
+    },
+    {
+      "source": "/contact-us/",
+      "destination": "/contact",
+      "permanent": true
+    },
+    {
+      "source": "/charity-accounting-services",
+      "destination": "/sectors-charities",
+      "permanent": true
+    },
+    {
+      "source": "/charity-accounting-services/",
+      "destination": "/sectors-charities",
+      "permanent": true
+    },
+    {
+      "source": "/accounts-services",
+      "destination": "/services-accounts",
+      "permanent": true
+    },
+    {
+      "source": "/accounts-services/",
+      "destination": "/services-accounts",
+      "permanent": true
+    },
+    {
+      "source": "/insights",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/insights/",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/tools-and-resources",
+      "destination": "/tools",
+      "permanent": true
+    },
+    {
+      "source": "/tools-and-resources/",
+      "destination": "/tools",
+      "permanent": true
+    },
+    {
+      "source": "/tax-services",
+      "destination": "/services-tax",
+      "permanent": true
+    },
+    {
+      "source": "/tax-services/",
+      "destination": "/services-tax",
+      "permanent": true
+    },
+    {
+      "source": "/advisory-services",
+      "destination": "/services-advisory",
+      "permanent": true
+    },
+    {
+      "source": "/advisory-services/",
+      "destination": "/services-advisory",
+      "permanent": true
     }
   ],
   "headers": [

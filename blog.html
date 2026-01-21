@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Insights - Blog | Black and White Accounting</title>
-    <meta name="description" content="Expert insights on tax, accounts, and business advisory from Black and White Accounting.">
+    <meta name="description" content="Expert insights on tax, accounts, and business advisory from Black and White Accounting. Stay informed with our latest articles, tips, and updates.">
+    <link rel="canonical" href="/blog">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Insights - Blog | Black and White Accounting">
+    <meta property="og:description" content="Expert insights on tax, accounts, and business advisory from Black and White Accounting.">
+    <meta property="og:url" content="/blog">
+    <meta property="og:site_name" content="Black and White Accounting">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Insights - Blog | Black and White Accounting">
+    <meta name="twitter:description" content="Expert insights on tax, accounts, and business advisory from Black and White Accounting.">
     <link rel="icon" type="image/png" href="/Images/circle logo.png">
     <link rel="stylesheet" href="/styles.css">
     <style>
@@ -413,6 +422,24 @@
         </div>
     </footer>
 
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "Insights - Black and White Accounting",
+      "description": "Expert insights on tax, accounts, and business advisory from Black and White Accounting",
+      "url": "/blog",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Black and White Accounting",
+        "url": "/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "/Images/long logo.png"
+        }
+      }
+    }
+    </script>
     <script src="/script.js"></script>
     <script type="module">
         import { getPublishedPosts, searchPosts, getCategories, formatDate } from '/blog-data.js';
@@ -472,7 +499,7 @@
                             </div>
                             <div class="featured-post-content">
                                 ${category ? `<span class="category">${category.name}</span>` : ''}
-                                <h2><a href="blog-post.html?slug=${featuredPost.slug}">${featuredPost.title}</a></h2>
+                                <h2><a href="/blog/${featuredPost.slug}">${featuredPost.title}</a></h2>
                                 <p>${featuredPost.excerpt}</p>
                                 <div style="display: flex; gap: var(--spacing-md); font-size: var(--font-size-sm); color: var(--text-secondary);">
                                     <span>${formatDate(featuredPost.published_at)}</span>
@@ -539,11 +566,11 @@
                                             <span>${post.reading_time_minutes || 5} min read</span>
                                         </div>
                                         <h3 class="post-card-title">
-                                            <a href="blog-post.html?slug=${post.slug}">${post.title}</a>
+                                            <a href="/blog/${post.slug}">${post.title}</a>
                                         </h3>
                                         <p class="post-card-excerpt">${post.excerpt}</p>
                                         <div class="post-card-footer">
-                                            <a href="blog-post.html?slug=${post.slug}" class="read-more">Read more →</a>
+                                            <a href="/blog/${post.slug}" class="read-more">Read more →</a>
                                         </div>
                                     </div>
                                 </article>

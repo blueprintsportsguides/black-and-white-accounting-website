@@ -534,7 +534,7 @@
             formData.slug = ensureUniqueSlug(formData.slug, postId);
 
             try {
-                const savedPost = savePost(formData);
+                const savedPost = await savePost(formData);
                 
                 // Show success message
                 const successMsg = document.getElementById('success-message');
