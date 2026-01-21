@@ -190,6 +190,50 @@ export async function saveCategoryToSupabase(categoryData) {
     }
 }
 
+// Upload image to Supabase Storage (bucket: blog-images, folder: blog/)
+const BLOG_IMAGES_BUCKET = 'blog-images';
+const BLOG_IMAGES_FOLDER = 'blog';
+
+export async function uploadBlogImage(file) {
+    const supabase = await getSupabaseClient();
+    if (!supabase) return null;
+    try {
+        const ext = (file.name.match(/\.([^.]+)$/) || [])[1] || 'jpg';
+        const path = `${BLOG_IMAGES_FOLDER}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { data, error } = await supabase.storage.from(BLOG_IMAGES_BUCKET).upload(path, file, { upsert: false });
+        if (error) {
+            console.error('Error uploading image:', error);
+            return null;
+        }
+        const { data: urlData } = supabase.storage.from(BLOG_IMAGES_BUCKET).getPublicUrl(data.path);
+        return urlData?.publicUrl || null;
+    } catch (e) {
+        console.error('uploadBlogImage:', e);
+        return null;
+    }
+}
+
+export async function listBlogImages(limit = 80) {
+    const supabase = await getSupabaseClient();
+    if (!supabase) return [];
+    try {
+        const { data, error } = await supabase.storage.from(BLOG_IMAGES_BUCKET).list(BLOG_IMAGES_FOLDER, { limit, sortBy: { column: 'name', order: 'desc' } });
+        if (error) {
+            console.error('Error listing blog images:', error);
+            return [];
+        }
+        const files = (data || []).filter(f => f.name && f.name !== '.emptyFolderPlaceholder');
+        return files.map(f => {
+            const path = `${BLOG_IMAGES_FOLDER}/${f.name}`;
+            const { data: d } = supabase.storage.from(BLOG_IMAGES_BUCKET).getPublicUrl(path);
+            return d.publicUrl;
+        });
+    } catch (e) {
+        console.error('listBlogImages:', e);
+        return [];
+    }
+}
+
 // Save tag to Supabase
 export async function saveTagToSupabase(tagData) {
     const supabase = await getSupabaseClient();

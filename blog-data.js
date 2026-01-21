@@ -378,7 +378,7 @@ export function saveTag(tagData) {
 
 // Search posts
 export function searchPosts(query, filters = {}) {
-    let posts = filters.status ? getAllPostsSyncInternal() : getPublishedPostsSync();
+    let posts = getAllPostsSyncInternal();
     
     // Filter by status
     if (filters.status) {
@@ -464,6 +464,30 @@ export function downloadJSON() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
+
+// Collect image URLs from all posts (featured_image_url + img src in content) for image library fallback
+export function getImageUrlsFromPosts() {
+    const posts = getAllPostsSyncInternal();
+    const seen = new Set();
+    const out = [];
+    for (const p of posts) {
+        if (p.featured_image_url && !seen.has(p.featured_image_url)) {
+            seen.add(p.featured_image_url);
+            out.push(p.featured_image_url);
+        }
+        if (p.content && typeof p.content === 'string') {
+            const re = /<img[^>]+src=["']([^"']+)["']/gi;
+            let m;
+            while ((m = re.exec(p.content)) !== null) {
+                if (m[1] && !seen.has(m[1])) {
+                    seen.add(m[1]);
+                    out.push(m[1]);
+                }
+            }
+        }
+    }
+    return out;
 }
 
 // Export for use in other modules

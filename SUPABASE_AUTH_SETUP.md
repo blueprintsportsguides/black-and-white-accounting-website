@@ -11,16 +11,18 @@ Admin login uses **Supabase Auth** with email/password. Follow these steps.
    - **Confirm email**: if ON, new users must click the link in the email before they can log in. Turn OFF if you want immediate access after sign-up.
    - **Secure email change**: recommended ON.
 
-## 2. Redirect URLs for password reset
+## 2. Redirect URLs and Site URL
 
 1. **Authentication** → **URL Configuration**
-2. **Site URL**: your production URL, e.g. `https://yourdomain.com`
+2. **Site URL**: set to your **production** URL, e.g. `https://yourdomain.com` (not `http://localhost:3000`). If Site URL is localhost, “Confirm your email” links can point to localhost.
 3. **Redirect URLs** – add:
    - `https://yourdomain.com/admin-set-password`
    - `https://yourdomain.com/admin-login`
    - For local dev: `http://localhost:3000/admin-set-password` and `http://localhost:3000/admin-login`
 
-Supabase will send password-reset links to `https://yourdomain.com/admin-set-password#...`. That page reads the token and lets the user set a new password.
+Sign-up passes `emailRedirectTo: origin + '/admin-login'`, so the confirm-email link uses the site the user signed up from (production or localhost). Password-reset links go to `/admin-set-password#...`.
+
+**If confirm-email still goes to localhost:** In Supabase → **Authentication** → **Email Templates** → “Confirm signup”, ensure the link uses `{{ .RedirectTo }}` (or `{{ .ConfirmationURL }}`) rather than `{{ .SiteURL }}`, and that **Site URL** is your production URL.
 
 ## 3. Environment variables
 

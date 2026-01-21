@@ -91,7 +91,7 @@
             background: #f9fafb;
             padding: var(--spacing-md);
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+            grid-template-columns: 40px 2fr 1fr 1fr 1fr 120px;
             gap: var(--spacing-md);
             font-weight: 600;
             font-size: var(--font-size-sm);
@@ -101,12 +101,49 @@
         .table-row {
             padding: var(--spacing-md);
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+            grid-template-columns: 40px 2fr 1fr 1fr 1fr 120px;
             gap: var(--spacing-md);
             align-items: center;
             border-bottom: 1px solid #e5e7eb;
             transition: background 0.2s;
         }
+        .bulk-actions-bar {
+            display: none;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+        .bulk-actions-bar.visible {
+            display: flex;
+        }
+        .bulk-actions-bar span {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+        .bulk-actions-bar select {
+            padding: 6px 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+        }
+        .bulk-actions-bar .btn-bulk {
+            padding: 6px 14px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-bulk-category { background: #3b82f6; color: white; }
+        .btn-bulk-publish { background: #059669; color: white; }
+        .btn-bulk-unpublish { background: #6b7280; color: white; }
+        .btn-bulk-delete { background: #dc2626; color: white; }
+        .btn-bulk-clear { background: #e5e7eb; color: #374151; }
         .table-row:hover {
             background: #f9fafb;
         }
@@ -202,6 +239,7 @@
         <div class="admin-header-content">
             <h1 class="admin-title">Insights Blog Admin</h1>
             <div class="admin-actions">
+                <a href="index.html" class="btn-secondary" style="background: #4b5563; color: white; padding: var(--spacing-sm) var(--spacing-lg); border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">Admin Hub</a>
                 <a href="import.html" class="btn-secondary" style="background: #6b7280; color: white; padding: var(--spacing-sm) var(--spacing-lg); border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">Import WordPress</a>
                 <a href="../import-json-to-supabase.html" class="btn-secondary" style="background: #7c3aed; color: white; padding: var(--spacing-sm) var(--spacing-lg); border-radius: var(--radius-sm); text-decoration: none; font-weight: 600;">Import JSON to Supabase</a>
                 <button id="export-json-btn" class="btn-secondary" style="background: #2563eb; color: white; padding: var(--spacing-sm) var(--spacing-lg); border-radius: var(--radius-sm); border: none; font-weight: 600; cursor: pointer;">Export JSON</button>
@@ -236,8 +274,21 @@
             </div>
         </div>
 
+        <div id="bulk-actions-bar" class="bulk-actions-bar">
+            <span id="bulk-count">0 selected</span>
+            <select id="bulk-category">
+                <option value="">Set category…</option>
+            </select>
+            <button type="button" class="btn-bulk btn-bulk-category" id="bulk-apply-category">Apply category</button>
+            <button type="button" class="btn-bulk btn-bulk-publish" id="bulk-publish">Publish</button>
+            <button type="button" class="btn-bulk btn-bulk-unpublish" id="bulk-unpublish">Unpublish</button>
+            <button type="button" class="btn-bulk btn-bulk-delete" id="bulk-delete">Delete</button>
+            <button type="button" class="btn-bulk btn-bulk-clear" id="bulk-clear">Clear</button>
+        </div>
+
         <div class="posts-table" id="posts-table">
             <div class="table-header">
+                <div><input type="checkbox" id="select-all-cb" title="Select all"></div>
                 <div>Title</div>
                 <div>Status</div>
                 <div>Category</div>
@@ -250,7 +301,7 @@
 
     <script type="module">
         import { requireAuth, clearAuthentication } from '/admin-auth.js';
-        import { getAllPosts, deletePost, searchPosts, getCategories, formatDate, downloadJSON } from '/blog-data.js';
+        import { getAllPosts, getPostById, savePost, deletePost, searchPosts, getCategories, formatDate, downloadJSON } from '/blog-data.js';
 
         (async () => {
         if (!(await requireAuth())) return;
@@ -277,11 +328,16 @@
         // Load categories
         const categories = getCategories();
         const categorySelect = document.getElementById('category-filter');
+        const bulkCategorySelect = document.getElementById('bulk-category');
         categories.forEach(cat => {
             const option = document.createElement('option');
             option.value = cat.id;
             option.textContent = cat.name;
             categorySelect.appendChild(option);
+            const bulkOpt = document.createElement('option');
+            bulkOpt.value = cat.id;
+            bulkOpt.textContent = cat.name;
+            bulkCategorySelect.appendChild(bulkOpt);
         });
 
         // Render posts
@@ -304,6 +360,7 @@
                         <p>${searchQuery || statusFilter || categoryFilter ? 'Try adjusting your filters.' : 'Create your first blog post to get started.'}</p>
                     </div>
                 `;
+                updateBulkBar();
                 return;
             }
 
@@ -314,6 +371,7 @@
                 
                 return `
                     <div class="table-row">
+                        <div><input type="checkbox" class="post-select-cb" data-id="${post.id}"></div>
                         <div class="post-title">
                             <a href="blog/edit.html?id=${post.id}">${post.title || 'Untitled'}</a>
                         </div>
@@ -329,15 +387,88 @@
                     </div>
                 `;
             }).join('');
+            updateBulkBar();
         }
 
         // Delete handler
         window.handleDelete = async function(postId) {
             if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-                await deletePost(postId);
+                deletePost(postId);
                 renderPosts();
             }
         };
+
+        function getSelectedIds() {
+            return Array.from(document.querySelectorAll('.post-select-cb:checked')).map(cb => cb.dataset.id);
+        }
+
+        function updateBulkBar() {
+            const ids = getSelectedIds();
+            const bar = document.getElementById('bulk-actions-bar');
+            const countEl = document.getElementById('bulk-count');
+            const selectAll = document.getElementById('select-all-cb');
+            const total = document.querySelectorAll('.post-select-cb').length;
+            countEl.textContent = ids.length + ' selected';
+            bar.classList.toggle('visible', ids.length > 0);
+            selectAll.checked = total > 0 && ids.length === total;
+            selectAll.indeterminate = ids.length > 0 && ids.length < total;
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.post-select-cb').forEach(cb => { cb.checked = false; });
+            document.getElementById('select-all-cb').checked = false;
+            updateBulkBar();
+        }
+
+        document.getElementById('select-all-cb').addEventListener('change', function() {
+            document.querySelectorAll('.post-select-cb').forEach(cb => { cb.checked = this.checked; });
+            updateBulkBar();
+        });
+
+        document.getElementById('posts-list').addEventListener('change', function(e) {
+            if (e.target.classList.contains('post-select-cb')) updateBulkBar();
+        });
+
+        document.getElementById('bulk-apply-category').addEventListener('click', function() {
+            const ids = getSelectedIds();
+            const catId = document.getElementById('bulk-category').value;
+            if (!catId) { alert('Please choose a category'); return; }
+            ids.forEach(id => {
+                const p = getPostById(id);
+                if (p) savePost({ ...p, category_id: catId });
+            });
+            clearSelection();
+            renderPosts();
+        });
+
+        document.getElementById('bulk-publish').addEventListener('click', function() {
+            getSelectedIds().forEach(id => {
+                const p = getPostById(id);
+                if (p) savePost({ ...p, status: 'published', published_at: p.published_at || new Date().toISOString() });
+            });
+            clearSelection();
+            renderPosts();
+        });
+
+        document.getElementById('bulk-unpublish').addEventListener('click', function() {
+            getSelectedIds().forEach(id => {
+                const p = getPostById(id);
+                if (p) savePost({ ...p, status: 'draft' });
+            });
+            clearSelection();
+            renderPosts();
+        });
+
+        document.getElementById('bulk-delete').addEventListener('click', function() {
+            const ids = getSelectedIds();
+            if (!ids.length) return;
+            if (!confirm('Delete ' + ids.length + ' post(s)? This cannot be undone.')) return;
+            ids.forEach(id => deletePost(id));
+            clearSelection();
+            renderPosts();
+        });
+
+        document.getElementById('bulk-clear').addEventListener('click', clearSelection);
 
         // Filter handlers
         document.getElementById('search-input').addEventListener('input', renderPosts);

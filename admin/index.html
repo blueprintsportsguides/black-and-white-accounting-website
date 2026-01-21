@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Hub | Black and White Accounting</title>
+    <link rel="icon" type="image/png" href="/Images/circle logo.png">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .admin-header {
+            background: white;
+            border-bottom: 2px solid #e5e7eb;
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        .admin-header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+        .admin-title { font-size: var(--font-size-2xl); font-weight: 700; color: var(--text-primary); }
+        .btn-logout {
+            background: #dc2626;
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-sm);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .hub-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-xl);
+        }
+        .hub-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .hub-card:hover {
+            border-color: var(--text-primary);
+            box-shadow: var(--shadow-md);
+        }
+        .hub-card h2 { margin: 0 0 var(--spacing-sm); font-size: var(--font-size-xl); }
+        .hub-card p { margin: 0; color: var(--text-secondary); font-size: var(--font-size-sm); }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <h1 class="admin-title">Admin Hub</h1>
+            <button class="btn-logout" id="logout-btn">Logout</button>
+        </div>
+    </div>
+
+    <div class="hub-container">
+        <div class="hub-grid">
+            <a href="blog.html" class="hub-card">
+                <h2>Insights Blog</h2>
+                <p>Create, edit, and manage blog posts. Import from WordPress, publish, and export.</p>
+            </a>
+            <a href="triage.html" class="hub-card">
+                <h2>Triage System</h2>
+                <p>Track client enquiries: assign, prioritise, set deadlines, and manage follow-ups.</p>
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { requireAuth, clearAuthentication } from '/admin-auth.js';
+
+        (async () => {
+            if (!(await requireAuth())) return;
+
+            document.getElementById('logout-btn').addEventListener('click', async () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    await clearAuthentication();
+                    window.location.href = '/admin-login';
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

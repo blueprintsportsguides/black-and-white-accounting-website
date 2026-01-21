@@ -57,7 +57,9 @@ export default defineConfig({
         'admin-signup': './admin-signup.html',
         'admin-forgot-password': './admin-forgot-password.html',
         'admin-set-password': './admin-set-password.html',
+        'admin/index': './admin/index.html',
         'admin/blog': './admin/blog.html',
+        'admin/triage': './admin/triage.html',
         'admin/import': './admin/import.html',
         'admin/import-direct': './admin/import-direct.html',
         'admin/publish-all': './admin/publish-all.html',
@@ -109,7 +111,7 @@ export default defineConfig({
       name: 'copy-static-assets',
       writeBundle() {
         // Copy script.js, styles.css, blog-data.js, admin-auth.js, and Supabase config files to dist root
-        const filesToCopy = ['script.js', 'styles.css', 'blog-data.js', 'admin-auth.js', 'supabase-config.js', 'blog-data-supabase.js'];
+        const filesToCopy = ['script.js', 'styles.css', 'blog-data.js', 'admin-auth.js', 'supabase-config.js', 'blog-data-supabase.js', 'triage-data-supabase.js'];
         filesToCopy.forEach(file => {
           const src = join(process.cwd(), file);
           const dest = join(process.cwd(), 'dist', file);

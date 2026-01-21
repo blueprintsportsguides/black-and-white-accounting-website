@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triage System | Black and White Accounting</title>
+    <link rel="icon" type="image/png" href="/Images/circle logo.png">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .admin-header { background: white; border-bottom: 2px solid #e5e7eb; padding: var(--spacing-lg); margin-bottom: var(--spacing-xl); }
+        .admin-header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); }
+        .admin-title { font-size: var(--font-size-2xl); font-weight: 700; color: var(--text-primary); }
+        .admin-actions { display: flex; gap: var(--spacing-md); flex-wrap: wrap; }
+        .btn { padding: 10px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: #4f46e5; color: white; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-secondary { background: #f3f4f6; color: #333; border: 1px solid #d0d5dd; }
+        .btn-secondary:hover { background: #e5e7eb; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-success { background: #059669; color: white; }
+        .btn-warning { background: #d97706; color: white; }
+        .btn-small { padding: 6px 12px; font-size: 13px; }
+        .triage-container { max-width: 1400px; margin: 0 auto; padding: 0 var(--spacing-lg); }
+        .controls-bar { padding: var(--spacing-md) 0; background: #f8f9fa; border-radius: var(--radius-sm); margin-bottom: var(--spacing-lg); display: flex; gap: var(--spacing-md); flex-wrap: wrap; align-items: center; }
+        .search-box { flex: 1; min-width: 200px; }
+        .search-box input { width: 100%; padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; }
+        .filter-group select { padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; background: white; min-width: 140px; }
+        .view-toggle { display: flex; gap: 8px; }
+        .view-toggle button { padding: 8px 14px; border-radius: 8px; border: 1px solid #e5e7eb; background: white; cursor: pointer; font-weight: 500; }
+        .view-toggle button.selected { background: #4f46e5; color: white; border-color: transparent; }
+        .triage-list { max-height: 70vh; overflow-y: auto; }
+        .triage-item { background: white; border: 2px solid #e5e7eb; border-radius: 10px; padding: var(--spacing-lg); margin-bottom: var(--spacing-md); transition: all 0.2s; }
+        .triage-item:hover { border-color: #a5b4fc; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .triage-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--spacing-md); margin-bottom: var(--spacing-sm); }
+        .triage-title { font-size: 1.1rem; font-weight: 600; color: #111; margin-bottom: 6px; }
+        .triage-meta { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; font-size: 13px; color: #666; }
+        .triage-meta .meta-item { display: inline-flex; align-items: center; gap: 4px; }
+        .importance-badge, .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .importance-critical { background: #fee2e2; color: #b91c1c; }
+        .importance-high { background: #fef3c7; color: #b45309; }
+        .importance-medium { background: #e5e7eb; color: #4b5563; }
+        .importance-low { background: #d1fae5; color: #047857; }
+        .status-open { background: #dbeafe; color: #1d4ed8; }
+        .status-in-progress { background: #ffedd5; color: #c2410c; }
+        .status-resolved { background: #dcfce7; color: #166534; }
+        .status-no-action-required { background: #f3e8ff; color: #6b21a8; }
+        .status-reallocated { background: #e9d5ff; color: #6b21a8; }
+        .status-awaiting-further-information { background: #fef9c3; color: #a16207; }
+        .triage-body { margin-top: var(--spacing-sm); }
+        .triage-description { color: #555; line-height: 1.5; margin-bottom: 10px; }
+        .client-details { background: #f8fafc; padding: 12px; border-radius: 8px; font-size: 13px; color: #555; }
+        .client-details h4 { font-size: 13px; margin-bottom: 8px; color: #333; }
+        .triage-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .deadline-warning { color: #dc2626; font-weight: 600; }
+        .archive-section { display: none; padding: var(--spacing-lg) 0; }
+        .archive-section.visible { display: block; }
+        .archive-heading { font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-md); }
+        .empty-state { text-align: center; padding: 48px 24px; color: #6b7280; }
+        .empty-state h3 { margin-bottom: 8px; color: #374151; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 12px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 1.25rem; margin: 0; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280; padding: 0; line-height: 1; }
+        .modal-body { padding: 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 10px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #374151; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: inherit; }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+        .form-group .add-cat { display: flex; gap: 8px; }
+        .form-group .add-cat select { flex: 1; }
+        .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 9999; align-items: center; justify-content: center; }
+        .loading-overlay.active { display: flex; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top-color: #4f46e5; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toast { position: fixed; bottom: 20px; right: 20px; padding: 14px 20px; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 4px 14px rgba(0,0,0,0.2); z-index: 10001; display: none; }
+        .toast.active { display: block; }
+        .toast.success { background: #059669; }
+        .toast.error { background: #dc2626; }
+        .category-filter-wrap { position: relative; }
+        .category-filter-drop { display: none; position: absolute; top: 100%; left: 0; margin-top: 6px; background: white; border: 2px solid #e5e7eb; border-radius: 8px; padding: 12px; min-width: 220px; max-height: 280px; overflow-y: auto; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .category-filter-drop.open { display: block; }
+        .cat-checkbox { display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; font-weight: normal; }
+        .need-supabase { padding: 48px 24px; text-align: center; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 12px; margin: var(--spacing-xl); }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <h1 class="admin-title">Triage System</h1>
+            <div class="admin-actions">
+                <a href="index.html" class="btn btn-secondary">← Admin Hub</a>
+                <span class="user-name" id="userName"></span>
+                <button type="button" class="btn btn-danger btn-small" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="needSupabase" class="need-supabase" style="display:none">
+        <h2>Triage requires Supabase</h2>
+        <p>Configure <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>, then run <code>supabase-triage.sql</code> in the Supabase SQL Editor.</p>
+        <a href="index.html" class="btn btn-primary">← Admin Hub</a>
+    </div>
+
+    <div id="triageMain" class="triage-container">
+        <div class="controls-bar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search client, description, assigned to…">
+            </div>
+            <select id="filterImportance">
+                <option value="">All importance</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+            <select id="filterStatus">
+                <option value="">All statuses</option>
+                <option value="open">Open</option>
+                <option value="in-progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="no-action-required">No Action Required</option>
+                <option value="reallocated">Reallocated</option>
+                <option value="awaiting-further-information">Awaiting Further Information</option>
+            </select>
+            <select id="filterAssignedTo">
+                <option value="">All team</option>
+            </select>
+            <select id="sortOrder">
+                <option value="createdDesc">Newest first</option>
+                <option value="createdAsc">Oldest first</option>
+                <option value="deadlineUpcoming">Upcoming deadlines</option>
+                <option value="importance">Importance</option>
+            </select>
+            <div class="category-filter-wrap">
+                <button type="button" class="btn btn-secondary btn-small" id="categoryFilterBtn">Categories</button>
+                <div id="categoryFilterDrop" class="category-filter-drop">
+                    <div id="categoryFilterCheckboxes"></div>
+                    <button type="button" class="btn btn-secondary btn-small" id="clearCategoryFilter" style="margin-top:10px;width:100%">Clear</button>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-small" id="newTriageBtn">+ New Triage</button>
+            <div class="view-toggle">
+                <button type="button" id="viewActive" class="selected">Active</button>
+                <button type="button" id="viewArchive">Archive</button>
+            </div>
+        </div>
+
+        <div class="triage-list" id="triageList"></div>
+        <div class="archive-section" id="archiveSection">
+            <h2 class="archive-heading">Archived</h2>
+            <div id="archiveList"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">New Triage</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="triageForm">
+                    <input type="hidden" id="triageId">
+                    <div class="form-group">
+                        <label for="clientName">Client Name *</label>
+                        <input type="text" id="clientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="businessName">Business Name</label>
+                        <input type="text" id="businessName" placeholder="Optional">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clientPhone">Phone</label>
+                            <input type="tel" id="clientPhone">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientEmail">Email</label>
+                            <input type="email" id="clientEmail">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description of Enquiry *</label>
+                        <textarea id="description" required placeholder="Describe the enquiry..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <div class="add-cat">
+                                <select id="category">
+                                    <option value="">Select or add...</option>
+                                </select>
+                                <button type="button" class="btn btn-secondary btn-small" id="addCategoryBtn">+ Add</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="importance">Importance *</label>
+                            <select id="importance" required>
+                                <option value="">Select...</option>
+                                <option value="critical">Critical</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="assignedTo">Assign To</label>
+                            <select id="assignedTo">
+                                <option value="">Unassigned</option>
+                            </select>
+                        </div>
+                        <div class="form-group"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="deadline">Deadline</label>
+                            <input type="datetime-local" id="deadline">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status *</label>
+                            <select id="status" required>
+                                <option value="open">Open</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="no-action-required">No Action Required</option>
+                                <option value="reallocated">Reallocated</option>
+                                <option value="awaiting-further-information">Awaiting Further Information</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" placeholder="Internal notes..."></textarea>
+                    </div>
+                    <div class="form-group" style="border-top:1px solid #e5e7eb;padding-top:16px;margin-top:16px;">
+                        <label style="margin-bottom:10px;">Required confirmations *</label>
+                        <label class="cat-checkbox"><input type="checkbox" id="c1" required> Have you asked if anyone else available can assist?</label>
+                        <label class="cat-checkbox"><input type="checkbox" id="c2" required> Have you noted as much information as possible for handover?</label>
+                        <label class="cat-checkbox"><input type="checkbox" id="c3" required> Have you clarified every point with the caller?</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveTriageBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { requireAuth, clearAuthentication } from '/admin-auth.js';
+        import { isSupabaseConfigured } from '/supabase-config.js';
+        import {
+            getCurrentUser,
+            getTeamMembers,
+            getCategories,
+            addCategory,
+            getTriageEntries,
+            getArchivedTriage,
+            createTriage,
+            updateTriage,
+            deleteTriage,
+            archiveTriage
+        } from '/triage-data-supabase.js';
+
+        (async () => {
+            if (!(await requireAuth())) return;
+
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                if (confirm('Log out?')) {
+                    await clearAuthentication();
+                    window.location.href = '/admin-login';
+                }
+            });
+
+            if (!isSupabaseConfigured()) {
+                document.getElementById('needSupabase').style.display = 'block';
+                document.getElementById('triageMain').style.display = 'none';
+                return;
+            }
+
+            const user = await getCurrentUser();
+            if (user) document.getElementById('userName').textContent = user.display_name || user.email;
+
+            let triageEntries = [];
+            let archivedEntries = [];
+            let teamMembers = [];
+            let categories = [];
+            let selectedCategories = new Set();
+            let editingId = null;
+            let currentView = 'active';
+            let currentSort = 'createdDesc';
+
+            function showLoading(v) {
+                document.getElementById('loadingOverlay').classList.toggle('active', !!v);
+            }
+            function showToast(msg, type = 'success') {
+                const t = document.getElementById('toast');
+                t.textContent = msg;
+                t.className = 'toast ' + type + ' active';
+                setTimeout(() => t.classList.remove('active'), 3200);
+            }
+            function fmt(d) {
+                if (!d) return '—';
+                const x = new Date(d);
+                return isNaN(x.getTime()) ? '—' : x.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            }
+            function esc(s) {
+                const d = document.createElement('div');
+                d.textContent = s == null ? '' : s;
+                return d.innerHTML;
+            }
+
+            async function load() {
+                showLoading(true);
+                try {
+                    [teamMembers, categories, triageEntries, archivedEntries] = await Promise.all([
+                        getTeamMembers(),
+                        getCategories(),
+                        getTriageEntries(),
+                        getArchivedTriage()
+                    ]);
+                    updateCategorySelect();
+                    updateCategoryFilterCheckboxes();
+                    updateAssignedSelects();
+                    render();
+                    renderArchive();
+                } catch (e) {
+                    console.error(e);
+                    showToast('Error loading data', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            function updateCategorySelect() {
+                const s = document.getElementById('category');
+                const v = s.value;
+                s.innerHTML = '<option value="">Select or add...</option>' + categories.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join('');
+                if (v && categories.includes(v)) s.value = v;
+            }
+            function updateCategoryFilterCheckboxes() {
+                const box = document.getElementById('categoryFilterCheckboxes');
+                if (!categories.length) {
+                    box.innerHTML = '<p style="color:#9ca3af;font-style:italic">No categories</p>';
+                    return;
+                }
+                box.innerHTML = categories.map(c => `
+                    <label class="cat-checkbox">
+                        <input type="checkbox" value="${esc(c)}" ${selectedCategories.has(c) ? 'checked' : ''}>
+                        <span>${esc(c)}</span>
+                    </label>
+                `).join('');
+                box.querySelectorAll('input').forEach(cb => {
+                    cb.addEventListener('change', () => {
+                        if (cb.checked) selectedCategories.add(cb.value); else selectedCategories.delete(cb.value);
+                        render();
+                    });
+                });
+            }
+            function updateAssignedSelects() {
+                const opts = '<option value="">Unassigned</option>' + teamMembers.map(m => '<option value="' + esc(m.id) + '">' + esc(m.display_name || m.email) + '</option>').join('');
+                document.getElementById('assignedTo').innerHTML = opts;
+                const f = document.getElementById('filterAssignedTo');
+                f.innerHTML = '<option value="">All team</option>' + teamMembers.map(m => '<option value="' + esc(m.id) + '">' + esc(m.display_name || m.email) + '</option>').join('');
+            }
+
+            function sortEntries(arr) {
+                const imp = { critical: 0, high: 1, medium: 2, low: 3 };
+                const a = [...arr];
+                switch (currentSort) {
+                    case 'createdDesc': a.sort((x, y) => new Date(y.createdAt) - new Date(x.createdAt)); break;
+                    case 'createdAsc': a.sort((x, y) => new Date(x.createdAt) - new Date(y.createdAt)); break;
+                    case 'deadlineUpcoming':
+                        a.sort((x, y) => {
+                            const xd = x.deadline && !isNaN(new Date(x.deadline).getTime()) ? new Date(x.deadline).getTime() : 9e15;
+                            const yd = y.deadline && !isNaN(new Date(y.deadline).getTime()) ? new Date(y.deadline).getTime() : 9e15;
+                            return xd - yd;
+                        });
+                        break;
+                    case 'importance': a.sort((x, y) => (imp[x.importance] ?? 2) - (imp[y.importance] ?? 2)); break;
+                }
+                return a;
+            }
+
+            function filterActive() {
+                const q = (document.getElementById('searchInput').value || '').toLowerCase();
+                const imp = document.getElementById('filterImportance').value;
+                const st = document.getElementById('filterStatus').value;
+                const as = document.getElementById('filterAssignedTo').value;
+                return triageEntries.filter(t => {
+                    const search = !q || [t.clientName, t.businessName, t.description, t.assignedTo, t.clientEmail, t.clientPhone].some(s => (s || '').toLowerCase().includes(q));
+                    const i = !imp || t.importance === imp;
+                    const s = !st || t.status === st;
+                    const a = !as || (t.assigned_to_id || '') === as;
+                    const cat = selectedCategories.size === 0 || (t.category && selectedCategories.has(t.category));
+                    return search && i && s && a && cat;
+                });
+            }
+
+            function render() {
+                const list = document.getElementById('triageList');
+                const filtered = sortEntries(filterActive());
+                if (filtered.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><h3>No triage entries</h3><p>Create one with + New Triage</p><button class="btn btn-primary" id="emptyNew">+ New Triage</button></div>';
+                    list.querySelector('#emptyNew')?.addEventListener('click', () => openModal());
+                    return;
+                }
+                list.innerHTML = filtered.map(t => {
+                    const dl = t.deadline ? new Date(t.deadline) : null;
+                    const now = new Date();
+                    const past = dl && dl < now;
+                    const soon = dl && dl < new Date(now.getTime() + 864e5);
+                    let dlText = dl ? (past ? 'Overdue: ' : soon ? 'Due: ' : 'Deadline: ') + fmt(dl) : 'No deadline';
+                    return `
+                        <div class="triage-item" data-id="${esc(t.id)}">
+                            <div class="triage-header">
+                                <div>
+                                    <div class="triage-title">${esc(t.clientName)}</div>
+                                    <div class="triage-meta">
+                                        <span class="importance-badge importance-${t.importance}">${t.importance}</span>
+                                        <span class="status-badge status-${t.status}">${(t.status || '').replace(/-/g, ' ')}</span>
+                                        ${t.category ? '<span class="meta-item">' + esc(t.category) + '</span>' : ''}
+                                        ${t.assignedTo ? '<span class="meta-item">' + esc(t.assignedTo) + '</span>' : ''}
+                                        <span class="meta-item">${fmt(t.createdAt)}</span>
+                                        <span class="meta-item ${past || soon ? 'deadline-warning' : ''}">${dlText}</span>
+                                    </div>
+                                </div>
+                                <div class="triage-actions">
+                                    <button class="btn btn-warning btn-small edit-btn" data-id="${esc(t.id)}">Edit</button>
+                                    <button class="btn btn-danger btn-small del-btn" data-id="${esc(t.id)}">Delete</button>
+                                    <button class="btn btn-success btn-small done-btn" data-id="${esc(t.id)}">Mark Done</button>
+                                </div>
+                            </div>
+                            <div class="triage-body">
+                                <div class="triage-description">${esc(t.description)}</div>
+                                <div class="client-details">
+                                    <h4>Client details</h4>
+                                    ${t.businessName ? '<p><strong>Business:</strong> ' + esc(t.businessName) + '</p>' : ''}
+                                    ${t.clientPhone ? '<p><strong>Phone:</strong> ' + esc(t.clientPhone) + '</p>' : ''}
+                                    ${t.clientEmail ? '<p><strong>Email:</strong> ' + esc(t.clientEmail) + '</p>' : ''}
+                                    ${t.notes ? '<p><strong>Notes:</strong> ' + esc(t.notes) + '</p>' : ''}
+                                    <p><strong>Created by:</strong> ${esc(t.createdBy)} (${fmt(t.createdAt)})</p>
+                                    ${t.updatedAt !== t.createdAt ? '<p><strong>Updated:</strong> ' + fmt(t.updatedAt) + '</p>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                list.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', () => { const t = triageEntries.find(x => x.id === b.dataset.id); if (t) openModal(t); }));
+                list.querySelectorAll('.del-btn').forEach(b => b.addEventListener('click', () => del(b.dataset.id)));
+                list.querySelectorAll('.done-btn').forEach(b => b.addEventListener('click', () => done(b.dataset.id)));
+            }
+
+            function renderArchive() {
+                const list = document.getElementById('archiveList');
+                const sorted = [...archivedEntries].sort((a, b) => new Date(b.archivedAt || 0) - new Date(a.archivedAt || 0));
+                if (sorted.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><h3>No archived entries</h3></div>';
+                    return;
+                }
+                list.innerHTML = sorted.map(t => `
+                    <div class="triage-item">
+                        <div class="triage-header">
+                            <div>
+                                <div class="triage-title">${esc(t.clientName)}</div>
+                                <div class="triage-meta">
+                                    <span class="importance-badge importance-${t.importance}">${t.importance}</span>
+                                    <span class="status-badge status-${t.status}">${(t.status || '').replace(/-/g, ' ')}</span>
+                                    ${t.category ? '<span class="meta-item">' + esc(t.category) + '</span>' : ''}
+                                    ${t.assignedTo ? '<span class="meta-item">' + esc(t.assignedTo) + '</span>' : ''}
+                                    <span class="meta-item">${fmt(t.createdAt)}</span>
+                                    <span class="meta-item">Archived: ${fmt(t.archivedAt)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="triage-body">
+                            <div class="triage-description">${esc(t.description)}</div>
+                            <div class="client-details">
+                                ${t.businessName ? '<p><strong>Business:</strong> ' + esc(t.businessName) + '</p>' : ''}
+                                ${t.clientPhone ? '<p><strong>Phone:</strong> ' + esc(t.clientPhone) + '</p>' : ''}
+                                ${t.clientEmail ? '<p><strong>Email:</strong> ' + esc(t.clientEmail) + '</p>' : ''}
+                                <p><strong>Created by:</strong> ${esc(t.createdBy)}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function setView(v) {
+                currentView = v;
+                document.getElementById('triageList').style.display = v === 'active' ? 'block' : 'none';
+                document.getElementById('archiveSection').classList.toggle('visible', v === 'archive');
+                document.getElementById('viewActive').classList.toggle('selected', v === 'active');
+                document.getElementById('viewArchive').classList.toggle('selected', v === 'archive');
+            }
+
+            function openModal(t = null) {
+                editingId = t ? t.id : null;
+                document.getElementById('modalTitle').textContent = t ? 'Edit Triage' : 'New Triage';
+                document.getElementById('triageForm').reset();
+                document.getElementById('triageId').value = t ? t.id : '';
+                if (t) {
+                    document.getElementById('clientName').value = t.clientName || '';
+                    document.getElementById('businessName').value = t.businessName || '';
+                    document.getElementById('clientPhone').value = t.clientPhone || '';
+                    document.getElementById('clientEmail').value = t.clientEmail || '';
+                    document.getElementById('description').value = t.description || '';
+                    document.getElementById('category').value = t.category || '';
+                    document.getElementById('importance').value = t.importance || '';
+                    document.getElementById('assignedTo').value = t.assigned_to_id || '';
+                    document.getElementById('status').value = t.status || 'open';
+                    document.getElementById('notes').value = t.notes || '';
+                    document.getElementById('c1').checked = !!t.confirmation1;
+                    document.getElementById('c2').checked = !!t.confirmation2;
+                    document.getElementById('c3').checked = !!t.confirmation3;
+                    if (t.deadline) {
+                        try {
+                            const d = new Date(t.deadline);
+                            document.getElementById('deadline').value = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                        } catch (_) {}
+                    }
+                } else {
+                    document.getElementById('status').value = 'open';
+                }
+                updateCategorySelect();
+                if (t && t.category) document.getElementById('category').value = t.category;
+                document.getElementById('modal').classList.add('active');
+            }
+
+            function closeModal() {
+                document.getElementById('modal').classList.remove('active');
+                editingId = null;
+            }
+
+            async function saveTriage() {
+                const f = document.getElementById('triageForm');
+                if (!f.checkValidity()) { f.reportValidity(); return; }
+                const t = {
+                    clientName: document.getElementById('clientName').value.trim(),
+                    businessName: document.getElementById('businessName').value.trim() || null,
+                    clientPhone: document.getElementById('clientPhone').value.trim() || null,
+                    clientEmail: document.getElementById('clientEmail').value.trim() || null,
+                    description: document.getElementById('description').value.trim(),
+                    category: document.getElementById('category').value || null,
+                    importance: document.getElementById('importance').value,
+                    assigned_to_id: document.getElementById('assignedTo').value || null,
+                    status: document.getElementById('status').value,
+                    deadline: document.getElementById('deadline').value || null,
+                    notes: document.getElementById('notes').value.trim() || null,
+                    confirmation1: document.getElementById('c1').checked,
+                    confirmation2: document.getElementById('c2').checked,
+                    confirmation3: document.getElementById('c3').checked
+                };
+                showLoading(true);
+                try {
+                    if (editingId) {
+                        const ok = await updateTriage(editingId, t);
+                        if (ok) { showToast('Updated'); closeModal(); await load(); } else showToast('Update failed', 'error');
+                    } else {
+                        const res = await createTriage(t, user.id);
+                        if (res?.id) { showToast('Created'); closeModal(); await load(); } else showToast('Create failed', 'error');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    showToast('Error saving', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            async function del(id) {
+                if (!confirm('Delete this triage? This cannot be undone.')) return;
+                showLoading(true);
+                try {
+                    const ok = await deleteTriage(id);
+                    if (ok) { showToast('Deleted'); await load(); } else showToast('Delete failed', 'error');
+                } catch (e) {
+                    showToast('Error', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            async function done(id) {
+                showLoading(true);
+                try {
+                    const ok = await archiveTriage(id);
+                    if (ok) { showToast('Marked as done'); await load(); } else showToast('Failed', 'error');
+                } catch (e) {
+                    showToast('Error', 'error');
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            document.getElementById('newTriageBtn').addEventListener('click', () => openModal());
+            document.getElementById('closeModal').addEventListener('click', closeModal);
+            document.getElementById('cancelBtn').addEventListener('click', closeModal);
+            document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+            document.getElementById('saveTriageBtn').addEventListener('click', saveTriage);
+
+            document.getElementById('addCategoryBtn').addEventListener('click', async () => {
+                const n = prompt('New category name:');
+                if (!(n || '').trim()) return;
+                const ok = await addCategory(n.trim());
+                if (ok) { categories = await getCategories(); updateCategorySelect(); updateCategoryFilterCheckboxes(); document.getElementById('category').value = n.trim(); showToast('Category added'); } else showToast('Category exists or error', 'error');
+            });
+
+            document.getElementById('searchInput').addEventListener('input', render);
+            document.getElementById('filterImportance').addEventListener('change', render);
+            document.getElementById('filterStatus').addEventListener('change', render);
+            document.getElementById('filterAssignedTo').addEventListener('change', render);
+            document.getElementById('sortOrder').addEventListener('change', e => { currentSort = e.target.value; render(); });
+
+            document.getElementById('categoryFilterBtn').addEventListener('click', () => {
+                document.getElementById('categoryFilterDrop').classList.toggle('open');
+            });
+            document.getElementById('clearCategoryFilter').addEventListener('click', () => {
+                selectedCategories.clear();
+                updateCategoryFilterCheckboxes();
+                render();
+            });
+            document.addEventListener('click', e => {
+                if (!e.target.closest('.category-filter-wrap')) document.getElementById('categoryFilterDrop').classList.remove('open');
+            });
+
+            document.getElementById('viewActive').addEventListener('click', () => setView('active'));
+            document.getElementById('viewArchive').addEventListener('click', () => setView('archive'));
+
+            await load();
+        })();
+    </script>
+</body>
+</html>

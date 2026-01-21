@@ -78,7 +78,10 @@
             const supabase = await getSupabaseClient();
             if (!supabase) { showError('Could not connect.'); if (btn) { btn.disabled = false; btn.textContent = 'Create account'; } return; }
 
-            const { data, error } = await supabase.auth.signUp({ email, password });
+            const emailRedirectTo = window.location.origin + '/admin-login';
+            const { data, error } = await supabase.auth.signUp(
+                { email, password, options: { emailRedirectTo } }
+            );
 
             if (error) {
                 showError(error.message || 'Sign up failed.');

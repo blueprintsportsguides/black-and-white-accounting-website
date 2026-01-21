@@ -75,7 +75,7 @@ if (typeof document !== 'undefined' && document.getElementById('login-form')) {
         }
 
         const params = new URLSearchParams(window.location.search);
-        const redirect = params.get('redirect') || '/admin/blog.html';
+        const redirect = params.get('redirect') || '/admin';
         window.location.href = redirect;
     });
 }

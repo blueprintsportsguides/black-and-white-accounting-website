@@ -190,6 +190,67 @@
         .status-option input[type="radio"] {
             width: auto;
         }
+        .featured-image-row {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+        .featured-image-row input[type="url"] {
+            flex: 1;
+        }
+        .featured-image-btns { display: flex; gap: var(--spacing-xs); }
+        .image-picker-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+        }
+        .image-picker-modal.open { display: flex; }
+        .image-picker-dialog {
+            background: white;
+            border-radius: var(--radius-md);
+            max-width: 640px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-md);
+        }
+        .image-picker-header {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .image-picker-body {
+            padding: var(--spacing-md);
+            overflow-y: auto;
+            flex: 1;
+        }
+        .image-picker-upload {
+            margin-bottom: var(--spacing-md);
+        }
+        .image-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: var(--spacing-sm);
+        }
+        .image-picker-item {
+            aspect-ratio: 1;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            cursor: pointer;
+            object-fit: cover;
+            width: 100%;
+        }
+        .image-picker-item:hover { border-color: var(--text-primary); }
         .error-message {
             color: #dc2626;
             font-size: var(--font-size-sm);
@@ -214,7 +275,8 @@
         <div class="admin-header-content">
             <h1 class="admin-title" id="page-title">New Post</h1>
             <div class="admin-actions">
-                <a href="/blog" class="btn-secondary">← Back to Posts</a>
+                <a href="../blog.html" class="btn-secondary">← Back to Posts</a>
+                <a href="#" id="view-post-link" class="btn-secondary" style="display:none" target="_blank" rel="noopener">View post</a>
                 <button class="btn-primary" id="save-btn">Save Post</button>
             </div>
         </div>
@@ -244,19 +306,33 @@
                 <div class="form-group">
                     <label for="content">Content *</label>
                     <div class="editor-toolbar">
-                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('**', '**', 'Bold')">B</button>
-                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('*', '*', 'Italic')">I</button>
-                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('## ', '', 'Heading')">H2</button>
-                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('### ', '', 'Subheading')">H3</button>
-                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('- ', '', 'List')">List</button>
-                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('[', '](url)', 'Link')">Link</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('**', '**', 'Bold')" title="Bold">B</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('*', '*', 'Italic')" title="Italic">I</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('## ', '', 'Heading')" title="Heading 2">H2</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('### ', '', 'Subheading')" title="Heading 3">H3</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('- ', '', 'List')" title="Bullet list">List</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('1. ', '', 'Item')" title="Numbered list">1.</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('> ', '', 'Quote')" title="Blockquote">Quote</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('`', '`', 'code')" title="Inline code">Code</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('\n```\n', '\n```\n', 'code block')" title="Code block">Pre</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('\n---\n', '', '')" title="Horizontal rule">HR</button>
+                        <button type="button" class="toolbar-btn" onclick="insertMarkdown('[', '](url)', 'Link')" title="Link">Link</button>
+                        <button type="button" class="toolbar-btn" id="toolbar-insert-image" title="Insert image">Img</button>
+                        <button type="button" class="toolbar-btn" id="toolbar-insert-youtube" title="Embed YouTube">YouTube</button>
                     </div>
-                    <textarea id="content" name="content" class="content-editor" required placeholder="Write your post content here. You can use Markdown formatting."></textarea>
+                    <textarea id="content" name="content" class="content-editor" required placeholder="Write your post content here. You can use Markdown or HTML (e.g. iframes for videos)."></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="featured-image-url">Featured Image URL</label>
-                    <input type="url" id="featured-image-url" name="featured_image_url" placeholder="https://example.com/image.jpg">
+                    <label for="featured-image-url">Featured Image</label>
+                    <div class="featured-image-row">
+                        <input type="url" id="featured-image-url" name="featured_image_url" placeholder="https://example.com/image.jpg">
+                        <div class="featured-image-btns">
+                            <button type="button" class="toolbar-btn" id="featured-upload-btn">Upload</button>
+                            <button type="button" class="toolbar-btn" id="featured-library-btn">From library</button>
+                        </div>
+                    </div>
+                    <input type="file" id="featured-upload-input" accept="image/*" style="display:none">
                 </div>
 
                 <div class="form-group">
@@ -325,9 +401,27 @@
         </form>
     </div>
 
+    <div id="image-picker-modal" class="image-picker-modal">
+        <div class="image-picker-dialog">
+            <div class="image-picker-header">
+                <strong>Choose image</strong>
+                <button type="button" class="toolbar-btn" id="image-picker-close">× Close</button>
+            </div>
+            <div class="image-picker-body">
+                <div class="image-picker-upload">
+                    <input type="file" id="image-picker-upload-input" accept="image/*" style="display:none">
+                    <button type="button" class="toolbar-btn" id="image-picker-upload-btn">Upload new image</button>
+                </div>
+                <div id="image-picker-grid" class="image-picker-grid"></div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { requireAuth } from '/admin-auth.js';
-        import { getPostById, savePost, getCategories, getTags, generateSlug, ensureUniqueSlug } from '/blog-data.js';
+        import { getPostById, savePost, getCategories, getTags, generateSlug, ensureUniqueSlug, getImageUrlsFromPosts, ensureDataLoaded } from '/blog-data.js';
+        import { isSupabaseConfigured } from '/supabase-config.js';
+        import { uploadBlogImage, listBlogImages } from '/blog-data-supabase.js';
 
         (async () => {
         if (!(await requireAuth())) return;
@@ -396,6 +490,12 @@
                     const date = new Date(currentPost.published_at);
                     const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
                     document.getElementById('published-at').value = localDateTime;
+                }
+
+                if (currentPost.slug) {
+                    const viewLink = document.getElementById('view-post-link');
+                    viewLink.href = '/blog/' + currentPost.slug;
+                    viewLink.style.display = 'inline-block';
                 }
             }
         }
@@ -496,6 +596,108 @@
             textarea.setSelectionRange(start + before.length, start + before.length + (selectedText || placeholder).length);
         };
 
+        window.insertHtml = function(html) {
+            const textarea = document.getElementById('content');
+            const start = textarea.selectionStart;
+            textarea.value = textarea.value.substring(0, start) + html + textarea.value.substring(start);
+            textarea.focus();
+            textarea.setSelectionRange(start + html.length, start + html.length);
+        };
+
+        // YouTube embed
+        document.getElementById('toolbar-insert-youtube').addEventListener('click', function() {
+            const url = prompt('Paste YouTube URL (e.g. https://www.youtube.com/watch?v=VIDEO_ID or https://youtu.be/VIDEO_ID):', '');
+            if (!url) return;
+            let id = null;
+            const m1 = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+            if (m1) id = m1[1];
+            if (!id) { alert('Could not parse YouTube video ID from that URL.'); return; }
+            const iframe = '<p><iframe width="560" height="315" src="https://www.youtube.com/embed/' + id + '" frameborder="0" allowfullscreen></iframe></p>';
+            insertHtml(iframe);
+        });
+
+        // Image picker (shared for Featured and Insert into content)
+        let imagePickerMode = 'featured'; // 'featured' | 'content'
+        const modal = document.getElementById('image-picker-modal');
+        const gridEl = document.getElementById('image-picker-grid');
+
+        async function loadImagePickerLibrary() {
+            await ensureDataLoaded();
+            let urls = getImageUrlsFromPosts();
+            if (isSupabaseConfigured()) {
+                try {
+                    const fromStorage = await listBlogImages();
+                    urls = [...new Set([...fromStorage, ...urls])];
+                } catch (_) {}
+            }
+            return urls;
+        }
+
+        function openImagePicker(mode) {
+            imagePickerMode = mode;
+            modal.classList.add('open');
+            loadImagePickerLibrary().then(urls => {
+                gridEl.innerHTML = '';
+                urls.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.alt = '';
+                    img.className = 'image-picker-item';
+                    img.loading = 'lazy';
+                    img.onerror = () => img.style.display = 'none';
+                    img.onclick = () => pickImage(url);
+                    gridEl.appendChild(img);
+                });
+                if (urls.length === 0) gridEl.innerHTML = '<p style="color:var(--text-secondary);">No images in library. Upload one above or add a URL in Featured Image.</p>';
+            });
+        }
+
+        function closeImagePicker() {
+            modal.classList.remove('open');
+        }
+
+        function pickImage(url, alt) {
+            if (imagePickerMode === 'featured') {
+                document.getElementById('featured-image-url').value = url;
+                if (alt) document.getElementById('featured-image-alt').value = alt;
+            } else {
+                insertHtml('<img src="' + url + '" alt="' + (alt || '') + '" style="max-width:100%;height:auto;">');
+            }
+            closeImagePicker();
+        }
+
+        async function doUploadAndPick(file) {
+            if (!isSupabaseConfigured()) {
+                alert('Image upload requires Supabase. Use the URL field or configure Supabase (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY).');
+                return;
+            }
+            const url = await uploadBlogImage(file);
+            if (url) pickImage(url, (file.name || '').replace(/\.[^.]+$/, ''));
+        }
+
+        document.getElementById('featured-upload-btn').addEventListener('click', () => document.getElementById('featured-upload-input').click());
+        document.getElementById('featured-upload-input').addEventListener('change', async function() {
+            const file = this.files && this.files[0];
+            this.value = '';
+            if (!file) return;
+            imagePickerMode = 'featured';
+            await doUploadAndPick(file);
+        });
+
+        document.getElementById('featured-library-btn').addEventListener('click', () => openImagePicker('featured'));
+        document.getElementById('toolbar-insert-image').addEventListener('click', () => openImagePicker('content'));
+
+        document.getElementById('image-picker-close').addEventListener('click', closeImagePicker);
+        modal.addEventListener('click', function(e) { if (e.target === modal) closeImagePicker(); });
+
+        document.getElementById('image-picker-upload-btn').addEventListener('click', () => document.getElementById('image-picker-upload-input').click());
+        document.getElementById('image-picker-upload-input').addEventListener('change', async function() {
+            const file = this.files && this.files[0];
+            this.value = '';
+            if (!file) return;
+            await doUploadAndPick(file);
+        });
+
         // Save handler
         document.getElementById('save-btn').addEventListener('click', async function(e) {
             e.preventDefault();
@@ -543,6 +745,11 @@
                 if (!postId && savedPost.id) {
                     window.history.replaceState({}, '', `edit.html?id=${savedPost.id}`);
                     document.getElementById('page-title').textContent = 'Edit Post';
+                    if (savedPost.slug) {
+                        const viewLink = document.getElementById('view-post-link');
+                        viewLink.href = '/blog/' + savedPost.slug;
+                        viewLink.style.display = 'inline-block';
+                    }
                 }
                 
                 // Scroll to top

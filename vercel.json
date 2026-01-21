@@ -307,6 +307,14 @@
     {
       "source": "/admin/import-json-to-supabase",
       "destination": "/admin/import-json-to-supabase.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/admin/triage",
+      "destination": "/admin/triage.html"
     }
   ],
   "redirects": [
