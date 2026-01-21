@@ -138,7 +138,7 @@
     },
     {
       "source": "/blog/:slug",
-      "destination": "/blog-post.html"
+      "destination": "/blog-post"
     },
     {
       "source": "/blog",
@@ -146,7 +146,7 @@
     },
     {
       "source": "/blog-post",
-      "destination": "/blog-post.html"
+      "destination": "/blog-post"
     },
           {
             "source": "/tools",
