@@ -334,9 +334,9 @@
         }
 
         // Delete handler
-        window.handleDelete = function(postId) {
+        window.handleDelete = async function(postId) {
             if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-                deletePost(postId);
+                await deletePost(postId);
                 renderPosts();
             }
         };
