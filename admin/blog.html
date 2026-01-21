@@ -252,16 +252,14 @@
         import { requireAuth, clearAuthentication } from '/admin-auth.js';
         import { getAllPosts, deletePost, searchPosts, getCategories, formatDate, downloadJSON } from '/blog-data.js';
 
-        // Require authentication
-        if (!requireAuth()) {
-            throw new Error('Not authenticated');
-        }
+        (async () => {
+        if (!(await requireAuth())) return;
 
         // Logout handler
-        document.getElementById('logout-btn').addEventListener('click', function() {
+        document.getElementById('logout-btn').addEventListener('click', async function() {
             if (confirm('Are you sure you want to logout?')) {
-                clearAuthentication();
-                window.location.href = '/admin-login.html';
+                await clearAuthentication();
+                window.location.href = '/admin-login';
             }
         });
 
@@ -348,6 +346,7 @@
 
         // Initial render
         renderPosts();
+        })();
     </script>
 </body>
 </html>

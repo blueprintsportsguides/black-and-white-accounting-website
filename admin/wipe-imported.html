@@ -120,10 +120,8 @@
         import { requireAuth } from '/admin-auth.js';
         import { getAllPosts, deletePost } from '/blog-data.js';
 
-        // Require authentication
-        if (!requireAuth()) {
-            throw new Error('Not authenticated');
-        }
+        (async () => {
+        if (!(await requireAuth())) return;
 
         const wipeBtn = document.getElementById('wipe-btn');
         const successMessage = document.getElementById('success-message');
@@ -181,6 +179,7 @@
             wipeBtn.textContent = 'Delete All Imported Posts';
             postsPreview.innerHTML = '<p style="color: var(--text-secondary);">All imported posts have been deleted.</p>';
         });
+        })();
     </script>
 </body>
 </html>

@@ -329,10 +329,8 @@
         import { requireAuth } from '/admin-auth.js';
         import { getPostById, savePost, getCategories, getTags, generateSlug, ensureUniqueSlug } from '/blog-data.js';
 
-        // Require authentication
-        if (!requireAuth()) {
-            throw new Error('Not authenticated');
-        }
+        (async () => {
+        if (!(await requireAuth())) return;
 
         // Get post ID from URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -557,6 +555,7 @@
                 alert('Error saving post: ' + error.message);
             }
         });
+        })();
     </script>
 </body>
 </html>

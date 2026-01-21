@@ -133,10 +133,8 @@
         import { importFromJSON } from '/scripts/import-json-to-localstorage.js';
         import { getAllPosts, savePost } from '/blog-data.js';
 
-        // Require authentication
-        if (!requireAuth()) {
-            throw new Error('Not authenticated');
-        }
+        (async () => {
+        if (!(await requireAuth())) return;
 
         const fileInput = document.getElementById('json-file');
         const fileLabel = document.getElementById('file-label');
@@ -269,6 +267,7 @@
                 importBtn.textContent = 'Import JSON File';
             }
         });
+        })();
     </script>
 </body>
 </html>

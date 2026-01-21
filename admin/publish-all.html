@@ -104,10 +104,8 @@
         import { requireAuth } from '/admin-auth.js';
         import { getAllPosts, savePost } from '/blog-data.js';
 
-        // Require authentication
-        if (!requireAuth()) {
-            throw new Error('Not authenticated');
-        }
+        (async () => {
+        if (!(await requireAuth())) return;
 
         const publishBtn = document.getElementById('publish-btn');
         const successMessage = document.getElementById('success-message');
@@ -145,6 +143,7 @@
             publishBtn.disabled = false;
             publishBtn.textContent = 'Publish All Imported Posts';
         });
+        })();
     </script>
 </body>
 </html>

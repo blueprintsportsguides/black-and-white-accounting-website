@@ -46,8 +46,9 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 ## Next Steps
 
 1. Make sure you've run the SQL setup in Supabase (from SUPABASE_SIMPLE_SETUP.md)
-2. **Redeploy** after adding env vars so the build picks up `VITE_SUPABASE_*` (they are needed at build time for blog-data and Supabase loading)
-3. Test by opening `/blog` and clicking a post; individual post URLs like `/blog/my-post-slug` are served via the `/blog/:slug` rewrite to `blog-post.html`
+2. **Admin login** uses Supabase Auth (email/password). See **SUPABASE_AUTH_SETUP.md** for sign-up, forgot password, and turning off sign-up once everyone has an account.
+3. **Redeploy** after adding env vars so the build picks up `VITE_SUPABASE_*` (needed at build time for blog and auth).
+4. Test by opening `/blog` and clicking a post; individual post URLs like `/blog/my-post-slug` are served via the `/blog/:slug` rewrite.
 
 ## If blog post pages 404
 

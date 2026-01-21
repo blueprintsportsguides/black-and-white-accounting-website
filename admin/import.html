@@ -234,10 +234,8 @@ npm run import           # Generate import file</pre>
         import { requireAuth } from '/admin-auth.js';
         import { savePost, saveCategory, saveTag, getCategories, getTags, getAllPosts } from '/blog-data.js';
 
-        // Require authentication
-        if (!requireAuth()) {
-            throw new Error('Not authenticated');
-        }
+        (async () => {
+        if (!(await requireAuth())) return;
 
         const fileInput = document.getElementById('json-file');
         const fileLabel = document.getElementById('file-label');
@@ -469,6 +467,7 @@ npm run import           # Generate import file</pre>
                 importBtn.disabled = false;
             }
         });
+        })();
     </script>
 </body>
 </html>

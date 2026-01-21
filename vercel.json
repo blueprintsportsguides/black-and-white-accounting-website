@@ -148,6 +148,18 @@
       "source": "/blog-post",
       "destination": "/blog-post"
     },
+    {
+      "source": "/admin-signup",
+      "destination": "/admin-signup"
+    },
+    {
+      "source": "/admin-forgot-password",
+      "destination": "/admin-forgot-password"
+    },
+    {
+      "source": "/admin-set-password",
+      "destination": "/admin-set-password"
+    },
           {
             "source": "/tools",
             "destination": "/tools.html"
