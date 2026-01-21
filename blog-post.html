@@ -647,8 +647,8 @@
             // Set post title
             document.getElementById('post-title').textContent = post.title;
             
-            // Set post meta (reuse categories from above)
-            const category = categories.find(c => c.id === post.category_id);
+            // Set post meta (reuse category from above)
+            // category already declared above for OG tags
             const metaHTML = `
                 ${category ? `<span>${category.name}</span>` : ''}
                 ${category ? '<span>•</span>' : ''}
