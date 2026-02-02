@@ -698,18 +698,29 @@
             await doUploadAndPick(file);
         });
 
-        // Save handler
-        document.getElementById('save-btn').addEventListener('click', async function(e) {
+        // Save handler with duplicate prevention
+        let isSaving = false;
+        const saveBtn = document.getElementById('save-btn');
+        
+        saveBtn.addEventListener('click', async function(e) {
             e.preventDefault();
+            
+            // Prevent double-saves
+            if (isSaving) return;
             
             const form = document.getElementById('post-form');
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
             }
+            
+            // Lock save button
+            isSaving = true;
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
 
             const formData = {
-                id: postId || undefined,
+                id: postId || currentPost?.id || undefined,
                 title: document.getElementById('title').value.trim(),
                 slug: document.getElementById('slug').value.trim() || generateSlug(document.getElementById('title').value),
                 excerpt: document.getElementById('excerpt').value.trim(),
@@ -731,10 +742,16 @@
             }
 
             // Ensure unique slug
-            formData.slug = ensureUniqueSlug(formData.slug, postId);
+            formData.slug = ensureUniqueSlug(formData.slug, formData.id);
 
             try {
                 const savedPost = await savePost(formData);
+                
+                // Update postId for subsequent saves
+                if (savedPost && savedPost.id) {
+                    postId = savedPost.id;
+                    currentPost = savedPost;
+                }
                 
                 // Show success message
                 const successMsg = document.getElementById('success-message');
@@ -742,14 +759,16 @@
                 successMsg.style.display = 'block';
                 
                 // Update URL if new post
-                if (!postId && savedPost.id) {
+                if (savedPost && savedPost.id && !window.location.search.includes('id=')) {
                     window.history.replaceState({}, '', `edit.html?id=${savedPost.id}`);
                     document.getElementById('page-title').textContent = 'Edit Post';
-                    if (savedPost.slug) {
-                        const viewLink = document.getElementById('view-post-link');
-                        viewLink.href = '/blog/' + savedPost.slug;
-                        viewLink.style.display = 'inline-block';
-                    }
+                }
+                
+                if (savedPost && savedPost.slug) {
+                    const viewLink = document.getElementById('view-post-link');
+                    viewLink.href = '/blog/' + savedPost.slug;
+                    viewLink.style.display = 'inline-block';
+                    document.getElementById('slug').value = savedPost.slug;
                 }
                 
                 // Scroll to top
@@ -760,6 +779,11 @@
                 }, 3000);
             } catch (error) {
                 alert('Error saving post: ' + error.message);
+            } finally {
+                // Unlock save button
+                isSaving = false;
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Post';
             }
         });
         })();

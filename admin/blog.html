@@ -393,7 +393,7 @@
         // Delete handler
         window.handleDelete = async function(postId) {
             if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-                deletePost(postId);
+                await deletePost(postId);
                 renderPosts();
             }
         };
@@ -429,41 +429,43 @@
             if (e.target.classList.contains('post-select-cb')) updateBulkBar();
         });
 
-        document.getElementById('bulk-apply-category').addEventListener('click', function() {
+        document.getElementById('bulk-apply-category').addEventListener('click', async function() {
             const ids = getSelectedIds();
             const catId = document.getElementById('bulk-category').value;
             if (!catId) { alert('Please choose a category'); return; }
-            ids.forEach(id => {
+            for (const id of ids) {
                 const p = getPostById(id);
-                if (p) savePost({ ...p, category_id: catId });
-            });
+                if (p) await savePost({ ...p, category_id: catId });
+            }
             clearSelection();
             renderPosts();
         });
 
-        document.getElementById('bulk-publish').addEventListener('click', function() {
-            getSelectedIds().forEach(id => {
+        document.getElementById('bulk-publish').addEventListener('click', async function() {
+            for (const id of getSelectedIds()) {
                 const p = getPostById(id);
-                if (p) savePost({ ...p, status: 'published', published_at: p.published_at || new Date().toISOString() });
-            });
+                if (p) await savePost({ ...p, status: 'published', published_at: p.published_at || new Date().toISOString() });
+            }
             clearSelection();
             renderPosts();
         });
 
-        document.getElementById('bulk-unpublish').addEventListener('click', function() {
-            getSelectedIds().forEach(id => {
+        document.getElementById('bulk-unpublish').addEventListener('click', async function() {
+            for (const id of getSelectedIds()) {
                 const p = getPostById(id);
-                if (p) savePost({ ...p, status: 'draft' });
-            });
+                if (p) await savePost({ ...p, status: 'draft' });
+            }
             clearSelection();
             renderPosts();
         });
 
-        document.getElementById('bulk-delete').addEventListener('click', function() {
+        document.getElementById('bulk-delete').addEventListener('click', async function() {
             const ids = getSelectedIds();
             if (!ids.length) return;
             if (!confirm('Delete ' + ids.length + ' post(s)? This cannot be undone.')) return;
-            ids.forEach(id => deletePost(id));
+            for (const id of ids) {
+                await deletePost(id);
+            }
             clearSelection();
             renderPosts();
         });

@@ -276,8 +276,8 @@ export function getTagsSync() {
     return getTagsSyncInternal();
 }
 
-// Save post (updates localStorage and cache)
-export function savePost(postData) {
+// Save post (to Supabase if configured, otherwise localStorage)
+export async function savePost(postData) {
     const posts = getAllPostsSyncInternal();
     const now = new Date().toISOString();
     
@@ -292,43 +292,76 @@ export function savePost(postData) {
         existingIndex = posts.findIndex(p => p.legacy_wp_id === postData.legacy_wp_id);
     }
     
+    let savedPost;
+    
     if (existingIndex >= 0) {
         // Update existing
-        posts[existingIndex] = {
+        savedPost = {
             ...posts[existingIndex],
             ...postData,
             updated_at: now
         };
         // Preserve original ID if updating by legacy_wp_id
         if (postData.legacy_wp_id && !postData.id) {
-            posts[existingIndex].id = posts[existingIndex].id || generateId();
+            savedPost.id = savedPost.id || generateId();
         }
+        posts[existingIndex] = savedPost;
     } else {
         // Create new
         const slug = ensureUniqueSlug(postData.slug || generateSlug(postData.title));
-        const newPost = {
-            id: generateId(),
+        savedPost = {
+            id: postData.id || generateId(),
             ...postData,
             slug,
             reading_time_minutes: calculateReadingTime(postData.content || ''),
             created_at: postData.created_at || now,
             updated_at: now
         };
-        posts.push(newPost);
+        posts.push(savedPost);
     }
     
     // Update cache and localStorage
     dataCache.posts = posts;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
-    return existingIndex >= 0 ? posts[existingIndex] : posts[posts.length - 1];
+    
+    // Also save to Supabase if configured
+    if (isSupabaseConfigured()) {
+        try {
+            const result = await supabaseFunctions.savePostToSupabase(savedPost);
+            if (result) {
+                // Update with any server-side changes
+                const idx = posts.findIndex(p => p.id === result.id);
+                if (idx >= 0) {
+                    posts[idx] = { ...posts[idx], ...result };
+                    dataCache.posts = posts;
+                }
+                return result;
+            }
+        } catch (error) {
+            console.error('Error saving to Supabase:', error);
+            // Continue with localStorage version
+        }
+    }
+    
+    return savedPost;
 }
 
-// Delete post
-export function deletePost(id) {
+// Delete post (from Supabase if configured, and localStorage)
+export async function deletePost(id) {
     const posts = getAllPostsSyncInternal();
     const filtered = posts.filter(p => p.id !== id);
     dataCache.posts = filtered;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    
+    // Also delete from Supabase if configured
+    if (isSupabaseConfigured()) {
+        try {
+            await supabaseFunctions.deletePostFromSupabase(id);
+        } catch (error) {
+            console.error('Error deleting from Supabase:', error);
+        }
+    }
+    
     return true;
 }
 
