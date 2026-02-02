@@ -263,6 +263,13 @@
             border-radius: var(--radius-sm);
             margin-bottom: var(--spacing-lg);
         }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-primary.saving {
+            background: #6b7280;
+        }
         @media (max-width: 1024px) {
             .editor-layout {
                 grid-template-columns: 1fr;
@@ -426,14 +433,18 @@
         (async () => {
         if (!(await requireAuth())) return;
 
+        // Wait for data to load first
+        await ensureDataLoaded();
+
         // Get post ID from URL
         const urlParams = new URLSearchParams(window.location.search);
-        const postId = urlParams.get('id');
+        let postId = urlParams.get('id');
         let currentPost = null;
+        let isSaving = false; // Prevent double-saves
 
         // Load categories and tags
-        const categories = getCategories();
-        const tags = getTags();
+        const categories = await getCategories();
+        const tags = await getTags();
 
         const categorySelect = document.getElementById('category');
         categories.forEach(cat => {
@@ -459,7 +470,7 @@
 
         // Load post if editing
         if (postId) {
-            currentPost = getPostById(postId);
+            currentPost = await getPostById(postId);
             if (currentPost) {
                 document.getElementById('page-title').textContent = 'Edit Post';
                 document.getElementById('title').value = currentPost.title || '';
@@ -472,7 +483,8 @@
                 document.getElementById('meta-description').value = currentPost.meta_description || '';
                 
                 if (currentPost.status) {
-                    document.getElementById(`status-${currentPost.status}`).checked = true;
+                    const statusRadio = document.getElementById(`status-${currentPost.status}`);
+                    if (statusRadio) statusRadio.checked = true;
                 }
                 
                 if (currentPost.category_id) {
@@ -497,6 +509,9 @@
                     viewLink.href = '/blog/' + currentPost.slug;
                     viewLink.style.display = 'inline-block';
                 }
+            } else {
+                // Post not found - treat as new post
+                postId = null;
             }
         }
 
@@ -698,9 +713,18 @@
             await doUploadAndPick(file);
         });
 
-        // Save handler
-        document.getElementById('save-btn').addEventListener('click', async function(e) {
+        // Save handler with duplicate prevention
+        const saveBtn = document.getElementById('save-btn');
+        const originalBtnText = saveBtn.textContent;
+        
+        saveBtn.addEventListener('click', async function(e) {
             e.preventDefault();
+            
+            // Prevent double-saves
+            if (isSaving) {
+                console.log('Save already in progress, ignoring...');
+                return;
+            }
             
             const form = document.getElementById('post-form');
             if (!form.checkValidity()) {
@@ -708,8 +732,17 @@
                 return;
             }
 
+            // Lock the save button
+            isSaving = true;
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+            saveBtn.style.opacity = '0.7';
+            
+            const successMsg = document.getElementById('success-message');
+            successMsg.style.display = 'none';
+
             const formData = {
-                id: postId || undefined,
+                id: postId || currentPost?.id || undefined, // Preserve existing ID
                 title: document.getElementById('title').value.trim(),
                 slug: document.getElementById('slug').value.trim() || generateSlug(document.getElementById('title').value),
                 excerpt: document.getElementById('excerpt').value.trim(),
@@ -731,35 +764,56 @@
             }
 
             // Ensure unique slug
-            formData.slug = ensureUniqueSlug(formData.slug, postId);
+            formData.slug = ensureUniqueSlug(formData.slug, formData.id);
 
             try {
                 const savedPost = await savePost(formData);
                 
+                if (!savedPost || !savedPost.id) {
+                    throw new Error('Failed to save post - no response from server');
+                }
+                
+                // Update our local references
+                postId = savedPost.id;
+                currentPost = savedPost;
+                
                 // Show success message
-                const successMsg = document.getElementById('success-message');
                 successMsg.textContent = 'Post saved successfully!';
                 successMsg.style.display = 'block';
                 
-                // Update URL if new post
-                if (!postId && savedPost.id) {
+                // Update URL if this was a new post
+                const currentUrl = new URL(window.location.href);
+                if (!currentUrl.searchParams.get('id')) {
                     window.history.replaceState({}, '', `edit.html?id=${savedPost.id}`);
                     document.getElementById('page-title').textContent = 'Edit Post';
-                    if (savedPost.slug) {
-                        const viewLink = document.getElementById('view-post-link');
-                        viewLink.href = '/blog/' + savedPost.slug;
-                        viewLink.style.display = 'inline-block';
-                    }
                 }
+                
+                // Update view link
+                if (savedPost.slug) {
+                    const viewLink = document.getElementById('view-post-link');
+                    viewLink.href = '/blog/' + savedPost.slug;
+                    viewLink.style.display = 'inline-block';
+                }
+                
+                // Update slug field in case it was auto-adjusted
+                document.getElementById('slug').value = savedPost.slug;
                 
                 // Scroll to top
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 
                 setTimeout(() => {
                     successMsg.style.display = 'none';
-                }, 3000);
+                }, 4000);
+                
             } catch (error) {
-                alert('Error saving post: ' + error.message);
+                console.error('Save error:', error);
+                alert('Error saving post: ' + (error.message || 'Unknown error'));
+            } finally {
+                // Unlock the save button
+                isSaving = false;
+                saveBtn.disabled = false;
+                saveBtn.textContent = originalBtnText;
+                saveBtn.style.opacity = '1';
             }
         });
         })();
