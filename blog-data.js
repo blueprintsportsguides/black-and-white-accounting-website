@@ -522,6 +522,134 @@ export async function deletePost(id) {
     return true;
 }
 
+// Save category (to Supabase if configured, otherwise localStorage)
+export async function saveCategory(categoryData) {
+    await ensureDataLoaded();
+    
+    const supabase = await getSupabaseClient();
+    if (supabase && isSupabaseConfigured()) {
+        try {
+            const payload = {
+                id: categoryData.id || generateId(),
+                name: categoryData.name,
+                slug: categoryData.slug || generateSlug(categoryData.name),
+                description: categoryData.description || null
+            };
+            
+            const { data, error } = await supabase
+                .from('blog_categories')
+                .upsert(payload, { onConflict: 'id' })
+                .select()
+                .single();
+            
+            if (error) {
+                console.error('Error saving category to Supabase:', error);
+                throw error;
+            }
+            
+            // Update cache
+            if (dataCache.categories) {
+                const index = dataCache.categories.findIndex(c => c.id === data.id);
+                if (index >= 0) {
+                    dataCache.categories[index] = data;
+                } else {
+                    dataCache.categories.push(data);
+                }
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Error saving category:', error);
+            throw error;
+        }
+    }
+    
+    // Fallback to localStorage
+    const categories = dataCache.categories || [];
+    const slug = categoryData.slug || generateSlug(categoryData.name);
+    
+    if (categoryData.id) {
+        const index = categories.findIndex(c => c.id === categoryData.id);
+        if (index >= 0) {
+            categories[index] = { ...categories[index], ...categoryData };
+        }
+    } else {
+        categories.push({
+            id: generateId(),
+            name: categoryData.name,
+            slug: slug,
+            description: categoryData.description || null
+        });
+    }
+    
+    dataCache.categories = categories;
+    saveToLocalStorage();
+    return categories[categories.length - 1];
+}
+
+// Save tag (to Supabase if configured, otherwise localStorage)
+export async function saveTag(tagData) {
+    await ensureDataLoaded();
+    
+    const supabase = await getSupabaseClient();
+    if (supabase && isSupabaseConfigured()) {
+        try {
+            const payload = {
+                id: tagData.id || generateId(),
+                name: tagData.name,
+                slug: tagData.slug || generateSlug(tagData.name)
+            };
+            
+            const { data, error } = await supabase
+                .from('blog_tags')
+                .upsert(payload, { onConflict: 'id' })
+                .select()
+                .single();
+            
+            if (error) {
+                console.error('Error saving tag to Supabase:', error);
+                throw error;
+            }
+            
+            // Update cache
+            if (dataCache.tags) {
+                const index = dataCache.tags.findIndex(t => t.id === data.id);
+                if (index >= 0) {
+                    dataCache.tags[index] = data;
+                } else {
+                    dataCache.tags.push(data);
+                }
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Error saving tag:', error);
+            throw error;
+        }
+    }
+    
+    // Fallback to localStorage
+    const tags = dataCache.tags || [];
+    const slug = tagData.slug || generateSlug(tagData.name);
+    
+    if (tagData.id) {
+        const index = tags.findIndex(t => t.id === tagData.id);
+        if (index >= 0) {
+            tags[index] = { ...tags[index], ...tagData };
+        }
+    } else {
+        tags.push({
+            id: generateId(),
+            name: tagData.name,
+            slug: slug
+        });
+    }
+    
+    dataCache.tags = tags;
+    saveToLocalStorage();
+    return tags[tags.length - 1];
+}
+
 // ============================================
 // SEARCH AND FILTER
 // ============================================
