@@ -448,48 +448,37 @@
         let currentPage = 1;
         let currentCategory = '';
         let searchQuery = '';
-        let categories = [];
 
-        // Initialize and load data
-        async function init() {
-            await ensureDataLoaded();
-            
-            // Load categories
-            categories = await getCategories();
-            const categoryTabs = document.getElementById('category-tabs');
-            categories.forEach(cat => {
-                const tab = document.createElement('a');
-                tab.href = '#';
-                tab.className = 'category-tab';
-                tab.textContent = cat.name;
-                tab.dataset.category = cat.id;
-                tab.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    currentCategory = this.dataset.category;
-                    currentPage = 1;
-                    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    renderPosts();
-                });
-                categoryTabs.appendChild(tab);
-            });
-
-            // Search handler
-            let searchTimeout;
-            document.getElementById('search-input').addEventListener('input', function() {
-                searchQuery = this.value.trim();
+        // Load categories
+        const categories = getCategories();
+        const categoryTabs = document.getElementById('category-tabs');
+        categories.forEach(cat => {
+            const tab = document.createElement('a');
+            tab.href = '#';
+            tab.className = 'category-tab';
+            tab.textContent = cat.name;
+            tab.dataset.category = cat.id;
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                currentCategory = this.dataset.category;
                 currentPage = 1;
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => renderPosts(), 200);
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                renderPosts();
             });
+            categoryTabs.appendChild(tab);
+        });
 
-            // Initial render
-            await renderPosts();
-        }
+        // Search handler
+        document.getElementById('search-input').addEventListener('input', function() {
+            searchQuery = this.value.trim();
+            currentPage = 1;
+            renderPosts();
+        });
 
         // Render posts
-        async function renderPosts() {
-            const posts = await searchPosts(searchQuery, {
+        function renderPosts() {
+            const posts = searchPosts(searchQuery, {
                 category: currentCategory || undefined
             });
 
@@ -630,16 +619,11 @@
             }
         }
 
-        // Initialize everything
-        init().catch(err => {
-            console.error('Failed to initialize blog:', err);
-            document.getElementById('posts-container').innerHTML = `
-                <div class="empty-state">
-                    <h3>Error loading posts</h3>
-                    <p>Please try refreshing the page.</p>
-                </div>
-            `;
-        });
+        // Initial render (wait for data when using Supabase or async sources)
+        (async () => {
+            await ensureDataLoaded();
+            renderPosts();
+        })();
     </script>
 </body>
 </html>
