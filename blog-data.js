@@ -226,9 +226,60 @@ async function loadDataFromJSON() {
         }
         const jsonData = await response.json();
         
-        dataCache.posts = jsonData.posts || [];
-        dataCache.categories = jsonData.categories || [];
-        dataCache.tags = jsonData.tags || [];
+        // Normalize posts - ensure they have proper id fields
+        const rawPosts = jsonData.posts || [];
+        dataCache.posts = rawPosts.map(post => {
+            // Generate id from legacy_wp_id or slug if not present
+            const id = post.id || post.legacy_wp_id || post.slug || generateId();
+            
+            // Map category_slug to category_id if needed
+            let category_id = post.category_id;
+            if (!category_id && post.category_slug) {
+                // Use the slug as the id (we'll create matching categories)
+                category_id = post.category_slug;
+            }
+            
+            return {
+                ...post,
+                id: id,
+                category_id: category_id,
+                tags: post.tags || post.tag_slugs || []
+            };
+        });
+        
+        // Load or create categories
+        if (jsonData.categories && jsonData.categories.length > 0) {
+            dataCache.categories = jsonData.categories;
+        } else {
+            // Extract unique categories from posts
+            const categorySet = new Set();
+            rawPosts.forEach(post => {
+                if (post.category_slug) categorySet.add(post.category_slug);
+                if (post.category_id) categorySet.add(post.category_id);
+            });
+            
+            dataCache.categories = Array.from(categorySet)
+                .filter(slug => slug && slug !== 'null' && slug !== 'undefined')
+                .map(slug => ({
+                    id: slug,
+                    name: slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+                    slug: slug
+                }));
+            
+            // Add defaults if empty
+            if (dataCache.categories.length === 0) {
+                dataCache.categories = getDefaultCategories();
+            }
+        }
+        
+        // Load or create tags
+        if (jsonData.tags && jsonData.tags.length > 0) {
+            dataCache.tags = jsonData.tags;
+        } else {
+            dataCache.tags = getDefaultTags();
+        }
+        
+        console.log(`Loaded ${dataCache.posts.length} posts from JSON file`);
         
         // Store in localStorage as cache
         localStorage.setItem(STORAGE_KEY, JSON.stringify(dataCache.posts));
