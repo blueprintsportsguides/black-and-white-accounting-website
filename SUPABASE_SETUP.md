@@ -100,14 +100,14 @@ If you want to upload images through the admin:
 1. Go to Storage in Supabase dashboard
 2. Create a new bucket called `blog-images`
 3. Set it to public
-4. Add policies (run in SQL Editor if needed; or use Storage → Policies in the dashboard):
+4. Add storage RLS policies (required for uploads to work): run the SQL in **supabase-storage-policies.sql** in the SQL Editor. Or run this in SQL Editor:
    ```sql
    -- Public read
    CREATE POLICY "Public can read blog images" ON storage.objects
-       FOR SELECT USING (bucket_id = 'blog-images');
-   -- Allow uploads (anon or authenticated; restrict to auth-only in production)
+       FOR SELECT TO public USING (bucket_id = 'blog-images');
+   -- Allow uploads (fixes "new row violates row-level security policy")
    CREATE POLICY "Allow uploads to blog-images" ON storage.objects
-       FOR INSERT WITH CHECK (bucket_id = 'blog-images');
+       FOR INSERT TO anon, authenticated WITH CHECK (bucket_id = 'blog-images');
    ```
    The admin uses the `blog/` folder inside `blog-images` for uploads.
 

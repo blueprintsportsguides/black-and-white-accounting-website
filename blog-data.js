@@ -343,22 +343,22 @@ export async function savePost(postData) {
     dataCache.posts = posts;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
     
-    // Also save to Supabase if configured
+    // When Supabase is configured, save must succeed there or we throw (so user sees error, not fake success)
     if (isSupabaseConfigured()) {
         try {
             const result = await supabaseFunctions.savePostToSupabase(savedPost);
-            if (result) {
-                // Update with any server-side changes
-                const idx = posts.findIndex(p => p.id === result.id);
-                if (idx >= 0) {
-                    posts[idx] = { ...posts[idx], ...result };
-                    dataCache.posts = posts;
-                }
-                return result;
+            if (!result) {
+                throw new Error('Failed to save to database. Check the browser console for details.');
             }
+            const idx = posts.findIndex(p => p.id === result.id);
+            if (idx >= 0) {
+                posts[idx] = { ...posts[idx], ...result };
+                dataCache.posts = posts;
+            }
+            return result;
         } catch (error) {
             console.error('Error saving to Supabase:', error);
-            // Continue with localStorage version
+            throw error;
         }
     }
     

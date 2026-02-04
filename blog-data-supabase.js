@@ -127,21 +127,22 @@ export async function savePostToSupabase(postData) {
         
         if (error) {
             console.error('Error saving post to Supabase:', error);
-            return null;
+            throw new Error(error.message || 'Database error');
         }
         
-        // Sync tags (post_post_tags)
+        // Sync tags (blog_post_tags)
         await supabase.from('blog_post_tags').delete().eq('post_id', data.id);
         if (Array.isArray(tagIds) && tagIds.length > 0) {
-            await supabase.from('blog_post_tags').insert(
+            const { error: tagError } = await supabase.from('blog_post_tags').insert(
                 tagIds.map(tagId => ({ post_id: data.id, tag_id: tagId }))
             );
+            if (tagError) console.warn('Tag sync warning:', tagError);
         }
         
         return { ...data, tags: tagIds };
     } catch (error) {
         console.error('Error saving post to Supabase:', error);
-        return null;
+        throw error instanceof Error ? error : new Error(String(error));
     }
 }
 
