@@ -37,6 +37,10 @@
             grid-template-columns: 200px 1fr 250px;
             gap: var(--spacing-xl);
         }
+        /* When TOC is hidden, only main + sidebar so main gets full width */
+        .blog-post-content-wrapper.no-toc {
+            grid-template-columns: 1fr 250px;
+        }
         .blog-post-toc {
             position: sticky;
             top: 100px;
@@ -186,7 +190,8 @@
             flex-wrap: wrap;
         }
         @media (max-width: 1024px) {
-            .blog-post-content-wrapper {
+            .blog-post-content-wrapper,
+            .blog-post-content-wrapper.no-toc {
                 grid-template-columns: 1fr;
             }
             .blog-post-toc {
@@ -430,6 +435,7 @@
             const headings = contentElement.querySelectorAll('h2, h3');
             const tocList = document.getElementById('toc-list');
             const tocAside = document.querySelector('.blog-post-toc');
+            const wrapper = document.querySelector('.blog-post-content-wrapper');
             tocList.innerHTML = '';
             
             headings.forEach((heading, index) => {
@@ -443,8 +449,13 @@
                 tocList.appendChild(li);
             });
             
+            const hasToc = tocList.children.length > 0;
             if (tocAside) {
-                tocAside.style.display = tocList.children.length > 0 ? '' : 'none';
+                tocAside.style.display = hasToc ? '' : 'none';
+            }
+            // When TOC is hidden, use 2-column grid so main gets 1fr and sidebar stays 250px
+            if (wrapper) {
+                wrapper.classList.toggle('no-toc', !hasToc);
             }
         }
 
