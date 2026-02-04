@@ -18,7 +18,7 @@ let dataCache = {
     tags: null
 };
 
-// Load data from Supabase (when configured). Use Supabase as source whenever it returns a valid response.
+// Load data from Supabase (when configured). Use it only when it has posts, else fall back to JSON.
 async function loadDataFromSupabase() {
     if (!isSupabaseConfigured()) return false;
     try {
@@ -27,8 +27,8 @@ async function loadDataFromSupabase() {
             supabaseFunctions.loadCategoriesFromSupabase(),
             supabaseFunctions.loadTagsFromSupabase()
         ]);
-        // Use Supabase data whenever we got a valid array (even if empty) – single source of truth
-        if (posts !== null && Array.isArray(posts)) {
+        // Use Supabase only when we got a non-empty list (so JSON fallback still works when Supabase is empty)
+        if (posts && Array.isArray(posts) && posts.length > 0) {
             dataCache.posts = posts.map(p => ({ ...p, tags: p.tags || p.tag_slugs || [] }));
             dataCache.categories = (categories && Array.isArray(categories)) ? categories : [];
             dataCache.tags = (tags && Array.isArray(tags)) ? tags : [];
@@ -36,7 +36,7 @@ async function loadDataFromSupabase() {
             if (dataCache.tags.length === 0) initDefaultTags();
             return true;
         }
-        // Supabase failed (null) – caller will fall back to JSON
+        // Supabase returned empty or failed – caller will fall back to JSON
         return false;
     } catch (error) {
         console.warn('Error loading data from Supabase:', error);
