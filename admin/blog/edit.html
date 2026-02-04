@@ -318,7 +318,7 @@
             <div class="admin-actions">
                 <a href="../blog.html" class="btn-secondary">← Back to Posts</a>
                 <a href="#" id="view-post-link" class="btn-secondary" style="display:none" target="_blank" rel="noopener">View post</a>
-                <button class="btn-primary" id="save-btn">Save Post</button>
+                <button type="button" class="btn-primary" id="save-btn">Save Post</button>
             </div>
         </div>
     </div>
@@ -835,20 +835,20 @@
         
         saveBtn.addEventListener('click', async function(e) {
             e.preventDefault();
-            
-            // Prevent double-saves
+            // Lock immediately (first line) so rapid clicks cannot start multiple saves
             if (isSaving) return;
+            isSaving = true;
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
             
             const form = document.getElementById('post-form');
             if (!form.checkValidity()) {
                 form.reportValidity();
+                isSaving = false;
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Post';
                 return;
             }
-            
-            // Lock save button
-            isSaving = true;
-            saveBtn.disabled = true;
-            saveBtn.textContent = 'Saving...';
 
             // Sync contenteditable to hidden input before save
             syncContentToInput();

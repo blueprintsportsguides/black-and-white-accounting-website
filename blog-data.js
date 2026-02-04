@@ -18,7 +18,7 @@ let dataCache = {
     tags: null
 };
 
-// Load data from Supabase (when configured). Use it only when it has posts, else fall back to JSON.
+// Load data from Supabase (when configured). When Supabase has posts, merge in any from JSON that aren't in Supabase so imported posts don't disappear.
 async function loadDataFromSupabase() {
     if (!isSupabaseConfigured()) return false;
     try {
@@ -27,17 +27,42 @@ async function loadDataFromSupabase() {
             supabaseFunctions.loadCategoriesFromSupabase(),
             supabaseFunctions.loadTagsFromSupabase()
         ]);
-        // Use Supabase only when we got a non-empty list (so JSON fallback still works when Supabase is empty)
-        if (posts && Array.isArray(posts) && posts.length > 0) {
-            dataCache.posts = posts.map(p => ({ ...p, tags: p.tags || p.tag_slugs || [] }));
-            dataCache.categories = (categories && Array.isArray(categories)) ? categories : [];
-            dataCache.tags = (tags && Array.isArray(tags)) ? tags : [];
-            if (dataCache.categories.length === 0) initDefaultCategories();
-            if (dataCache.tags.length === 0) initDefaultTags();
-            return true;
+        if (!posts || !Array.isArray(posts)) return false;
+        
+        const supabasePosts = posts.map(p => ({ ...p, tags: p.tags || p.tag_slugs || [] }));
+        const supabaseIds = new Set(supabasePosts.map(p => p.id));
+        const supabaseLegacyIds = new Set(supabasePosts.map(p => p.legacy_wp_id).filter(Boolean));
+        
+        // If Supabase has posts, merge in any from JSON that aren't already in Supabase (so imported blogs don't disappear)
+        if (supabasePosts.length > 0) {
+            try {
+                const res = await fetch(JSON_SOURCE);
+                if (res.ok) {
+                    const json = await res.json();
+                    const raw = json.posts || [];
+                    for (const p of raw) {
+                        const id = p.id || p.legacy_wp_id || p.slug;
+                        if (!id || supabaseIds.has(id) || supabaseLegacyIds.has(String(p.legacy_wp_id))) continue;
+                        const category_id = p.category_id || (p.category_slug && json.categories?.length ? (json.categories.find(c => (c.slug || c.id) === p.category_slug)?.id) : null) || p.category_slug;
+                        supabasePosts.push({
+                            ...p,
+                            id: id,
+                            category_id: category_id || null,
+                            tags: p.tags || p.tag_slugs || []
+                        });
+                        supabaseIds.add(id);
+                        if (p.legacy_wp_id) supabaseLegacyIds.add(String(p.legacy_wp_id));
+                    }
+                }
+            } catch (_) {}
         }
-        // Supabase returned empty or failed – caller will fall back to JSON
-        return false;
+        
+        dataCache.posts = supabasePosts;
+        dataCache.categories = (categories && Array.isArray(categories)) ? categories : [];
+        dataCache.tags = (tags && Array.isArray(tags)) ? tags : [];
+        if (dataCache.categories.length === 0) initDefaultCategories();
+        if (dataCache.tags.length === 0) initDefaultTags();
+        return supabasePosts.length > 0;
     } catch (error) {
         console.warn('Error loading data from Supabase:', error);
         return false;
