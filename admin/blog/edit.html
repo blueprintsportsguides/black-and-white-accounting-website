@@ -472,9 +472,9 @@
         (async () => {
         if (!(await requireAuth())) return;
 
-        // Get post ID from URL
+        // Get post ID from URL (use let so we can set it after first save of a new post)
         const urlParams = new URLSearchParams(window.location.search);
-        const postId = urlParams.get('id');
+        let postId = urlParams.get('id');
         let currentPost = null;
 
         // Load categories and tags
