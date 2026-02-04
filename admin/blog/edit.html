@@ -107,12 +107,37 @@
             outline: none;
             border-color: var(--text-primary);
         }
-        .content-editor {
-            min-height: 400px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 14px;
-            line-height: 1.6;
+        .content-editor-wrap {
+            border: 2px solid #e5e7eb;
+            border-radius: var(--radius-sm);
+            background: #fff;
+            min-height: 70vh;
         }
+        .content-editor-wrap:focus-within {
+            border-color: var(--text-primary);
+        }
+        .content-editor {
+            min-height: 70vh;
+            width: 100%;
+            padding: var(--spacing-lg);
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 18px;
+            line-height: 1.7;
+            box-sizing: border-box;
+            outline: none;
+            overflow-y: auto;
+        }
+        .content-editor:empty::before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+        }
+        .content-editor p { margin: 0 0 1em; }
+        .content-editor h2 { font-size: 1.5em; margin: 1em 0 0.5em; }
+        .content-editor h3 { font-size: 1.25em; margin: 1em 0 0.5em; }
+        .content-editor ul, .content-editor ol { margin: 0 0 1em; padding-left: 1.5em; }
+        .content-editor blockquote { margin: 1em 0; padding-left: 1em; border-left: 4px solid #e5e7eb; color: #4b5563; }
+        .content-editor img { max-width: 100%; height: auto; }
+        .content-editor a { color: var(--text-primary); }
         .editor-toolbar {
             display: flex;
             gap: var(--spacing-xs);
@@ -251,6 +276,22 @@
             width: 100%;
         }
         .image-picker-item:hover { border-color: var(--text-primary); }
+        .image-picker-loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+        .image-picker-error {
+            padding: var(--spacing-md);
+            background: #fef2f2;
+            color: #b91c1c;
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-md);
+        }
+        .image-picker-upload-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
         .error-message {
             color: #dc2626;
             font-size: var(--font-size-sm);
@@ -320,7 +361,10 @@
                         <button type="button" class="toolbar-btn" id="toolbar-insert-image" title="Insert image">Img</button>
                         <button type="button" class="toolbar-btn" id="toolbar-insert-youtube" title="Embed YouTube">YouTube</button>
                     </div>
-                    <textarea id="content" name="content" class="content-editor" required placeholder="Write your post content here. You can use Markdown or HTML (e.g. iframes for videos)."></textarea>
+                    <div class="content-editor-wrap">
+                        <div id="content-editor" class="content-editor" contenteditable="true" data-placeholder="Write your post here. You can paste formatted text from Word or the web; formatting will be preserved."></div>
+                    </div>
+                    <input type="hidden" id="content" name="content">
                 </div>
 
                 <div class="form-group">
@@ -408,10 +452,12 @@
                 <button type="button" class="toolbar-btn" id="image-picker-close">× Close</button>
             </div>
             <div class="image-picker-body">
+                <div id="image-picker-error" class="image-picker-error" style="display:none"></div>
                 <div class="image-picker-upload">
                     <input type="file" id="image-picker-upload-input" accept="image/*" style="display:none">
-                    <button type="button" class="toolbar-btn" id="image-picker-upload-btn">Upload new image</button>
+                    <button type="button" class="toolbar-btn image-picker-upload-btn" id="image-picker-upload-btn">Upload to library (Supabase)</button>
                 </div>
+                <div id="image-picker-loading" class="image-picker-loading" style="display:none">Loading library…</div>
                 <div id="image-picker-grid" class="image-picker-grid"></div>
             </div>
         </div>
@@ -465,7 +511,10 @@
                 document.getElementById('title').value = currentPost.title || '';
                 document.getElementById('slug').value = currentPost.slug || '';
                 document.getElementById('excerpt').value = currentPost.excerpt || '';
-                document.getElementById('content').value = currentPost.content || '';
+                const contentEl = document.getElementById('content-editor');
+                const contentInput = document.getElementById('content');
+                if (contentEl) contentEl.innerHTML = currentPost.content || '';
+                if (contentInput) contentInput.value = currentPost.content || '';
                 document.getElementById('featured-image-url').value = currentPost.featured_image_url || '';
                 document.getElementById('featured-image-alt').value = currentPost.featured_image_alt || '';
                 document.getElementById('meta-title').value = currentPost.meta_title || '';
@@ -583,25 +632,60 @@
         }
         renderSelectedTags();
 
-        // Markdown toolbar
+        // Sync contenteditable to hidden input (for form submit and validation)
+        function syncContentToInput() {
+            const editor = document.getElementById('content-editor');
+            const input = document.getElementById('content');
+            if (editor && input) {
+                let html = editor.innerHTML.trim();
+                if (html === '<br>' || html === '<br/>') html = '';
+                input.value = html;
+                input.setCustomValidity(html ? '' : 'Content is required');
+            }
+        }
+        const contentEditor = document.getElementById('content-editor');
+        if (contentEditor) {
+            contentEditor.addEventListener('input', syncContentToInput);
+            contentEditor.addEventListener('paste', function() {
+                setTimeout(syncContentToInput, 0);
+            });
+        }
+
+        // Markdown toolbar (inserts as HTML into contenteditable)
         window.insertMarkdown = function(before, after, placeholder) {
-            const textarea = document.getElementById('content');
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = textarea.value.substring(start, end);
-            const replacement = before + (selectedText || placeholder) + after;
-            
-            textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
-            textarea.focus();
-            textarea.setSelectionRange(start + before.length, start + before.length + (selectedText || placeholder).length);
+            const editor = document.getElementById('content-editor');
+            if (!editor) return;
+            const sel = window.getSelection();
+            const range = sel && sel.rangeCount ? sel.getRangeAt(0) : null;
+            const text = (range && range.toString()) || placeholder;
+            const replacement = before + text + after;
+            if (range) {
+                range.deleteContents();
+                const tn = document.createTextNode(replacement);
+                range.insertNode(tn);
+                range.setStart(tn, before.length);
+                range.setEnd(tn, before.length + text.length);
+            } else {
+                editor.focus();
+                document.execCommand('insertText', false, replacement);
+            }
+            syncContentToInput();
         };
 
         window.insertHtml = function(html) {
-            const textarea = document.getElementById('content');
-            const start = textarea.selectionStart;
-            textarea.value = textarea.value.substring(0, start) + html + textarea.value.substring(start);
-            textarea.focus();
-            textarea.setSelectionRange(start + html.length, start + html.length);
+            const editor = document.getElementById('content-editor');
+            if (!editor) return;
+            editor.focus();
+            const frag = document.createRange().createContextualFragment(html);
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount) {
+                const range = sel.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(frag);
+            } else {
+                editor.appendChild(frag);
+            }
+            syncContentToInput();
         };
 
         // YouTube embed
@@ -621,34 +705,61 @@
         const modal = document.getElementById('image-picker-modal');
         const gridEl = document.getElementById('image-picker-grid');
 
+        const pickerLoadingEl = document.getElementById('image-picker-loading');
+        const pickerErrorEl = document.getElementById('image-picker-error');
+        const pickerUploadBtn = document.getElementById('image-picker-upload-btn');
+
         async function loadImagePickerLibrary() {
             await ensureDataLoaded();
-            let urls = getImageUrlsFromPosts();
+            let urls = [];
             if (isSupabaseConfigured()) {
                 try {
                     const fromStorage = await listBlogImages();
-                    urls = [...new Set([...fromStorage, ...urls])];
-                } catch (_) {}
+                    urls = Array.isArray(fromStorage) ? fromStorage : [];
+                } catch (e) {
+                    console.warn('Supabase library list failed:', e);
+                }
             }
+            const fromPosts = getImageUrlsFromPosts();
+            urls = [...new Set([...urls, ...fromPosts])];
             return urls;
+        }
+
+        function addImageToGrid(url) {
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = '';
+            img.className = 'image-picker-item';
+            img.loading = 'lazy';
+            img.onerror = () => img.style.display = 'none';
+            img.onclick = () => pickImage(url);
+            gridEl.insertBefore(img, gridEl.firstChild);
         }
 
         function openImagePicker(mode) {
             imagePickerMode = mode;
             modal.classList.add('open');
+            gridEl.innerHTML = '';
+            if (pickerLoadingEl) pickerLoadingEl.style.display = 'block';
+            if (pickerErrorEl) pickerErrorEl.style.display = 'none';
+            if (!isSupabaseConfigured()) {
+                if (pickerErrorEl) {
+                    pickerErrorEl.textContent = 'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to use upload and library.';
+                    pickerErrorEl.style.display = 'block';
+                }
+            }
             loadImagePickerLibrary().then(urls => {
-                gridEl.innerHTML = '';
-                urls.forEach(url => {
-                    const img = document.createElement('img');
-                    img.src = url;
-                    img.alt = '';
-                    img.className = 'image-picker-item';
-                    img.loading = 'lazy';
-                    img.onerror = () => img.style.display = 'none';
-                    img.onclick = () => pickImage(url);
-                    gridEl.appendChild(img);
-                });
-                if (urls.length === 0) gridEl.innerHTML = '<p style="color:var(--text-secondary);">No images in library. Upload one above or add a URL in Featured Image.</p>';
+                if (pickerLoadingEl) pickerLoadingEl.style.display = 'none';
+                urls.forEach(url => addImageToGrid(url));
+                if (urls.length === 0 && (!pickerErrorEl || pickerErrorEl.style.display === 'none')) {
+                    gridEl.innerHTML = '<p style="color:var(--text-secondary);">No images in library yet. Upload one above to add it to the library and use as featured image.</p>';
+                }
+            }).catch(err => {
+                if (pickerLoadingEl) pickerLoadingEl.style.display = 'none';
+                if (pickerErrorEl) {
+                    pickerErrorEl.textContent = 'Could not load library: ' + (err.message || err);
+                    pickerErrorEl.style.display = 'block';
+                }
             });
         }
 
@@ -668,11 +779,31 @@
 
         async function doUploadAndPick(file) {
             if (!isSupabaseConfigured()) {
-                alert('Image upload requires Supabase. Use the URL field or configure Supabase (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY).');
+                alert('Image upload requires Supabase. Add your Supabase URL and anon key in Vercel (or supabase-config.js) to upload. You can still paste an image URL in the Featured Image field.');
                 return;
             }
-            const url = await uploadBlogImage(file);
-            if (url) pickImage(url, (file.name || '').replace(/\.[^.]+$/, ''));
+            const prevText = pickerUploadBtn ? pickerUploadBtn.textContent : '';
+            if (pickerUploadBtn) {
+                pickerUploadBtn.disabled = true;
+                pickerUploadBtn.textContent = 'Uploading…';
+            }
+            try {
+                const url = await uploadBlogImage(file);
+                if (url) {
+                    addImageToGrid(url);
+                    pickImage(url, (file.name || '').replace(/\.[^.]+$/, ''));
+                } else {
+                    alert('Upload failed. Check the browser console and Supabase storage (bucket: blog-images, folder: blog).');
+                }
+            } catch (err) {
+                console.error('Upload error:', err);
+                alert('Upload failed: ' + (err.message || err));
+            } finally {
+                if (pickerUploadBtn) {
+                    pickerUploadBtn.disabled = false;
+                    pickerUploadBtn.textContent = prevText;
+                }
+            }
         }
 
         document.getElementById('featured-upload-btn').addEventListener('click', () => document.getElementById('featured-upload-input').click());
@@ -719,12 +850,24 @@
             saveBtn.disabled = true;
             saveBtn.textContent = 'Saving...';
 
+            // Sync contenteditable to hidden input before save
+            syncContentToInput();
+            const contentInput = document.getElementById('content');
+            const contentHtml = (contentInput && contentInput.value) ? contentInput.value.trim() : '';
+            if (!contentHtml) {
+                alert('Please add some content to the post.');
+                isSaving = false;
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Post';
+                return;
+            }
+
             const formData = {
                 id: postId || currentPost?.id || undefined,
                 title: document.getElementById('title').value.trim(),
                 slug: document.getElementById('slug').value.trim() || generateSlug(document.getElementById('title').value),
                 excerpt: document.getElementById('excerpt').value.trim(),
-                content: document.getElementById('content').value.trim(),
+                content: contentHtml,
                 status: document.querySelector('input[name="status"]:checked').value,
                 category_id: document.getElementById('category').value || null,
                 tags: selectedTags,
