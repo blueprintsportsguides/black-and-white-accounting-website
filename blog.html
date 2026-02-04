@@ -448,26 +448,31 @@
         let currentPage = 1;
         let currentCategory = '';
         let searchQuery = '';
+        let categories = [];
 
-        // Load categories
-        const categories = getCategories();
-        const categoryTabs = document.getElementById('category-tabs');
-        categories.forEach(cat => {
-            const tab = document.createElement('a');
-            tab.href = '#';
-            tab.className = 'category-tab';
-            tab.textContent = cat.name;
-            tab.dataset.category = cat.id;
-            tab.addEventListener('click', function(e) {
-                e.preventDefault();
-                currentCategory = this.dataset.category;
-                currentPage = 1;
-                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                renderPosts();
-            });
-            categoryTabs.appendChild(tab);
-        });
+        function buildCategoryTabs() {
+            categories = getCategories();
+            const categoryTabs = document.getElementById('category-tabs');
+            categoryTabs.innerHTML = '';
+            function addTab(label, categoryId, isActive) {
+                const tab = document.createElement('a');
+                tab.href = '#';
+                tab.className = 'category-tab' + (isActive ? ' active' : '');
+                tab.textContent = label;
+                tab.dataset.category = categoryId || '';
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    currentCategory = this.dataset.category;
+                    currentPage = 1;
+                    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    renderPosts();
+                });
+                categoryTabs.appendChild(tab);
+            }
+            addTab('All', '', true);
+            categories.forEach(cat => addTab(cat.name, cat.id, false));
+        }
 
         // Search handler
         document.getElementById('search-input').addEventListener('input', function() {
@@ -537,10 +542,6 @@
                     <div class="posts-grid">
                         ${paginatedPosts.map(post => {
                             const category = categories.find(c => c.id === post.category_id);
-                            // Debug: log image URL for first few posts
-                            if (paginatedPosts.indexOf(post) < 3) {
-                                console.log(`Post "${post.title}": featured_image_url =`, post.featured_image_url, typeof post.featured_image_url);
-                            }
                             const hasImage = post.featured_image_url && 
                                            post.featured_image_url !== null && 
                                            post.featured_image_url !== 'null' && 
@@ -551,8 +552,7 @@
                                     <div class="post-card-image">
                                         ${hasImage
                                             ? `<img src="${post.featured_image_url}" alt="${post.featured_image_alt || post.title}" 
-                                               onload="console.log('✓ Image loaded:', '${post.featured_image_url}'); this.style.display='block';"
-                                               onerror="console.error('✗ Image failed:', '${post.featured_image_url}'); this.style.display='none'; const placeholder = this.nextElementSibling; if (placeholder) placeholder.style.display='flex';">
+                                               onerror="this.style.display='none'; const ph=this.nextElementSibling; if(ph) ph.style.display='flex';">
                                                <div class="image-placeholder" style="display: none; align-items: center; justify-content: center; height: 100%; color: #9ca3af; background: #f3f4f6;">No image</div>`
                                             : '<div class="image-placeholder" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #9ca3af; background: #f3f4f6;">No image</div>'
                                         }
@@ -619,9 +619,10 @@
             }
         }
 
-        // Initial render (wait for data when using Supabase or async sources)
+        // Load data first, then build UI and render
         (async () => {
             await ensureDataLoaded();
+            buildCategoryTabs();
             renderPosts();
         })();
     </script>

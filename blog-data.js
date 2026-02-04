@@ -18,7 +18,7 @@ let dataCache = {
     tags: null
 };
 
-// Load data from Supabase (when configured)
+// Load data from Supabase (when configured). Use Supabase as source whenever it returns a valid response.
 async function loadDataFromSupabase() {
     if (!isSupabaseConfigured()) return false;
     try {
@@ -27,16 +27,16 @@ async function loadDataFromSupabase() {
             supabaseFunctions.loadCategoriesFromSupabase(),
             supabaseFunctions.loadTagsFromSupabase()
         ]);
-        // Only treat as loaded when we have posts; empty Supabase should fall back to JSON
-        if (posts && Array.isArray(posts) && posts.length > 0) {
+        // Use Supabase data whenever we got a valid array (even if empty) – single source of truth
+        if (posts !== null && Array.isArray(posts)) {
             dataCache.posts = posts.map(p => ({ ...p, tags: p.tags || p.tag_slugs || [] }));
-            dataCache.categories = categories && Array.isArray(categories) ? categories : [];
-            dataCache.tags = tags && Array.isArray(tags) ? tags : [];
+            dataCache.categories = (categories && Array.isArray(categories)) ? categories : [];
+            dataCache.tags = (tags && Array.isArray(tags)) ? tags : [];
+            if (dataCache.categories.length === 0) initDefaultCategories();
+            if (dataCache.tags.length === 0) initDefaultTags();
             return true;
         }
-        if (posts && Array.isArray(posts) && posts.length === 0) {
-            console.warn('Supabase returned no posts, falling back to JSON');
-        }
+        // Supabase failed (null) – caller will fall back to JSON
         return false;
     } catch (error) {
         console.warn('Error loading data from Supabase:', error);
@@ -44,7 +44,7 @@ async function loadDataFromSupabase() {
     }
 }
 
-// Load data from JSON file (fallback)
+// Load data from JSON file (fallback when Supabase not configured or failed)
 async function loadDataFromJSON() {
     try {
         const response = await fetch(JSON_SOURCE);
@@ -53,21 +53,29 @@ async function loadDataFromJSON() {
             return false;
         }
         const jsonData = await response.json();
-        
-        // Normalize: map category_slug -> category_id if needed
-        const posts = (jsonData.posts || []).map(p => {
-            if (p.category_id) return p;
-            if (p.category_slug && jsonData.categories) {
+        const rawPosts = jsonData.posts || [];
+
+        // Normalize: ensure id, category_id, tags for each post
+        const posts = rawPosts.map(p => {
+            const id = p.id || p.legacy_wp_id || p.slug || generateId();
+            let category_id = p.category_id;
+            if (!category_id && p.category_slug && jsonData.categories?.length) {
                 const cat = jsonData.categories.find(c => (c.slug || c.id) === p.category_slug);
-                if (cat) return { ...p, category_id: cat.id };
+                if (cat) category_id = cat.id;
             }
-            return p;
+            if (!category_id && p.category_slug) category_id = p.category_slug;
+            return {
+                ...p,
+                id,
+                category_id: category_id || null,
+                tags: p.tags || p.tag_slugs || []
+            };
         });
-        
+
         dataCache.posts = posts;
-        dataCache.categories = jsonData.categories || [];
-        dataCache.tags = jsonData.tags || [];
-        
+        dataCache.categories = jsonData.categories && jsonData.categories.length > 0 ? jsonData.categories : [];
+        dataCache.tags = jsonData.tags && jsonData.tags.length > 0 ? jsonData.tags : [];
+
         if (dataCache.posts.length > 0) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dataCache.posts));
         }
@@ -77,7 +85,9 @@ async function loadDataFromJSON() {
         if (dataCache.tags.length > 0) {
             localStorage.setItem(TAGS_KEY, JSON.stringify(dataCache.tags));
         }
-        
+        if (dataCache.categories.length === 0) initDefaultCategories();
+        if (dataCache.tags.length === 0) initDefaultTags();
+
         localStorage.setItem(DATA_LOADED_KEY, 'true');
         return true;
     } catch (error) {
@@ -86,7 +96,7 @@ async function loadDataFromJSON() {
     }
 }
 
-// Initialize: Supabase first, then JSON, then localStorage
+// Initialize: Supabase first (when configured), then JSON, then localStorage
 let initializationPromise = null;
 function ensureDataLoaded() {
     if (!initializationPromise) {
@@ -106,6 +116,7 @@ function ensureDataLoaded() {
                 if (localCategories) dataCache.categories = JSON.parse(localCategories);
                 if (localTags) dataCache.tags = JSON.parse(localTags);
             }
+            if (!dataCache.posts) dataCache.posts = [];
             if (!dataCache.categories || dataCache.categories.length === 0) {
                 initDefaultCategories();
             }
@@ -115,6 +126,14 @@ function ensureDataLoaded() {
         })();
     }
     return initializationPromise;
+}
+
+// Reset and reload (e.g. after Import JSON to Supabase) so next ensureDataLoaded() fetches again
+export function resetDataCache() {
+    initializationPromise = null;
+    dataCache.posts = null;
+    dataCache.categories = null;
+    dataCache.tags = null;
 }
 
 // Initialize default categories if none exist

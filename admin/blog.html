@@ -301,10 +301,13 @@
 
     <script type="module">
         import { requireAuth, clearAuthentication } from '/admin-auth.js';
-        import { getAllPosts, getPostById, savePost, deletePost, searchPosts, getCategories, formatDate, downloadJSON } from '/blog-data.js';
+        import { getAllPosts, getPostById, savePost, deletePost, searchPosts, getCategories, formatDate, downloadJSON, ensureDataLoaded } from '/blog-data.js';
 
         (async () => {
         if (!(await requireAuth())) return;
+
+        // Wait for blog data (Supabase or JSON) before building UI
+        await ensureDataLoaded();
 
         // Logout handler
         document.getElementById('logout-btn').addEventListener('click', async function() {
@@ -325,7 +328,7 @@
             }
         });
 
-        // Load categories
+        // Load categories (data is already loaded)
         const categories = getCategories();
         const categorySelect = document.getElementById('category-filter');
         const bulkCategorySelect = document.getElementById('bulk-category');

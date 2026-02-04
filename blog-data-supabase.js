@@ -87,16 +87,38 @@ export async function loadTagsFromSupabase() {
     }
 }
 
+// Table columns for blog_posts (so we don't send extra fields)
+const BLOG_POST_COLUMNS = [
+    'id', 'legacy_wp_id', 'legacy_wp_url', 'title', 'slug', 'excerpt', 'content',
+    'status', 'published_at', 'created_at', 'updated_at', 'author_name', 'category_id',
+    'featured_image_url', 'featured_image_alt', 'meta_title', 'meta_description', 'reading_time_minutes'
+];
+
 // Save post to Supabase
 export async function savePostToSupabase(postData) {
     const supabase = await getSupabaseClient();
     if (!supabase) return null;
     
     try {
-        // Prepare post data (exclude tags, handle separately)
-        const { tag_slugs, tags, ...postPayload } = postData;
+        const { tag_slugs, tags, ...rest } = postData;
+        const tagIds = tags && tags.length > 0 ? tags : (tag_slugs || []);
         
-        // Upsert post
+        // Build payload with only table columns and ensure required fields
+        const now = new Date().toISOString();
+        const postPayload = {};
+        for (const key of BLOG_POST_COLUMNS) {
+            if (rest[key] !== undefined && rest[key] !== null) {
+                postPayload[key] = rest[key];
+            }
+        }
+        if (!postPayload.id) postPayload.id = rest.id || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 9)}`;
+        if (!postPayload.updated_at) postPayload.updated_at = now;
+        if (!postPayload.created_at) postPayload.created_at = postPayload.created_at || now;
+        if (postPayload.content != null && (postPayload.reading_time_minutes == null || postPayload.reading_time_minutes === 0)) {
+            const words = (postPayload.content || '').split(/\s+/).length;
+            postPayload.reading_time_minutes = Math.max(1, Math.ceil(words / 200));
+        }
+        
         const { data, error } = await supabase
             .from('blog_posts')
             .upsert(postPayload, { onConflict: 'id' })
@@ -108,28 +130,15 @@ export async function savePostToSupabase(postData) {
             return null;
         }
         
-        // Handle tags if provided
-        if (tag_slugs && tag_slugs.length > 0) {
-            // Delete existing tags
-            await supabase
-                .from('blog_post_tags')
-                .delete()
-                .eq('post_id', data.id);
-            
-            // Insert new tags
-            const tagRelations = tag_slugs.map(tagId => ({
-                post_id: data.id,
-                tag_id: tagId
-            }));
-            
-            if (tagRelations.length > 0) {
-                await supabase
-                    .from('blog_post_tags')
-                    .insert(tagRelations);
-            }
+        // Sync tags (post_post_tags)
+        await supabase.from('blog_post_tags').delete().eq('post_id', data.id);
+        if (Array.isArray(tagIds) && tagIds.length > 0) {
+            await supabase.from('blog_post_tags').insert(
+                tagIds.map(tagId => ({ post_id: data.id, tag_id: tagId }))
+            );
         }
         
-        return data;
+        return { ...data, tags: tagIds };
     } catch (error) {
         console.error('Error saving post to Supabase:', error);
         return null;
