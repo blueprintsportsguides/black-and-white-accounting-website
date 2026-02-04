@@ -425,10 +425,11 @@
             return html;
         }
 
-        // Generate TOC from headings
+        // Generate TOC from headings; hide the TOC aside if there are no h2/h3
         function generateTOC(contentElement) {
             const headings = contentElement.querySelectorAll('h2, h3');
             const tocList = document.getElementById('toc-list');
+            const tocAside = document.querySelector('.blog-post-toc');
             tocList.innerHTML = '';
             
             headings.forEach((heading, index) => {
@@ -441,6 +442,10 @@
                 li.innerHTML = `<a href="#${id}">${heading.textContent}</a>`;
                 tocList.appendChild(li);
             });
+            
+            if (tocAside) {
+                tocAside.style.display = tocList.children.length > 0 ? '' : 'none';
+            }
         }
 
         // Get post from URL - support both clean URLs (/blog/slug) and query params (?slug=...)
@@ -697,33 +702,30 @@
                 contentDiv.innerHTML = markdownToHTML(post.content);
             }
             
-            // Generate TOC
+            // Generate TOC (hides aside if no h2/h3)
             generateTOC(contentDiv);
             
-            // TOC toggle on mobile
-            const tocToggle = document.getElementById('toc-toggle');
             const tocList = document.getElementById('toc-list');
-            if (window.innerWidth <= 1024) {
-                tocToggle.style.cursor = 'pointer';
-                tocToggle.addEventListener('click', function() {
-                    tocList.classList.toggle('open');
+            const tocToggle = document.getElementById('toc-toggle');
+            if (tocList.children.length > 0) {
+                if (window.innerWidth <= 1024 && tocToggle) {
+                    tocToggle.style.cursor = 'pointer';
+                    tocToggle.addEventListener('click', function() {
+                        tocList.classList.toggle('open');
+                    });
+                }
+                tocList.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('href').substring(1);
+                        const target = document.getElementById(targetId);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            if (window.innerWidth <= 1024) tocList.classList.remove('open');
+                        }
+                    });
                 });
             }
-            
-            // Smooth scroll for TOC links
-            tocList.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href').substring(1);
-                    const target = document.getElementById(targetId);
-                    if (target) {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        if (window.innerWidth <= 1024) {
-                            tocList.classList.remove('open');
-                        }
-                    }
-                });
-            });
         }
         })();
     </script>
