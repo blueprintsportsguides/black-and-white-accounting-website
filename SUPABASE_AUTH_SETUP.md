@@ -28,10 +28,15 @@ Sign-up passes `emailRedirectTo: origin + '/admin-login'`, so the confirm-email 
 
 Same as for the blog:
 
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+- `VITE_SUPABASE_URL` – full URL, e.g. `https://YOUR_PROJECT_REF.supabase.co` (the config adds `https://` if you omit it).
+- `VITE_SUPABASE_ANON_KEY` – the anon/public key from Project Settings → API.
 
-Set in Vercel (and in `.env.local` for local dev). Redeploy after changing them.
+Set in **Vercel** (Project → Settings → Environment Variables) and in **`.env.local`** for local dev. **Redeploy after changing them** so the new values are in the client bundle.
+
+**If you see "Failed to fetch" or ERR_NAME_NOT_RESOLVED** when logging in or signing up:
+
+1. **Supabase project may be paused** (free tier pauses after inactivity). In [Supabase Dashboard](https://app.supabase.com) → your project → **Project Settings** → **General**, click **Restore project**.
+2. **Env vars wrong or missing** – check `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Vercel, then trigger a new deploy.
 
 ## 4. Sign up (temporary)
 

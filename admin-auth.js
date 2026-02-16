@@ -61,11 +61,28 @@ if (typeof document !== 'undefined' && document.getElementById('login-form')) {
 
         const supabase = await getSupabaseClient();
         if (!supabase) {
-            if (errorEl) { errorEl.textContent = 'Could not connect to auth.'; errorEl.style.display = 'block'; }
+            if (errorEl) { errorEl.textContent = 'Auth not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel and redeploy.'; errorEl.style.display = 'block'; }
             if (btn) { btn.disabled = false; btn.textContent = 'Login'; return; }
         }
 
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        let data, error;
+        try {
+            const result = await supabase.auth.signInWithPassword({ email, password });
+            data = result.data;
+            error = result.error;
+        } catch (err) {
+            const msg = err?.message || String(err);
+            if (msg.includes('fetch') || msg.includes('Failed to fetch') || err.name === 'TypeError') {
+                if (errorEl) {
+                    errorEl.textContent = 'Cannot reach the auth server. Check: (1) Supabase project is not paused (Dashboard → Project Settings), (2) VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in Vercel and you redeployed.';
+                    errorEl.style.display = 'block';
+                }
+            } else {
+                if (errorEl) { errorEl.textContent = msg || 'Something went wrong.'; errorEl.style.display = 'block'; }
+            }
+            if (btn) { btn.disabled = false; btn.textContent = 'Login'; }
+            return;
+        }
 
         if (error) {
             if (errorEl) { errorEl.textContent = error.message || 'Invalid email or password.'; errorEl.style.display = 'block'; }

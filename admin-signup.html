@@ -76,12 +76,30 @@
             showError('');
 
             const supabase = await getSupabaseClient();
-            if (!supabase) { showError('Could not connect.'); if (btn) { btn.disabled = false; btn.textContent = 'Create account'; } return; }
+            if (!supabase) {
+                showError('Auth not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel (or .env.local) and redeploy.');
+                if (btn) { btn.disabled = false; btn.textContent = 'Create account'; }
+                return;
+            }
 
-            const emailRedirectTo = window.location.origin + '/admin-login';
-            const { data, error } = await supabase.auth.signUp(
-                { email, password, options: { emailRedirectTo } }
-            );
+            let data, error;
+            try {
+                const emailRedirectTo = window.location.origin + '/admin-login';
+                const result = await supabase.auth.signUp(
+                    { email, password, options: { emailRedirectTo } }
+                );
+                data = result.data;
+                error = result.error;
+            } catch (err) {
+                const msg = err?.message || String(err);
+                if (msg.includes('fetch') || msg.includes('Failed to fetch') || err.name === 'TypeError') {
+                    showError('Cannot reach the auth server. Check: (1) Supabase project is not paused (Dashboard → Project Settings → Restore if needed), (2) VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set correctly in Vercel and you redeployed.');
+                } else {
+                    showError(msg || 'Something went wrong.');
+                }
+                if (btn) { btn.disabled = false; btn.textContent = 'Create account'; }
+                return;
+            }
 
             if (error) {
                 showError(error.message || 'Sign up failed.');
