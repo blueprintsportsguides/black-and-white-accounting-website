@@ -111,7 +111,7 @@ export default defineConfig({
       name: 'copy-static-assets',
       writeBundle() {
         // Copy script.js, styles.css, blog-data.js, admin-auth.js, and Supabase config files to dist root
-        const filesToCopy = ['script.js', 'styles.css', 'blog-data.js', 'admin-auth.js', 'supabase-config.js', 'blog-data-supabase.js', 'triage-data-supabase.js'];
+        const filesToCopy = ['script.js', 'styles.css', 'blog-data.js', 'admin-auth.js', 'supabase-config.js', 'blog-data-supabase.js', 'triage-data-supabase.js', 'white logo.png'];
         filesToCopy.forEach(file => {
           const src = join(process.cwd(), file);
           const dest = join(process.cwd(), 'dist', file);

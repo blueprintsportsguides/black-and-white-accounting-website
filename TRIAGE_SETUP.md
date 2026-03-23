@@ -7,7 +7,7 @@ The Triage system is built on Supabase. **Team members** and **who creates/assig
 In the Supabase SQL Editor, run the contents of **`supabase-triage.sql`**:
 
 - `profiles` – one row per auth user (id, email, display_name). Used for **Assign To** and **Created By**.
-- `triage_categories` – category names (e.g. Tax, Accounts, Advisory).
+- `triage_categories` – category names (e.g. Accounts, Tax, Advisory).
 - `triage_entries` – triage items. `archived_at` is set when you **Mark as Done**.
 
 ## 2. Auth and env

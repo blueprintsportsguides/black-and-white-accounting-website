@@ -154,7 +154,7 @@ When actual images are added, replace the placeholder divs with:
 ## Footer
 
 - Logo placeholder
-- Service links (Tax, Accounts, Advisory)
+- Service links (Accounts, Tax, Advisory)
 - Sector links (all 9 sectors)
 - Contact information with phone number
 - Office locations (Wraysbury & Herriard)

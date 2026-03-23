@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Blog Post | Black and White Accounting</title>
     <link rel="icon" type="image/png" href="/Images/circle logo.png">
+    <script>(function(){var t=localStorage.getItem('baw-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t)}else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.setAttribute('data-theme','dark')}})();</script>
     <link rel="stylesheet" href="/styles.css">
     <style>
         .blog-post-header {
@@ -12,7 +13,7 @@
             padding: var(--spacing-3xl) var(--spacing-lg);
         }
         .blog-post-header-content {
-            max-width: 1400px;
+            max-width: var(--container-max-width);
             margin: 0 auto;
             text-align: center;
         }
@@ -30,11 +31,11 @@
             margin-bottom: var(--spacing-lg);
         }
         .blog-post-content-wrapper {
-            max-width: 95%;
+            max-width: var(--container-max-width);
             margin: 0 auto;
             padding: var(--spacing-xl) var(--spacing-lg);
             display: grid;
-            grid-template-columns: 200px 1fr 250px;
+            grid-template-columns: minmax(180px, 220px) minmax(0, 1fr) minmax(220px, 250px);
             gap: var(--spacing-xl);
         }
         /* When TOC is hidden, only main + sidebar so main gets full width */
@@ -45,7 +46,7 @@
             position: sticky;
             top: 100px;
             align-self: start;
-            background: white;
+            background: var(--bg-white);
             border-radius: var(--radius-md);
             padding: var(--spacing-lg);
             box-shadow: var(--shadow-sm);
@@ -83,7 +84,7 @@
             padding-left: var(--spacing-lg);
         }
         .blog-post-main {
-            background: white;
+            background: var(--bg-white);
             border-radius: var(--radius-md);
             padding: var(--spacing-xl);
             box-shadow: var(--shadow-sm);
@@ -105,7 +106,7 @@
             margin-top: var(--spacing-2xl);
             margin-bottom: var(--spacing-md);
             padding-bottom: var(--spacing-xs);
-            border-bottom: 2px solid #e5e7eb;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.08);
         }
         .blog-post-content h3 {
             font-size: var(--font-size-xl);
@@ -189,6 +190,13 @@
             justify-content: center;
             flex-wrap: wrap;
         }
+        @media (max-width: 1280px) {
+            .blog-post-content-wrapper {
+                max-width: 100%;
+                grid-template-columns: minmax(160px, 200px) minmax(0, 1fr) minmax(200px, 230px);
+                gap: var(--spacing-lg);
+            }
+        }
         @media (max-width: 1024px) {
             .blog-post-content-wrapper,
             .blog-post-content-wrapper.no-toc {
@@ -269,9 +277,9 @@
                             </div>
                         </div>
                     </li>
-                        <a href="/sectors" class="nav-link">Sectors</a>
+                        <li class="nav-item"><a href="/sectors" class="nav-link">Sectors</a></li>
                     <li class="nav-item"><a href="/structures" class="nav-link">Structures</a></li>
-                        <a href="/about" class="nav-link">About</a>
+                        <li class="nav-item"><a href="/about" class="nav-link">About</a></li>
                         <li class="nav-item"><a href="/blog" class="nav-link">Insights</a></li>
                     <li class="nav-item"><a href="/tools" class="nav-link">Tools</a></li>
                 </ul>
@@ -280,6 +288,10 @@
                 <a href="tel:08001404644" class="btn btn-primary">Phone Us</a>
                 <a href="/contact" class="btn btn-secondary">Contact Us</a>
             </div>
+            <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                <svg class="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            </button>
             <button class="mobile-menu-toggle" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
@@ -318,6 +330,14 @@
         </aside>
     </div>
 
+    <!-- Related Posts -->
+    <section class="section-alt" id="related-posts-section" style="display: none;">
+        <div class="section-container">
+            <h2 style="text-align: center; font-size: var(--font-size-3xl); margin-bottom: var(--spacing-xl);">You might also be interested in</h2>
+            <div class="grid grid-3" id="related-posts-grid"></div>
+        </div>
+    </section>
+
     <!-- End of Article CTA -->
     <section class="section">
         <div class="section-container">
@@ -337,26 +357,55 @@
         <div class="footer-container">
             <div class="footer-section footer-logo-section">
                 <img src="/Images/long logo.png" alt="Black and White Accounting" class="footer-logo">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/blog">Insights</a></li>
+                    <li><a href="/tools">Tools</a></li>
+                    <li><a href="/mtd">MTD</a></li>
+                </ul>
             </div>
             <div class="footer-section footer-services">
                 <h4>Services</h4>
                 <ul class="footer-links">
                     <li><a href="/services-accounts">Accounts</a></li>
+                    <li><a href="/services-tax">Tax</a></li>
                     <li><a href="/services-advisory">Advisory</a></li>
+                </ul>
+            </div>
+            <div class="footer-section footer-structures">
+                <h4>Structures</h4>
+                <ul class="footer-links">
+                    <li><a href="/structures-charities">Charities & Not-for-Profit</a></li>
+                    <li><a href="/structures-cic">CICs</a></li>
+                    <li><a href="/structures-clubs-societies">Clubs & Societies</a></li>
+                    <li><a href="/structures-individuals">Individuals</a></li>
+                    <li><a href="/structures-landlords">Landlords</a></li>
+                    <li><a href="/structures-limited-companies">Limited Companies</a></li>
+                    <li><a href="/structures-llp">LLPs</a></li>
+                    <li><a href="/structures-partnerships">Partnerships</a></li>
+                    <li><a href="/structures-sole-traders">Sole Traders</a></li>
                 </ul>
             </div>
             <div class="footer-section footer-sectors">
                 <h4>Sectors</h4>
                 <ul class="footer-links">
-                    <li><a href="/sectors/construction">Construction</a></li>
-                    <li><a href="/sectors/property">Property & Landlords</a></li>
-                    <li><a href="/sectors/ecommerce">E-commerce</a></li>
-                    <li><a href="/sectors/professional-services">Professional Services</a></li>
-                    <li><a href="/sectors/retail">Retail</a></li>
-                    <li><a href="/sectors/trades">Trades</a></li>
-                    <li><a href="/sectors/startups">Startups</a></li>
-                    <li><a href="/sectors/healthcare">Healthcare</a></li>
-                    <li><a href="/sectors/hospitality">Hospitality</a></li>
+                    <li><a href="/sectors-automotive-engineering">Automotive Engineering</a></li>
+                    <li><a href="/sectors-charities">Charities</a></li>
+                    <li><a href="/sectors-construction">Construction</a></li>
+                    <li><a href="/sectors-contractors-consultants">Contractors & Consultants</a></li>
+                    <li><a href="/sectors-ecommerce">E-commerce</a></li>
+                    <li><a href="/sectors-education-training">Education & Training</a></li>
+                    <li><a href="/sectors-farming-agriculture">Farming & Agriculture</a></li>
+                    <li><a href="/sectors-freelancers-creatives">Freelancers & Creatives</a></li>
+                    <li><a href="/sectors-healthcare">Healthcare</a></li>
+                    <li><a href="/sectors-hospitality">Hospitality</a></li>
+                    <li><a href="/sectors-it-tech">IT & Tech</a></li>
+                    <li><a href="/sectors-professional-services">Professional Services</a></li>
+                    <li><a href="/sectors-property">Property & Landlords</a></li>
+                    <li><a href="/sectors-retail">Retail</a></li>
+                    <li><a href="/sectors-startups">Startups</a></li>
+                    <li><a href="/sectors-trades">Trades</a></li>
                 </ul>
             </div>
             <div class="footer-section footer-contact">
@@ -383,14 +432,14 @@
                     <a href="/privacy">Privacy Policy</a>
                     <a href="/terms">Terms & Conditions</a>
                 </div>
-                <p class="footer-copyright">&copy; 2024 Black and White Accounting. All rights reserved.</p>
+                <p class="footer-copyright">&copy; 2025 Black and White Accounting. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <script src="/script.js" type="module"></script>
     <script type="module">
-        import { getPostBySlug, getCategories, formatDate, ensureDataLoaded } from '/blog-data.js';
+        import { getPostBySlug, getPublishedPosts, getCategories, formatDate, ensureDataLoaded } from '/blog-data.js';
 
         // Simple markdown to HTML converter
         function markdownToHTML(markdown) {
@@ -737,8 +786,68 @@
                     });
                 });
             }
+
+            // Related posts - match by shared title keywords
+            renderRelatedPosts(post);
         }
         })();
+
+        function renderRelatedPosts(currentPost) {
+            const STOP_WORDS = new Set([
+                'a','an','and','are','as','at','be','by','do','for','from','has','how',
+                'i','if','in','is','it','its','my','no','not','of','on','or','our',
+                'so','the','to','up','was','we','who','why','will','with','you','your',
+                'what','when','where','which','can','could','does','did','get','got',
+                'may','might','much','should','that','them','then','they','this','very'
+            ]);
+
+            function extractKeywords(title) {
+                return (title || '')
+                    .toLowerCase()
+                    .replace(/[^a-z0-9\s]/g, '')
+                    .split(/\s+/)
+                    .filter(w => w.length > 2 && !STOP_WORDS.has(w));
+            }
+
+            const allPosts = getPublishedPosts();
+            const currentKeywords = new Set(extractKeywords(currentPost.title));
+            if (currentKeywords.size === 0) return;
+
+            const scored = allPosts
+                .filter(p => p.slug !== currentPost.slug)
+                .map(p => {
+                    const pKeywords = extractKeywords(p.title);
+                    let score = 0;
+                    for (const kw of pKeywords) {
+                        if (currentKeywords.has(kw)) score += 2;
+                        for (const ckw of currentKeywords) {
+                            if (kw !== ckw && (kw.startsWith(ckw) || ckw.startsWith(kw))) score += 1;
+                        }
+                    }
+                    if (p.category_id && p.category_id === currentPost.category_id) score += 1;
+                    return { post: p, score };
+                })
+                .filter(s => s.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 3);
+
+            if (scored.length === 0) return;
+
+            const section = document.getElementById('related-posts-section');
+            const grid = document.getElementById('related-posts-grid');
+            section.style.display = '';
+
+            grid.innerHTML = scored.map(({ post: p }) => `
+                <a href="/blog/${p.slug}" class="card" style="text-decoration: none; color: inherit; display: flex; flex-direction: column;">
+                    ${p.featured_image_url ? `<img src="${p.featured_image_url}" alt="${p.featured_image_alt || p.title}" style="width:100%; aspect-ratio:16/9; object-fit:cover; border-radius: var(--radius-md) var(--radius-md) 0 0;">` : ''}
+                    <div style="padding: var(--spacing-lg); flex: 1; display: flex; flex-direction: column;">
+                        <h3 style="font-size: var(--font-size-base); margin-bottom: var(--spacing-sm);">${p.title}</h3>
+                        <p style="font-size: var(--font-size-sm); color: var(--text-secondary); line-height: 1.6; flex: 1;">${p.excerpt ? p.excerpt.substring(0, 120) + '…' : ''}</p>
+                        <span class="btn btn-secondary" style="margin-top: var(--spacing-md); text-align: center;">Read more</span>
+                    </div>
+                </a>
+            `).join('');
+        }
     </script>
 </body>
 </html>

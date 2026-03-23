@@ -14,7 +14,7 @@
 
 ### Core Objectives
 
-1. **Make it instantly clear what you do** (Tax, Accounts, Advisory)
+1. **Make it instantly clear what you do** (Accounts, Tax, Advisory)
 2. **Feel information-rich without feeling heavy**
 3. **Guide users effortlessly to the right service**
 4. **Convert visitors into enquiries at multiple touchpoints**
@@ -157,7 +157,7 @@ Each opens into:
 
 * Clean headline:
   **“Clear, proactive accounting for individuals and growing businesses.”**
-* Sub-text explaining Tax, Accounts & Advisory in one sentence
+* Sub-text explaining Accounts, Tax & Advisory in one sentence
 * CTAs:
 
   * “Make an Enquiry”

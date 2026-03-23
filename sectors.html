@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Sectors - Black and White Accounting</title>
     <link rel="icon" type="image/png" href="/Images/circle logo.png">
+    <script>(function(){var t=localStorage.getItem('baw-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t)}else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.setAttribute('data-theme','dark')}})();</script>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -59,9 +60,9 @@
                             </div>
                         </div>
                     </li>
-                        <a href="/sectors" class="nav-link">Sectors</a>
+                        <li class="nav-item"><a href="/sectors" class="nav-link">Sectors</a></li>
                     <li class="nav-item"><a href="/structures" class="nav-link">Structures</a></li>
-                        <a href="/about" class="nav-link">About</a>
+                        <li class="nav-item"><a href="/about" class="nav-link">About</a></li>
                         <li class="nav-item"><a href="/blog" class="nav-link">Insights</a></li>
                     <li class="nav-item"><a href="/tools" class="nav-link">Tools</a></li>
                 </ul>
@@ -70,6 +71,10 @@
                 <a href="tel:08001404644" class="btn btn-primary">Phone Us</a>
                 <a href="/contact" class="btn btn-secondary">Contact Us</a>
             </div>
+            <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                <svg class="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <svg class="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            </button>
             <button class="mobile-menu-toggle" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
@@ -94,83 +99,29 @@
         <section class="section-alt">
             <div class="section-container">
                 <div class="sectors-grid">
+                    <!-- Automotive, Engineering & Manufacturing -->
+                    <a href="/sectors-automotive-engineering" class="sector-card scroll-fade-in stagger-1">
+                        <div class="sector-card-content">
+                            <h3>Automotive, Engineering & Manufacturing</h3>
+                            <p class="sector-card-description">Capital allowances, R&D tax credits, and manufacturing cost accounting. Support for engineering businesses.</p>
+                            <span class="sector-card-cta">Find out more</span>
+                        </div>
+                    </a>
+
+                    <!-- Charities & Not-for-Profit -->
+                    <a href="/sectors-charities" class="sector-card scroll-fade-in stagger-2">
+                        <div class="sector-card-content">
+                            <h3>Charities & Not-for-Profit</h3>
+                            <p class="sector-card-description">Charity tax reliefs, Gift Aid management, and fund accounting. Specialist support for charities.</p>
+                            <span class="sector-card-cta">Find out more</span>
+                        </div>
+                    </a>
+
                     <!-- Construction -->
-                    <a href="/sectors-construction" class="sector-card scroll-fade-in stagger-1">
+                    <a href="/sectors-construction" class="sector-card scroll-fade-in stagger-3">
                         <div class="sector-card-content">
                             <h3>Construction</h3>
                             <p class="sector-card-description">CIS compliance, cashflow management, and subcontractor handling. We understand the unique challenges of construction accounting.</p>
-                            <span class="sector-card-cta">Find out more</span>
-                        </div>
-                    </a>
-
-                    <!-- Property & Landlords -->
-                    <a href="/sectors-property" class="sector-card scroll-fade-in stagger-2">
-                        <div class="sector-card-content">
-                            <h3>Property & Landlords</h3>
-                            <p class="sector-card-description">Property tax planning, landlord accounts, and Capital Gains Tax advice. Specialist support for property portfolios.</p>
-                            <span class="sector-card-cta">Find out more</span>
-                        </div>
-                    </a>
-
-                    <!-- E-commerce -->
-                    <a href="/sectors-ecommerce" class="sector-card scroll-fade-in stagger-3">
-                        <div class="sector-card-content">
-                            <h3>E-commerce</h3>
-                            <p class="sector-card-description">VAT for online sales, international tax, and multi-channel accounting. Built for modern digital businesses.</p>
-                            <span class="sector-card-cta">Find out more</span>
-                        </div>
-                    </a>
-
-                    <!-- Professional Services -->
-                    <a href="/sectors-professional-services" class="sector-card scroll-fade-in stagger-4">
-                        <div class="sector-card-content">
-                            <h3>Professional Services</h3>
-                            <p class="sector-card-description">Partnership accounts, client billing support, and professional indemnity considerations. Tailored for consultancies and service firms.</p>
-                            <span class="sector-card-cta">Find out more</span>
-                        </div>
-                    </a>
-
-                    <!-- Retail -->
-                    <a href="/sectors-retail" class="sector-card scroll-fade-in stagger-5">
-                        <div class="sector-card-content">
-                            <h3>Retail</h3>
-                            <p class="sector-card-description">Stock management, seasonal cashflow, and retail-specific VAT. Support for high-street and online retailers.</p>
-                            <span class="sector-card-cta">Find out more</span>
-                        </div>
-                    </a>
-
-                    <!-- Trades -->
-                    <a href="/sectors-trades" class="sector-card scroll-fade-in stagger-6">
-                        <div class="sector-card-content">
-                            <h3>Trades</h3>
-                            <p class="sector-card-description">CIS support, tool and vehicle expenses, and trade-specific tax reliefs. Accounting that understands your trade.</p>
-                            <span class="sector-card-cta">Find out more</span>
-                        </div>
-                    </a>
-
-                    <!-- Startups -->
-                    <a href="/sectors-startups" class="sector-card scroll-fade-in stagger-1">
-                        <div class="sector-card-content">
-                            <h3>Startups</h3>
-                            <p class="sector-card-description">Business structure advice, R&D tax credits, and early-stage financial planning. Built for ambitious new businesses.</p>
-                            <span class="sector-card-cta">Find out more</span>
-                        </div>
-                    </a>
-
-                    <!-- Healthcare -->
-                    <a href="/sectors-healthcare" class="sector-card scroll-fade-in stagger-2">
-                        <div class="sector-card-content">
-                            <h3>Healthcare</h3>
-                            <p class="sector-card-description">Medical practice accounts, NHS contract handling, and healthcare-specific compliance. Support for medical professionals.</p>
-                            <span class="sector-card-cta">Find out more</span>
-                        </div>
-                    </a>
-
-                    <!-- Hospitality -->
-                    <a href="/sectors-hospitality" class="sector-card scroll-fade-in stagger-3">
-                        <div class="sector-card-content">
-                            <h3>Hospitality</h3>
-                            <p class="sector-card-description">Seasonal cashflow, VAT for food and drink, and hospitality payroll. Accounting for restaurants, cafes, and hotels.</p>
                             <span class="sector-card-cta">Find out more</span>
                         </div>
                     </a>
@@ -184,44 +135,17 @@
                         </div>
                     </a>
 
-                    <!-- Freelancers & Creatives -->
-                    <a href="/sectors-freelancers-creatives" class="sector-card scroll-fade-in stagger-5">
+                    <!-- E-commerce -->
+                    <a href="/sectors-ecommerce" class="sector-card scroll-fade-in stagger-5">
                         <div class="sector-card-content">
-                            <h3>Freelancers & Creatives</h3>
-                            <p class="sector-card-description">Irregular income management, creative expense claims, and freelancer tax planning. Support for creative professionals.</p>
-                            <span class="sector-card-cta">Find out more</span>
-                        </div>
-                    </a>
-
-                    <!-- Farming & Agriculture -->
-                    <a href="/sectors-farming-agriculture" class="sector-card scroll-fade-in stagger-6">
-                        <div class="sector-card-content">
-                            <h3>Farming & Agriculture</h3>
-                            <p class="sector-card-description">Agricultural tax reliefs, seasonal cashflow, and succession planning. Specialist support for farming businesses.</p>
-                            <span class="sector-card-cta">Find out more</span>
-                        </div>
-                    </a>
-
-                    <!-- IT & Tech -->
-                    <a href="/sectors-it-tech" class="sector-card scroll-fade-in stagger-1">
-                        <div class="sector-card-content">
-                            <h3>IT & Tech Businesses</h3>
-                            <p class="sector-card-description">R&D tax credits, software accounting, and international tax. Built for technology businesses.</p>
-                            <span class="sector-card-cta">Find out more</span>
-                        </div>
-                    </a>
-
-                    <!-- Automotive, Engineering & Manufacturing -->
-                    <a href="/sectors-automotive-engineering" class="sector-card scroll-fade-in stagger-2">
-                        <div class="sector-card-content">
-                            <h3>Automotive, Engineering & Manufacturing</h3>
-                            <p class="sector-card-description">Capital allowances, R&D tax credits, and manufacturing cost accounting. Support for engineering businesses.</p>
+                            <h3>E-commerce</h3>
+                            <p class="sector-card-description">VAT for online sales, international tax, and multi-channel accounting. Built for modern digital businesses.</p>
                             <span class="sector-card-cta">Find out more</span>
                         </div>
                     </a>
 
                     <!-- Education & Training -->
-                    <a href="/sectors-education-training" class="sector-card scroll-fade-in stagger-3">
+                    <a href="/sectors-education-training" class="sector-card scroll-fade-in stagger-6">
                         <div class="sector-card-content">
                             <h3>Education & Training</h3>
                             <p class="sector-card-description">VAT exemptions, course income management, and training expense claims. Support for education businesses.</p>
@@ -229,14 +153,188 @@
                         </div>
                     </a>
 
-                    <!-- Charities & Not-for-Profit -->
-                    <a href="/sectors-charities" class="sector-card scroll-fade-in stagger-4">
+                    <!-- Farming & Agriculture -->
+                    <a href="/sectors-farming-agriculture" class="sector-card scroll-fade-in stagger-1">
                         <div class="sector-card-content">
-                            <h3>Charities & Not-for-Profit</h3>
-                            <p class="sector-card-description">Charity tax reliefs, Gift Aid management, and fund accounting. Specialist support for charities.</p>
+                            <h3>Farming & Agriculture</h3>
+                            <p class="sector-card-description">Agricultural tax reliefs, seasonal cashflow, and succession planning. Specialist support for farming businesses.</p>
                             <span class="sector-card-cta">Find out more</span>
                         </div>
                     </a>
+
+                    <!-- Freelancers & Creatives -->
+                    <a href="/sectors-freelancers-creatives" class="sector-card scroll-fade-in stagger-2">
+                        <div class="sector-card-content">
+                            <h3>Freelancers & Creatives</h3>
+                            <p class="sector-card-description">Irregular income management, creative expense claims, and freelancer tax planning. Support for creative professionals.</p>
+                            <span class="sector-card-cta">Find out more</span>
+                        </div>
+                    </a>
+
+                    <!-- Healthcare -->
+                    <a href="/sectors-healthcare" class="sector-card scroll-fade-in stagger-3">
+                        <div class="sector-card-content">
+                            <h3>Healthcare</h3>
+                            <p class="sector-card-description">Medical practice accounts, NHS contract handling, and healthcare-specific compliance. Support for medical professionals.</p>
+                            <span class="sector-card-cta">Find out more</span>
+                        </div>
+                    </a>
+
+                    <!-- Hospitality -->
+                    <a href="/sectors-hospitality" class="sector-card scroll-fade-in stagger-4">
+                        <div class="sector-card-content">
+                            <h3>Hospitality</h3>
+                            <p class="sector-card-description">Seasonal cashflow, VAT for food and drink, and hospitality payroll. Accounting for restaurants, cafes, and hotels.</p>
+                            <span class="sector-card-cta">Find out more</span>
+                        </div>
+                    </a>
+
+                    <!-- IT & Tech -->
+                    <a href="/sectors-it-tech" class="sector-card scroll-fade-in stagger-5">
+                        <div class="sector-card-content">
+                            <h3>IT & Tech Businesses</h3>
+                            <p class="sector-card-description">R&D tax credits, software accounting, and international tax. Built for technology businesses.</p>
+                            <span class="sector-card-cta">Find out more</span>
+                        </div>
+                    </a>
+
+                    <!-- Professional Services -->
+                    <a href="/sectors-professional-services" class="sector-card scroll-fade-in stagger-6">
+                        <div class="sector-card-content">
+                            <h3>Professional Services</h3>
+                            <p class="sector-card-description">Partnership accounts, client billing support, and professional indemnity considerations. Tailored for consultancies and service firms.</p>
+                            <span class="sector-card-cta">Find out more</span>
+                        </div>
+                    </a>
+
+                    <!-- Property & Landlords -->
+                    <a href="/sectors-property" class="sector-card scroll-fade-in stagger-1">
+                        <div class="sector-card-content">
+                            <h3>Property & Landlords</h3>
+                            <p class="sector-card-description">Property tax planning, landlord accounts, and Capital Gains Tax advice. Specialist support for property portfolios.</p>
+                            <span class="sector-card-cta">Find out more</span>
+                        </div>
+                    </a>
+
+                    <!-- Retail -->
+                    <a href="/sectors-retail" class="sector-card scroll-fade-in stagger-2">
+                        <div class="sector-card-content">
+                            <h3>Retail</h3>
+                            <p class="sector-card-description">Stock management, seasonal cashflow, and retail-specific VAT. Support for high-street and online retailers.</p>
+                            <span class="sector-card-cta">Find out more</span>
+                        </div>
+                    </a>
+
+                    <!-- Startups -->
+                    <a href="/sectors-startups" class="sector-card scroll-fade-in stagger-3">
+                        <div class="sector-card-content">
+                            <h3>Startups</h3>
+                            <p class="sector-card-description">Business structure advice, R&D tax credits, and early-stage financial planning. Built for ambitious new businesses.</p>
+                            <span class="sector-card-cta">Find out more</span>
+                        </div>
+                    </a>
+
+                    <!-- Trades -->
+                    <a href="/sectors-trades" class="sector-card scroll-fade-in stagger-4">
+                        <div class="sector-card-content">
+                            <h3>Trades</h3>
+                            <p class="sector-card-description">CIS support, tool and vehicle expenses, and trade-specific tax reliefs. Accounting that understands your trade.</p>
+                            <span class="sector-card-cta">Find out more</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQs -->
+        <section class="section faq-section scroll-fade-in">
+            <div class="section-container">
+                <div class="faq-section-header">
+                    <h2>Frequently Asked Questions</h2>
+                    <p>Common questions about sector-specific support.</p>
+                </div>
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <div class="faq-item-header">
+                            <h3>What if my sector isn't listed?</h3>
+                            <span class="faq-item-toggle">+</span>
+                        </div>
+                        <div class="faq-item-content">
+                            <div class="faq-item-body">
+                                <p>We work with businesses across many industries beyond those listed here. If you don't see your sector, get in touch - the chances are we've worked with businesses like yours before and can provide the support you need.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-item-header">
+                            <h3>Do you actually specialise in my industry?</h3>
+                            <span class="faq-item-toggle">+</span>
+                        </div>
+                        <div class="faq-item-content">
+                            <div class="faq-item-body">
+                                <p>Yes - our team has hands-on experience across a wide range of sectors. We understand the specific tax reliefs, compliance requirements, and financial challenges that apply to each industry, so you get advice that's relevant, not generic.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-item-header">
+                            <h3>Is sector-specific support more expensive?</h3>
+                            <span class="faq-item-toggle">+</span>
+                        </div>
+                        <div class="faq-item-content">
+                            <div class="faq-item-body">
+                                <p>No. Our pricing is based on the level of service you need, not the sector you're in. Specialist knowledge is part of what we offer - it doesn't cost extra.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-item-header">
+                            <h3>Can you help with sector-specific tax reliefs?</h3>
+                            <span class="faq-item-toggle">+</span>
+                        </div>
+                        <div class="faq-item-content">
+                            <div class="faq-item-body">
+                                <p>Absolutely. From R&D tax credits for tech businesses to agricultural reliefs for farmers, we'll make sure you're claiming everything you're entitled to and not leaving money on the table.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-item-header">
+                            <h3>Do I need to be local to use your services?</h3>
+                            <span class="faq-item-toggle">+</span>
+                        </div>
+                        <div class="faq-item-content">
+                            <div class="faq-item-body">
+                                <p>Not at all. While we have offices in Wraysbury and Herriard, we work with clients right across the UK. We're set up for remote working, phone calls, and video meetings - whatever suits you best.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Explore More Section -->
+        <section class="section-alt">
+            <div class="section-container">
+                <div class="page-header" style="margin-bottom: var(--spacing-xl);">
+                    <h2>Looking for something else?</h2>
+                    <p class="page-intro">Explore our full service lines and support by business structure.</p>
+                </div>
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3>Services</h3>
+                        <p>See our Accounts, Tax, and Advisory support and find the right level of help for your goals.</p>
+                        <div class="card-footer">
+                            <a href="/services" class="btn btn-secondary">Explore Services</a>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Structures</h3>
+                        <p>Find guidance tailored to your setup, including sole traders, limited companies, partnerships, and more.</p>
+                        <div class="card-footer">
+                            <a href="/structures" class="btn btn-secondary">Explore Structures</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -261,26 +359,55 @@
         <div class="footer-container">
             <div class="footer-section footer-logo-section">
                 <img src="/Images/long logo.png" alt="Black and White Accounting" class="footer-logo">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/blog">Insights</a></li>
+                    <li><a href="/tools">Tools</a></li>
+                    <li><a href="/mtd">MTD</a></li>
+                </ul>
             </div>
             <div class="footer-section footer-services">
                 <h4>Services</h4>
                 <ul class="footer-links">
                     <li><a href="/services-accounts">Accounts</a></li>
+                    <li><a href="/services-tax">Tax</a></li>
                     <li><a href="/services-advisory">Advisory</a></li>
+                </ul>
+            </div>
+            <div class="footer-section footer-structures">
+                <h4>Structures</h4>
+                <ul class="footer-links">
+                    <li><a href="/structures-charities">Charities & Not-for-Profit</a></li>
+                    <li><a href="/structures-cic">CICs</a></li>
+                    <li><a href="/structures-clubs-societies">Clubs & Societies</a></li>
+                    <li><a href="/structures-individuals">Individuals</a></li>
+                    <li><a href="/structures-landlords">Landlords</a></li>
+                    <li><a href="/structures-limited-companies">Limited Companies</a></li>
+                    <li><a href="/structures-llp">LLPs</a></li>
+                    <li><a href="/structures-partnerships">Partnerships</a></li>
+                    <li><a href="/structures-sole-traders">Sole Traders</a></li>
                 </ul>
             </div>
             <div class="footer-section footer-sectors">
                 <h4>Sectors</h4>
                 <ul class="footer-links">
-                    <li><a href="/sectors/construction">Construction</a></li>
-                    <li><a href="/sectors/property">Property & Landlords</a></li>
-                    <li><a href="/sectors/ecommerce">E-commerce</a></li>
-                    <li><a href="/sectors/professional-services">Professional Services</a></li>
-                    <li><a href="/sectors/retail">Retail</a></li>
-                    <li><a href="/sectors/trades">Trades</a></li>
-                    <li><a href="/sectors/startups">Startups</a></li>
-                    <li><a href="/sectors/healthcare">Healthcare</a></li>
-                    <li><a href="/sectors/hospitality">Hospitality</a></li>
+                    <li><a href="/sectors-automotive-engineering">Automotive Engineering</a></li>
+                    <li><a href="/sectors-charities">Charities</a></li>
+                    <li><a href="/sectors-construction">Construction</a></li>
+                    <li><a href="/sectors-contractors-consultants">Contractors & Consultants</a></li>
+                    <li><a href="/sectors-ecommerce">E-commerce</a></li>
+                    <li><a href="/sectors-education-training">Education & Training</a></li>
+                    <li><a href="/sectors-farming-agriculture">Farming & Agriculture</a></li>
+                    <li><a href="/sectors-freelancers-creatives">Freelancers & Creatives</a></li>
+                    <li><a href="/sectors-healthcare">Healthcare</a></li>
+                    <li><a href="/sectors-hospitality">Hospitality</a></li>
+                    <li><a href="/sectors-it-tech">IT & Tech</a></li>
+                    <li><a href="/sectors-professional-services">Professional Services</a></li>
+                    <li><a href="/sectors-property">Property & Landlords</a></li>
+                    <li><a href="/sectors-retail">Retail</a></li>
+                    <li><a href="/sectors-startups">Startups</a></li>
+                    <li><a href="/sectors-trades">Trades</a></li>
                 </ul>
             </div>
             <div class="footer-section footer-contact">
@@ -307,7 +434,7 @@
                     <a href="/privacy">Privacy Policy</a>
                     <a href="/terms">Terms & Conditions</a>
                 </div>
-                <p class="footer-copyright">&copy; 2024 Black and White Accounting. All rights reserved.</p>
+                <p class="footer-copyright">&copy; 2025 Black and White Accounting. All rights reserved.</p>
             </div>
         </div>
     </footer>

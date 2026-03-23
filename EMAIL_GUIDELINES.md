@@ -324,7 +324,7 @@ The preheader is the preview text shown in email clients. It should:
 **Example:**
 ```html
 <div style="display: none; ...">
-    Clear, proactive accounting for individuals and growing businesses. Expert Tax, Accounts, and Advisory services.
+    Clear, proactive accounting for individuals and growing businesses. Expert Accounts, Tax, and Advisory services.
 </div>
 ```
 
@@ -414,7 +414,7 @@ Test in these clients (minimum):
 ### Segmentation
 
 Segment your audience by:
-- Service interest (Tax, Accounts, Advisory)
+- Service interest (Accounts, Tax, Advisory)
 - Business type (Sole trader, Limited company, Individual)
 - Location (Wraysbury, Herriard, Other)
 - Engagement level (Active, Inactive, New subscriber)

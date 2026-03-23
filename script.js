@@ -1,11 +1,159 @@
+// ---------------------------------------------------------------------------
+// Dark Mode - system detection, localStorage persistence, and toggle
+// ---------------------------------------------------------------------------
+
+(function initTheme() {
+    const STORAGE_KEY = 'baw-theme';
+    const LOGO_LIGHT = '/Images/long logo.png';
+    const LOGO_DARK = '/white logo.png';
+
+    function getSystemPreference() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+        return 'light';
+    }
+
+    function swapLogos(theme) {
+        const src = theme === 'dark' ? LOGO_DARK : LOGO_LIGHT;
+        document.querySelectorAll('.logo-horizontal, .footer-logo').forEach(function (img) {
+            img.setAttribute('src', src);
+        });
+        document.querySelectorAll('.mobile-menu-header img').forEach(function (img) {
+            img.setAttribute('src', src);
+        });
+    }
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        if (document.body) {
+            swapLogos(theme);
+        }
+    }
+
+    function getEffectiveTheme() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored === 'dark' || stored === 'light') return stored;
+        return getSystemPreference();
+    }
+
+    applyTheme(getEffectiveTheme());
+
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+            if (!localStorage.getItem(STORAGE_KEY)) {
+                applyTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+    }
+
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.classList.add('theme-transition');
+        applyTheme(next);
+        localStorage.setItem(STORAGE_KEY, next);
+        setTimeout(function () { document.documentElement.classList.remove('theme-transition'); }, 350);
+    }
+
+    function bindToggleButtons() {
+        document.querySelectorAll('.theme-toggle').forEach(function (btn) {
+            btn.addEventListener('click', toggleTheme);
+        });
+        swapLogos(getEffectiveTheme());
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindToggleButtons);
+    } else {
+        bindToggleButtons();
+    }
+})();
+
 // Mobile Menu Toggle - Initialize immediately and on DOM ready
 (function() {
     'use strict';
+    const MOBILE_NAV_BREAKPOINT = 1024;
     
     let mobileMenuToggle = null;
     let mainNav = null;
     let headerCtas = null;
     let initialized = false;
+    let savedScrollY = 0;
+
+    function reorderPrimaryNavAlphabetically() {
+        const navList = document.querySelector('.nav-list');
+        if (!navList) return;
+
+        const navItems = Array.from(navList.children).filter(item => item.matches('.nav-item'));
+        if (navItems.length < 2) return;
+
+        navItems
+            .sort((a, b) => {
+                const aLabel = a.querySelector('.nav-link')?.textContent?.trim().toLowerCase() || '';
+                const bLabel = b.querySelector('.nav-link')?.textContent?.trim().toLowerCase() || '';
+                return aLabel.localeCompare(bLabel);
+            })
+            .forEach(item => navList.appendChild(item));
+    }
+
+    function reorderServicesDisplayOrder() {
+        const serviceOrder = ['accounts', 'tax', 'advisory'];
+        const serviceRank = { accounts: 0, tax: 1, advisory: 2 };
+
+        const getServiceKey = (text) => {
+            const normalized = (text || '').trim().toLowerCase();
+            if (normalized.includes('account')) return 'accounts';
+            if (normalized.includes('tax')) return 'tax';
+            if (normalized.includes('advisory')) return 'advisory';
+            return null;
+        };
+
+        const reorderContainerItems = (container, items, labelResolver) => {
+            if (!container || items.length < 2) return;
+
+            const keyedItems = items.map((item) => ({
+                item,
+                key: getServiceKey(labelResolver(item))
+            }));
+
+            const hasAllServices = serviceOrder.every((key) =>
+                keyedItems.some((entry) => entry.key === key)
+            );
+
+            if (!hasAllServices) return;
+
+            keyedItems
+                .sort((a, b) => serviceRank[a.key] - serviceRank[b.key])
+                .forEach((entry) => container.appendChild(entry.item));
+        };
+
+        // Mega menu (desktop + mobile): reorder service pillars.
+        document.querySelectorAll('.mega-menu-content').forEach((container) => {
+            const items = Array.from(container.querySelectorAll(':scope > .mega-menu-pillar'));
+            reorderContainerItems(container, items, (item) => item.querySelector('h3')?.textContent || '');
+        });
+
+        // Home/service cards: reorder cards if all three services are present.
+        document.querySelectorAll('.service-pillars .grid').forEach((container) => {
+            const items = Array.from(container.querySelectorAll(':scope > .service-pillar-card'));
+            reorderContainerItems(container, items, (item) => item.querySelector('h3')?.textContent || '');
+        });
+
+        // Spotlight sections (top-to-bottom order): Accounts, Tax, Advisory.
+        const spotlightContainer = document.querySelector('main');
+        if (spotlightContainer) {
+            const spotlightSections = Array.from(
+                spotlightContainer.querySelectorAll(':scope > section.service-spotlight-banner')
+            );
+
+            if (spotlightSections.length >= 3) {
+                reorderContainerItems(
+                    spotlightContainer,
+                    spotlightSections,
+                    (section) => section.querySelector('.service-banner-content h2')?.textContent || ''
+                );
+            }
+        }
+    }
     
     function getElements() {
         if (!mobileMenuToggle) mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
@@ -20,6 +168,12 @@
         if (headerCtas) headerCtas.classList.remove('mobile-nav-open');
         if (mobileMenuToggle) mobileMenuToggle.classList.remove('active');
         document.body.classList.remove('menu-open');
+        document.documentElement.classList.remove('menu-open');
+        document.body.style.top = '';
+        if (savedScrollY > 0) {
+            window.scrollTo(0, savedScrollY);
+            savedScrollY = 0;
+        }
     }
     
     function openMobileMenu() {
@@ -27,11 +181,16 @@
         if (mainNav) mainNav.classList.add('mobile-nav-open');
         if (headerCtas) headerCtas.classList.add('mobile-nav-open');
         if (mobileMenuToggle) mobileMenuToggle.classList.add('active');
+        savedScrollY = window.scrollY || window.pageYOffset || 0;
+        document.body.style.top = `-${savedScrollY}px`;
         document.body.classList.add('menu-open');
+        document.documentElement.classList.add('menu-open');
     }
     
     function initMobileMenu() {
         if (initialized) return;
+        reorderPrimaryNavAlphabetically();
+        reorderServicesDisplayOrder();
         
         const { mobileMenuToggle, mainNav } = getElements();
         
@@ -68,7 +227,7 @@
         
         // Close mobile menu when clicking on a nav link (except mega menu toggle)
         mainNav.addEventListener('click', function(e) {
-            if (window.innerWidth <= 768) {
+            if (window.innerWidth <= MOBILE_NAV_BREAKPOINT) {
                 const navLink = e.target.closest('.nav-link');
                 const isMegaMenuToggle = e.target.closest('.has-mega-menu .nav-link');
                 
@@ -80,7 +239,7 @@
         
         // Close mobile menu when clicking outside
         document.addEventListener('click', function(event) {
-            if (window.innerWidth <= 768) {
+            if (window.innerWidth <= MOBILE_NAV_BREAKPOINT) {
                 const { mainNav, mobileMenuToggle } = getElements();
                 const isClickInsideNav = mainNav && mainNav.contains(event.target);
                 const isClickOnToggle = mobileMenuToggle && mobileMenuToggle.contains(event.target);
@@ -94,7 +253,7 @@
         // Close menu on window resize to desktop
         window.addEventListener('resize', function() {
             const { mainNav } = getElements();
-            if (window.innerWidth > 768 && mainNav && mainNav.classList.contains('mobile-nav-open')) {
+            if (window.innerWidth > MOBILE_NAV_BREAKPOINT && mainNav && mainNav.classList.contains('mobile-nav-open')) {
                 closeMobileMenu();
             }
         });
@@ -108,7 +267,7 @@
             
             if (navLink && megaMenu) {
                 navLink.addEventListener('click', function(e) {
-                    if (window.innerWidth <= 768) {
+                    if (window.innerWidth <= MOBILE_NAV_BREAKPOINT) {
                         e.preventDefault();
                         e.stopPropagation();
                         const isOpen = item.classList.contains('mega-menu-open');
@@ -263,35 +422,7 @@ function handleFormSubmit(form, formName) {
     return true;
 }
 
-// Enquiry Form Handler (Homepage)
-const enquiryForm = document.getElementById('enquiry-form');
-if (enquiryForm) {
-    // Real-time validation
-    const enquiryFields = enquiryForm.querySelectorAll('input, textarea, select');
-    enquiryFields.forEach(field => {
-        field.addEventListener('blur', () => validateField(field));
-    });
-    
-    enquiryForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        handleFormSubmit(this, 'Enquiry');
-    });
-}
-
-// Contact Form Handler
-const contactForm = document.getElementById('contact-form');
-if (contactForm) {
-    // Real-time validation
-    const contactFields = contactForm.querySelectorAll('input, textarea, select');
-    contactFields.forEach(field => {
-        field.addEventListener('blur', () => validateField(field));
-    });
-    
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        handleFormSubmit(this, 'Contact');
-    });
-}
+// Contact/enquiry forms temporarily removed – replaced with phone/email module. Reinstate handlers when forms are wired.
 
 // Service Quick Navigation Active State
 document.addEventListener('DOMContentLoaded', function() {
@@ -330,12 +461,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.appendChild(backToTop);
     
     function toggleBackToTop() {
-        if (window.innerWidth <= 768) {
+        if (window.innerWidth <= 1024) {
             if (window.pageYOffset > 300) {
                 backToTop.classList.add('visible');
             } else {
                 backToTop.classList.remove('visible');
             }
+        } else {
+            backToTop.classList.remove('visible');
         }
     }
     
@@ -535,13 +668,11 @@ function debugStickyHeader() {
         });
         
         // Force remove ALL overflow constraints
-        console.log('🔧 Forcing overflow to visible on html and body...');
-        htmlEl.style.setProperty('overflow', 'visible', 'important');
-        htmlEl.style.setProperty('overflow-x', 'visible', 'important');
+        console.log('🔧 Preserving horizontal overflow lock on html and body...');
+        htmlEl.style.setProperty('overflow-x', 'hidden', 'important');
         htmlEl.style.setProperty('overflow-y', 'visible', 'important');
         
-        bodyEl.style.setProperty('overflow', 'visible', 'important');
-        bodyEl.style.setProperty('overflow-x', 'visible', 'important');
+        bodyEl.style.setProperty('overflow-x', 'hidden', 'important');
         bodyEl.style.setProperty('overflow-y', 'visible', 'important');
         
         console.log('✅ Applied overflow fixes with !important');
@@ -677,6 +808,28 @@ function setupMapErrorHandling() {
         let checkInterval;
         let timeoutStarted = false;
         let observer;
+        let hasTriggeredLoad = false;
+        let hasRetried = false;
+
+        function buildMapEmbedUrl() {
+            const lat = container.getAttribute('data-lat');
+            const lng = container.getAttribute('data-lng');
+            if (lat && lng) {
+                return `https://www.google.com/maps?q=${lat},${lng}&hl=en&z=14&t=k&output=embed`;
+            }
+            return iframe.getAttribute('data-src') || iframe.getAttribute('src') || '';
+        }
+
+        function triggerMapLoad(forceRefresh = false) {
+            const baseUrl = buildMapEmbedUrl();
+            if (!baseUrl) return;
+
+            if (!hasTriggeredLoad || forceRefresh) {
+                const nextUrl = forceRefresh ? `${baseUrl}&retry=${Date.now()}` : baseUrl;
+                iframe.setAttribute('src', nextUrl);
+                hasTriggeredLoad = true;
+            }
+        }
         
         // Improved: Check if iframe actually loaded content (not just the iframe element)
         function checkMapLoaded() {
@@ -733,10 +886,20 @@ function setupMapErrorHandling() {
         function startTimeout() {
             if (timeoutStarted || hasLoaded || errorDetected) return;
             timeoutStarted = true;
+            triggerMapLoad();
             
             // Set a timeout to detect if map doesn't load within reasonable time
             loadTimeout = setTimeout(() => {
                 if (!hasLoaded && !errorDetected) {
+                    if (!hasRetried) {
+                        // Retry once on late scroll/network jitter before falling back.
+                        hasRetried = true;
+                        timeoutStarted = false;
+                        triggerMapLoad(true);
+                        startTimeout();
+                        return;
+                    }
+
                     console.warn('Map load timeout, showing fallback');
                     showMapFallback(container, iframe, fallback);
                     errorDetected = true;
@@ -759,6 +922,12 @@ function setupMapErrorHandling() {
         });
         
         observer.observe(container);
+
+        // Keep iframes deferred until visible to avoid stale lazy loads.
+        if (iframe.hasAttribute('src')) {
+            iframe.setAttribute('data-src', iframe.getAttribute('src'));
+            iframe.removeAttribute('src');
+        }
         
         // Listen for successful load event
         iframe.addEventListener('load', () => {
@@ -864,7 +1033,7 @@ function setupMegaMenuPositioning() {
         if (!navLink || !megaMenu) return;
         
         function updateMegaMenuPosition() {
-            if (window.innerWidth > 768) { // Desktop only
+            if (window.innerWidth > 1024) { // Desktop only
                 const navLinkRect = navLink.getBoundingClientRect();
                 const headerRect = document.querySelector('.site-header').getBoundingClientRect();
                 
@@ -885,7 +1054,7 @@ function setupMegaMenuPositioning() {
         
         // Update on hover
         item.addEventListener('mouseenter', () => {
-            if (window.innerWidth > 768) {
+            if (window.innerWidth > 1024) {
                 updateMegaMenuPosition();
             }
         });
@@ -949,12 +1118,46 @@ function setupAccordions() {
     });
 }
 
+function setupFaqAccordions() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    if (faqItems.length === 0) return;
+
+    faqItems.forEach(item => {
+        const header = item.querySelector('.faq-item-header');
+        const content = item.querySelector('.faq-item-content');
+        if (!header || !content) return;
+
+        if (!item.classList.contains('active')) {
+            content.style.maxHeight = '0';
+        }
+
+        header.addEventListener('click', function (e) {
+            e.preventDefault();
+            const isActive = item.classList.contains('active');
+
+            if (isActive) {
+                item.classList.remove('active');
+                content.style.maxHeight = '0';
+            } else {
+                item.classList.add('active');
+                content.style.maxHeight = 'none';
+                const height = content.scrollHeight;
+                content.style.maxHeight = '0';
+                void content.offsetHeight;
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = height + 'px';
+                });
+            }
+        });
+    });
+}
+
 // Initialize accordions on page load
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupAccordions);
+    document.addEventListener('DOMContentLoaded', () => { setupAccordions(); setupFaqAccordions(); });
 } else {
-    // DOM already loaded
     setupAccordions();
+    setupFaqAccordions();
 }
 // ============================================
 // SCROLL ANIMATIONS (Intersection Observer)
@@ -1025,14 +1228,15 @@ function animateCounter(element, target, duration = 2000) {
     const start = 0;
     const increment = target / (duration / 16);
     let current = start;
+    const formatStatNumber = (num) => Math.floor(num).toLocaleString('en-GB');
     
     const updateCounter = () => {
         current += increment;
         if (current < target) {
-            element.textContent = Math.floor(current);
+            element.textContent = formatStatNumber(current);
             requestAnimationFrame(updateCounter);
         } else {
-            element.textContent = target;
+            element.textContent = Number(target).toLocaleString('en-GB');
         }
     };
     
@@ -1069,6 +1273,8 @@ function initAnimatedStats() {
 function initTestimonialsCarousel() {
     const carousel = document.querySelector('.testimonials-carousel');
     if (!carousel) return;
+    if (carousel.dataset.initialized === 'true') return;
+    carousel.dataset.initialized = 'true';
     
     const track = carousel.querySelector('.testimonials-track');
     const slides = carousel.querySelectorAll('.testimonial-slide');
@@ -1084,7 +1290,8 @@ function initTestimonialsCarousel() {
     let touchEndX = 0;
     
     function updateCarousel() {
-        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        const slideWidth = carousel.getBoundingClientRect().width;
+        track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
         
         dots.forEach((dot, index) => {
             dot.classList.toggle('active', index === currentIndex);
@@ -1159,6 +1366,12 @@ function initTestimonialsCarousel() {
     // Pause on hover
     carousel.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
     carousel.addEventListener('mouseleave', () => resetAutoPlay());
+
+    // Keep alignment correct after orientation/viewport changes on mobile.
+    window.addEventListener('resize', updateCarousel, { passive: true });
+
+    // Ensure initial position is explicitly set.
+    updateCarousel();
 }
 
 // ============================================
@@ -1184,12 +1397,114 @@ function initScrollProgress() {
 // INITIALIZE ALL FEATURES
 // ============================================
 
+// ---------------------------------------------------------------------------
+// Rotating CTAs - randomly swap the last CTA on each page for a fresh message
+// ---------------------------------------------------------------------------
+
+const CTA_POOL = [
+    {
+        heading: "Ready to streamline your accounts?",
+        text: "Let us handle the numbers so you can focus on what you do best.",
+        primaryLabel: "Talk to Us",
+    },
+    {
+        heading: "Need help with tax planning?",
+        text: "Our team can help you stay compliant and find ways to be more tax-efficient.",
+        primaryLabel: "Get in Touch",
+    },
+    {
+        heading: "Looking for expert business advice?",
+        text: "From growth planning to exit strategy, we provide the insight you need to move forward.",
+        primaryLabel: "Speak to an Adviser",
+    },
+    {
+        heading: "Not sure where to start?",
+        text: "We\u2019ll help you figure out exactly what you need - no jargon, no obligation.",
+        primaryLabel: "Let\u2019s Talk",
+    },
+    {
+        heading: "Want to take control of your finances?",
+        text: "Clear, proactive accounting that helps you make better business decisions.",
+        primaryLabel: "Get Started",
+    },
+    {
+        heading: "Is your business ready for growth?",
+        text: "We help ambitious businesses scale with the right financial support in place.",
+        primaryLabel: "Find Out More",
+    },
+    {
+        heading: "Time for a fresh pair of eyes?",
+        text: "Sometimes a second opinion can save you time, stress, and money.",
+        primaryLabel: "Book a Chat",
+    },
+    {
+        heading: "Could you be paying less tax?",
+        text: "Many businesses overpay without realising. Let us review your position.",
+        primaryLabel: "Request a Review",
+    },
+    {
+        heading: "Thinking about your next step?",
+        text: "Whether you\u2019re starting up, scaling, or planning ahead - we\u2019re here to help.",
+        primaryLabel: "Talk to Our Team",
+    },
+    {
+        heading: "Let\u2019s make your accounting work for you",
+        text: "Accounting shouldn\u2019t be a headache. We make it simple, clear, and genuinely useful.",
+        primaryLabel: "Contact Us",
+    },
+];
+
+function rotateCTAs() {
+    const pick = () => CTA_POOL[Math.floor(Math.random() * CTA_POOL.length)];
+
+    function applyCTA(container, variation) {
+        const h2 = container.querySelector('h2');
+        const p = container.querySelector(':scope > p, :scope > .blog-post-cta > p');
+        if (h2) h2.textContent = variation.heading;
+
+        const directP = container.querySelector(':scope > p');
+        if (directP) directP.textContent = variation.text;
+
+        const actionsContainer = container.querySelector('.cta-banner-actions, .blog-post-cta-actions');
+        if (actionsContainer) {
+            const primaryBtn = actionsContainer.querySelector('.btn-primary');
+            if (primaryBtn) primaryBtn.textContent = variation.primaryLabel;
+        }
+    }
+
+    // Rotate the last .cta-banner on the page (the generic / final CTA)
+    const ctaBanners = document.querySelectorAll('.cta-banner');
+    if (ctaBanners.length > 0) {
+        const lastBanner = ctaBanners[ctaBanners.length - 1];
+        applyCTA(lastBanner, pick());
+
+        // If the page has 3+ banners (like services hub), also rotate the second-to-last
+        if (ctaBanners.length >= 3) {
+            const secondLast = ctaBanners[ctaBanners.length - 2];
+            applyCTA(secondLast, pick());
+        }
+    }
+
+    // Rotate the blog-post CTA
+    const blogCTA = document.querySelector('.blog-post-cta');
+    if (blogCTA) {
+        const v = pick();
+        const h2 = blogCTA.querySelector('h2');
+        const p = blogCTA.querySelector('p');
+        if (h2) h2.textContent = v.heading;
+        if (p) p.textContent = v.text;
+        const primaryBtn = blogCTA.querySelector('.blog-post-cta-actions .btn-primary');
+        if (primaryBtn) primaryBtn.textContent = v.primaryLabel;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     initScrollAnimations();
     initRippleEffects();
     initAnimatedStats();
     initTestimonialsCarousel();
     initScrollProgress();
+    rotateCTAs();
 });
 
 // Also run if DOM already loaded
@@ -1199,4 +1514,5 @@ if (document.readyState !== 'loading') {
     initAnimatedStats();
     initTestimonialsCarousel();
     initScrollProgress();
+    rotateCTAs();
 }

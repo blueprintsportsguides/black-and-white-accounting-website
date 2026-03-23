@@ -12,16 +12,19 @@ CREATE TABLE IF NOT EXISTS profiles (
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Authenticated can read all profiles" ON profiles;
 CREATE POLICY "Authenticated can read all profiles" ON profiles
   FOR SELECT TO authenticated USING (true);
 
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 CREATE POLICY "Users can insert own profile" ON profiles
   FOR INSERT TO authenticated WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile" ON profiles
   FOR UPDATE TO authenticated USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
--- Triage categories (e.g. Tax, Accounts, Advisory)
+-- Triage categories (e.g. Accounts, Tax, Advisory)
 CREATE TABLE IF NOT EXISTS triage_categories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL UNIQUE,
@@ -30,9 +33,11 @@ CREATE TABLE IF NOT EXISTS triage_categories (
 
 ALTER TABLE triage_categories ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Authenticated can read categories" ON triage_categories;
 CREATE POLICY "Authenticated can read categories" ON triage_categories
   FOR SELECT TO authenticated USING (true);
 
+DROP POLICY IF EXISTS "Authenticated can insert categories" ON triage_categories;
 CREATE POLICY "Authenticated can insert categories" ON triage_categories
   FOR INSERT TO authenticated WITH CHECK (true);
 
@@ -70,15 +75,19 @@ CREATE INDEX IF NOT EXISTS idx_triage_entries_deadline ON triage_entries(deadlin
 
 ALTER TABLE triage_entries ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Authenticated can select triage" ON triage_entries;
 CREATE POLICY "Authenticated can select triage" ON triage_entries
   FOR SELECT TO authenticated USING (true);
 
+DROP POLICY IF EXISTS "Authenticated can insert triage" ON triage_entries;
 CREATE POLICY "Authenticated can insert triage" ON triage_entries
   FOR INSERT TO authenticated WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Authenticated can update triage" ON triage_entries;
 CREATE POLICY "Authenticated can update triage" ON triage_entries
   FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Authenticated can delete triage" ON triage_entries;
 CREATE POLICY "Authenticated can delete triage" ON triage_entries
   FOR DELETE TO authenticated USING (true);
 

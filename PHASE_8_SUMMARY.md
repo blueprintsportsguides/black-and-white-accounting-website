@@ -106,7 +106,7 @@
 - No broken links detected
 
 **Explore Services Modules:**
-- Added to all three service detail pages (Tax, Accounts, Advisory)
+- Added to all three service detail pages (Accounts, Tax, Advisory)
 - Links to other two service pillars
 - Link to services overview page
 - Clean, scannable design
