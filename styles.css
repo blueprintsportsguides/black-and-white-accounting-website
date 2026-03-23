@@ -3844,6 +3844,40 @@ body > * {
     margin-right: auto !important;
 }
 
+/* Home final CTA: cleaner two-column contact rows with no wrapped email. */
+.cta-banner .cta-contact-module {
+    width: min(100%, 620px);
+    padding: var(--spacing-lg) var(--spacing-xl);
+}
+
+.cta-contact-module .contact-details-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) 0;
+}
+
+.cta-contact-module .contact-details-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    min-width: 0;
+}
+
+.cta-contact-module .contact-details-label {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.cta-contact-module .contact-details-list a {
+    margin-left: auto;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: normal;
+    font-size: 0.98rem;
+}
+
 @media (max-width: 768px) {
     .contact-details-module {
         padding: var(--spacing-lg);
@@ -3862,6 +3896,22 @@ body > * {
     .contact-details-module .contact-details-list .contact-details-icon {
         grid-row: 1 / span 2;
         align-self: start;
+    }
+
+    .cta-banner .cta-contact-module {
+        width: min(100%, 560px);
+        padding: var(--spacing-md);
+    }
+
+    .cta-contact-module .contact-details-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+
+    .cta-contact-module .contact-details-list a {
+        margin-left: 0;
+        font-size: 0.92rem;
     }
 }
 
