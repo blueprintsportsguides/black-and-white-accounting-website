@@ -47,7 +47,6 @@ export default defineConfig({
         'sectors-it-tech': './sectors-it-tech.html',
         'sectors-automotive-engineering': './sectors-automotive-engineering.html',
         'sectors-education-training': './sectors-education-training.html',
-        'sectors-charities': './sectors-charities.html',
         blog: './blog.html',
         'blog-post': './blog-post.html',
         tools: './tools.html',

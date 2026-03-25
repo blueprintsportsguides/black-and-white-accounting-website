@@ -1394,6 +1394,140 @@ function initScrollProgress() {
 }
 
 // ============================================
+// HOMEPAGE "WHAT'S NEW" WIDGET
+// ============================================
+
+function initWhatsNewWidget() {
+    const widget = document.getElementById('whats-new-widget');
+    if (!widget) return;
+    if (widget.dataset.initialized === 'true') return;
+    widget.dataset.initialized = 'true';
+
+    const updatedEl = document.getElementById('whats-new-updated');
+    const periodEl = document.getElementById('whats-new-period');
+    const deadlineEl = document.getElementById('whats-new-deadline');
+    const countdownEl = document.getElementById('whats-new-countdown');
+    const rotatingTitleEl = document.getElementById('whats-new-rotating-title');
+    const rotatingCopyEl = document.getElementById('whats-new-rotating-copy');
+    const rotatingPanel = widget.querySelector('.whats-new-rotating-panel');
+
+    const timestampFormatter = new Intl.DateTimeFormat('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    const deadlineFormatter = new Intl.DateTimeFormat('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+
+    const advisoryNotes = [
+        {
+            title: 'Action this month',
+            copy: 'Check your digital record quality now so quarterly submissions are straightforward and complete.'
+        },
+        {
+            title: 'Software readiness',
+            copy: 'If you are still choosing software, shortlist options early and plan migration before the next reporting window.'
+        },
+        {
+            title: 'Landlord check',
+            copy: 'Landlords should review property income records each month to avoid bottlenecks near quarterly deadlines.'
+        },
+        {
+            title: 'Self-employed check',
+            copy: 'Keep expense categorisation up to date to reduce rework at end-of-period finalisation.'
+        }
+    ];
+
+    function getTaxYearPeriod(date) {
+        const year = date.getFullYear();
+        const startOfTaxYear = new Date(year, 3, 6); // 6 April
+        const startYear = date >= startOfTaxYear ? year : year - 1;
+        const endYear = startYear + 1;
+        return `Tax year ${startYear}/${String(endYear).slice(-2)}`;
+    }
+
+    function getQuarterHint(date) {
+        const month = date.getMonth();
+        if (month >= 3 && month <= 5) return 'Q1 window (Apr-Jun)';
+        if (month >= 6 && month <= 8) return 'Q2 window (Jul-Sep)';
+        if (month >= 9 && month <= 11) return 'Q3 window (Oct-Dec)';
+        return 'Q4 window (Jan-Mar)';
+    }
+
+    function getNextMtdDeadline(now) {
+        const monthSlots = [1, 4, 7, 10]; // Feb, May, Aug, Nov
+        const yearsToCheck = [now.getFullYear(), now.getFullYear() + 1];
+        const candidates = [];
+
+        yearsToCheck.forEach((year) => {
+            monthSlots.forEach((month) => {
+                candidates.push(new Date(year, month, 7, 23, 59, 59));
+            });
+        });
+
+        candidates.sort((a, b) => a - b);
+        return candidates.find((date) => date > now) || candidates[candidates.length - 1];
+    }
+
+    function updateWidgetTimestampAndDates() {
+        const now = new Date();
+        const nextDeadline = getNextMtdDeadline(now);
+        const msRemaining = nextDeadline.getTime() - now.getTime();
+        const daysRemaining = Math.ceil(msRemaining / (1000 * 60 * 60 * 24));
+
+        if (updatedEl) {
+            updatedEl.textContent = timestampFormatter.format(now);
+        }
+
+        if (periodEl) {
+            periodEl.textContent = `${getTaxYearPeriod(now)} - ${getQuarterHint(now)}`;
+        }
+
+        if (deadlineEl) {
+            deadlineEl.textContent = deadlineFormatter.format(nextDeadline);
+        }
+
+        if (countdownEl) {
+            if (daysRemaining > 1) {
+                countdownEl.textContent = `${daysRemaining} days remaining to prepare and submit`;
+            } else if (daysRemaining === 1) {
+                countdownEl.textContent = '1 day remaining - final checks recommended';
+            } else {
+                countdownEl.textContent = 'Deadline day - submit as soon as possible';
+            }
+        }
+    }
+
+    function rotateAdviserNote(index) {
+        if (!rotatingTitleEl || !rotatingCopyEl) return;
+        const note = advisoryNotes[index % advisoryNotes.length];
+
+        if (rotatingPanel) rotatingPanel.classList.add('is-updating');
+        setTimeout(() => {
+            rotatingTitleEl.textContent = note.title;
+            rotatingCopyEl.textContent = note.copy;
+            if (rotatingPanel) rotatingPanel.classList.remove('is-updating');
+        }, 180);
+    }
+
+    updateWidgetTimestampAndDates();
+    rotateAdviserNote(0);
+
+    let noteIndex = 1;
+    setInterval(updateWidgetTimestampAndDates, 60000);
+    setInterval(() => {
+        rotateAdviserNote(noteIndex);
+        noteIndex += 1;
+    }, 7000);
+}
+
+// ============================================
 // INITIALIZE ALL FEATURES
 // ============================================
 
@@ -1504,6 +1638,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initAnimatedStats();
     initTestimonialsCarousel();
     initScrollProgress();
+    initWhatsNewWidget();
     rotateCTAs();
 });
 
@@ -1514,5 +1649,6 @@ if (document.readyState !== 'loading') {
     initAnimatedStats();
     initTestimonialsCarousel();
     initScrollProgress();
+    initWhatsNewWidget();
     rotateCTAs();
 }

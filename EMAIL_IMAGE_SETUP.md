@@ -128,7 +128,7 @@ Supabase provides free image hosting with a CDN, perfect for email templates.
    - ✅ **Configured in template**
 
 5. **Blog Images**
-   - **Blog Image 1:** `https://hapkzfobjmhpcdzzyzgd.supabase.co/storage/v1/object/public/Images/DSC_7698.jpg` ✅
+   - **Blog Image 1:** `https://hapkzfobjmhpcdzzyzgd.supabase.co/storage/v1/object/public/Images/DSC_7510-2.jpg` ✅
    - **Blog Image 2:** `https://hapkzfobjmhpcdzzyzgd.supabase.co/storage/v1/object/public/Images/DSC_8530.jpg` ✅
    - Used in: Blog section (2 images)
    - ⚠️ **IMPORTANT:** Blog images should be pre-cropped to **280px × 180px** (1.56:1 aspect ratio) to ensure consistent sizing and prevent squashing
@@ -186,7 +186,7 @@ All images have been configured with Supabase URLs:
 - ✅ **Accounts Icon:** `https://hapkzfobjmhpcdzzyzgd.supabase.co/storage/v1/object/public/Images/Accounts.png`
 - ✅ **Advisory Icon:** `https://hapkzfobjmhpcdzzyzgd.supabase.co/storage/v1/object/public/Images/Advisory.png`
 - ✅ **Feature Image:** `https://hapkzfobjmhpcdzzyzgd.supabase.co/storage/v1/object/public/Images/DSC_9104.jpg`
-- ✅ **Blog Image 1:** `https://hapkzfobjmhpcdzzyzgd.supabase.co/storage/v1/object/public/Images/DSC_7698.jpg`
+- ✅ **Blog Image 1:** `https://hapkzfobjmhpcdzzyzgd.supabase.co/storage/v1/object/public/Images/DSC_7510-2.jpg`
 - ✅ **Blog Image 2:** `https://hapkzfobjmhpcdzzyzgd.supabase.co/storage/v1/object/public/Images/DSC_8530.jpg`
 - ✅ **Service Spotlight:** `https://hapkzfobjmhpcdzzyzgd.supabase.co/storage/v1/object/public/Images/DSC_8624.jpg`
 

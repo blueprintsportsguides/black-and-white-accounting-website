@@ -133,10 +133,6 @@
       "destination": "/sectors-education-training.html"
     },
     {
-      "source": "/sectors-charities",
-      "destination": "/sectors-charities.html"
-    },
-    {
       "source": "/blog/:slug",
       "destination": "/blog-post"
     },
@@ -329,13 +325,23 @@
       "permanent": true
     },
     {
+      "source": "/sectors-charities",
+      "destination": "/sectors",
+      "permanent": true
+    },
+    {
+      "source": "/sectors-charities/",
+      "destination": "/sectors",
+      "permanent": true
+    },
+    {
       "source": "/charity-accounting-services",
-      "destination": "/sectors-charities",
+      "destination": "/sectors",
       "permanent": true
     },
     {
       "source": "/charity-accounting-services/",
-      "destination": "/sectors-charities",
+      "destination": "/sectors",
       "permanent": true
     },
     {
